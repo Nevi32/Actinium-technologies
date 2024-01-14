@@ -1,0 +1,69 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.navbar {
+  background-color: #333;
+  padding: 15px;
+  text-align: center;
+}
+
+.navbar a {
+  color: #fff;
+  padding: 14px 16px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.navbar a:hover {
+  background-color: #ddd;
+  color: #333;
+}
+
+.container {
+  position: relative;
+  padding: 60px 0;
+}
+
+.left-content {
+  float: left;
+  width: 50%;
+  background-color: #f8f8f8; /* Light gray for the left side */
+  padding: 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+.right-image {
+  float: right;
+  width: 50%;
+  background: url('pexels-thisisengineering-3861964.jpg') no-repeat center center fixed;
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 50%;
+  overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333; /* Dark gray for the firm name */
+}
+
+.content {
+  color: #555; /* Slightly lighter gray for content */
+}
+
+@media screen and (max-width: 768px) {
+  .left-content, .right-image {
+    width: 100%;
+    clip-path: none;
+  }
+}
+
