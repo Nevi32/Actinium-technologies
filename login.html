@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Login Form</title>
+      <link rel="stylesheet" href="styles1.css">
+      <!-- Add meta tags to prevent caching -->
+      <meta http-equiv="cache-control" content="no-store, no-cache, must-revalidate, max-age=0">
+      <meta http-equiv="cache-control" content="post-check=0, pre-check=0">
+      <meta http-equiv="pragma" content="no-cache">
+      <meta http-equiv="expires" content="0">
+   </head>
+   <body>
+      <div class="wrapper">
+         <div class="title">
+            Login Form
+         </div>
+         <form id="loginForm" action="login.php" method="post">
+            <div class="field">
+               <input type="text" name="username" required>
+               <label>Username</label>
+            </div>
+            <div class="field">
+               <input type="password" name="password" required>
+               <label>Password</label>
+            </div>
+            <div class="content">
+               <div class="checkbox">
+                  <input type="checkbox" id="remember-me">
+                  <label for="remember-me">Remember me</label>
+               </div>
+               <div class="pass-link">
+                  <a href="#">Forgot password?</a>
+               </div>
+            </div>
+            <div class="field">
+               <input type="submit" value="Login">
+            </div>
+            <div class="home-link">
+               WELCOME PAGE  <a href="index.html"></a>
+            </div>
+         </form>
+
+         <!-- Container for pop-up messages -->
+         <div id="popupMessage" class="popup-message"></div>
+      </div>
+      <!-- JavaScript to disable back and forward navigation -->
+      <script>
+         history.replaceState(null, null, location.href);
+         window.onpopstate = function () {
+            history.go(1);
+         };
+
+         // JavaScript to handle pop-up messages
+         document.addEventListener("DOMContentLoaded", function () {
+            var popupMessage = document.getElementById('popupMessage');
+
+            // Check if there's a message in the URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var message = urlParams.get('message');
+
+            // Display the message if available
+            if (message) {
+               popupMessage.innerHTML = message;
+               popupMessage.style.display = 'block';
+
+               // Close the pop-up after 5 seconds (you can adjust the time)
+               setTimeout(function () {
+                  popupMessage.style.display = 'none';
+               }, 5000);
+            }
+         });
+      </script>
+   </body>
+</html>
+

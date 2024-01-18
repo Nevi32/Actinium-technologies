@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your external CSS file -->
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+
+        #dashboard {
+            display: flex;
+            height: 100%;
+        }
+
+        #sidebar {
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        #sidebar a {
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 15px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        #sidebar i {
+            margin-right: 10px;
+        }
+
+        #sidebar a:not(:last-child) {
+            margin-bottom: 60px;
+        }
+
+        #user-info {
+            display: none;
+            color: #fff;
+            margin-top: 5px;
+            padding: 10px;
+            background-color: #555;
+            border-radius: 15px;
+        }
+
+        #content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .welcome-message {
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            position: relative;
+            width: calc(50% - 20px);
+            height: 200px;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .card:hover {
+            background-color: #eee;
+        }
+
+        .salary-payments,
+        .stock-orders,
+        .suppliers-card {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        .popup-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: left;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #333;
+            z-index: 9999;
+        }
+        .popup-form h4 {
+            margin-top: 0;
+        }
+
+        .popup-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .popup-form input,
+        .popup-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .popup-form button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .notification {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay" onclick="closeAllForms(event);"></div>
+    <div id="dashboard">
+        <div id="sidebar">
+            <div class="welcome-message" id="welcome-message"></div>
+            <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+            <div id="user-info">
+                <!-- User info will be displayed here using JavaScript -->
+            </div>
+            <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+            <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
+            <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+            <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <div id="content">
+            <div class="row">
+                <div class="card salary-payments" onclick="fetchStaffInfoAndToggleForm();">
+                    <h3>Salary Payments</h3>
+                    <p>Make salary payments to staff.</p>
+                    <!-- Placeholder form fields -->
+                    <div class="popup-form" id="salary-form" onclick="event.stopPropagation();">
+                        <div class="close-popup" onclick="toggleCardForm('salary-form');"><span>&times;</span></div>
+                        <h4>Enter Salary Payment Details</h4>
+                        <form id="salary-form-id" action="recordsalary.php" method="post">
+                            <label for="staff">Select Staff:</label>
+                            <select id="staff" name="staff" multiple>
+                
+                            </select>
+                            <br>
+                            <label for="amount">Amount:</label>
+                            <input type="number" id="amount" name="amount" required>
+                            <br>
+                            <label for="remarks">Remarks:</label>
+                            <textarea id="remarks" name="remarks"></textarea>
+                            <br>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card stock-orders" onclick="fetchSuppliersInfoAndToggleForm();;">
+                    <h3>Stock Orders</h3>
+                    <p>Place orders for your stock.</p>
+                    <!-- Updated form fields -->
+                    <div class="popup-form" id="orders-form" onclick="event.stopPropagation();">
+                        <div class="close-popup" onclick="toggleCardForm('orders-form');"><span>&times;</span></div>
+                        <h4>Enter Stock Order Details</h4>
+                        <form id="orders-form-id" action="recordstock.php" method="post">
+                            <label for="supplier">Select Supplier:</label>
+                            <select id="supplier" name="supplier" required>
+                                <!-- Options will be populated dynamically using JavaScript -->
+                            </select>
+                            <br>
+                            <label for="amount">Amount:</label>
+                            <input type="number" id="amount" name="amount" required>
+                            <br>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card suppliers-card" onclick="toggleCardForm('suppliers-form');">
+                    <h3>Suppliers</h3>
+                    <p>Manage your suppliers.</p>
+                    <!-- Placeholder form fields -->
+                    <div class="popup-form" id="suppliers-form" onclick="event.stopPropagation();">
+                        <div class="close-popup" onclick="toggleCardForm('suppliers-form');"><span>&times;</span></div>
+                        <h4>Enter Supplier Details</h4>
+                        <form id="suppliers-form-id" action="recordsuppliers.php" method="post">
+                            <label for="supplierName">Supplier Name:</label>
+                            <input type="text" id="supplierName" name="supplierName" required>
+                            <br>
+                            <label for="phoneNumber">Phone Number:</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                            <br>
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email">
+                            <br>
+                            <label for="address">Address:</label>
+                            <textarea id="address" name="address"></textarea>
+                            <br>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="status-list">
+                <h3>Status List</h3>
+                <ul id="status-list">
+                    <!-- Status items will be dynamically added here using JavaScript -->
+                    <li>Transaction 1: Successful</li>
+                    <li>Transaction 2: Pending</li>
+                    <li>Transaction 3: Failed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="notification" id="serverNotification"></div>
+    <script>
+        function toggleCardForm(formId) {
+            var cardForm = document.getElementById(formId);
+            var overlay = document.querySelector('.overlay');
+
+            if (cardForm.style.display === 'none') {
+                cardForm.style.display = 'block';
+                overlay.style.display = 'block';
+            } else {
+                cardForm.style.display = 'none';
+                overlay.style.display = 'none';
+            }
+        }
+        function fetchStaffInfoAndToggleForm() {
+        // Fetch staff information from fetchstaffinfo.php
+        fetch('fetchstaffinfo.php')
+            .then(response => response.json())
+            .then(data => {
+                // Populate supplier options in the form
+                populateStaffOptions(data);
+
+                // Toggle the stock orders form
+                toggleCardForm('salary-form');
+            })
+            .catch(error => console.error('Error fetching staff info:', error));
+        }
+
+        function populateStaffOptions(staff) {
+            const supplierSelect = document.getElementById('staff');
+
+            // Clear existing options
+            supplierSelect.innerHTML = '';
+
+            // Add new options based on fetched data
+            staff.forEach(staff => {
+                const option = document.createElement('option');
+                option.value = users.user_id;
+                option.textContent = users.full_name;
+                supplierSelect.appendChild(option);
+            });
+        }
+
+        function fetchSuppliersInfoAndToggleForm() {
+        // Fetch supplier information from fetchsuppliersinfo.php
+        fetch('fetchsuppliersinfo.php')
+            .then(response => response.json())
+            .then(data => {
+                // Populate supplier options in the form
+                populateSupplierOptions(data);
+
+                // Toggle the stock orders form
+                toggleCardForm('orders-form');
+            })
+            .catch(error => console.error('Error fetching suppliers info:', error));
+    }
+
+        function populateSupplierOptions(suppliers) {
+            const supplierSelect = document.getElementById('supplier');
+
+            // Clear existing options
+            supplierSelect.innerHTML = '';
+
+            // Add new options based on fetched data
+            suppliers.forEach(supplier => {
+                const option = document.createElement('option');
+                option.value = supplier.supplier_id;
+                option.textContent = supplier.supplier_name;
+                option.value = supplier.phone_number;
+                supplierSelect.appendChild(option);
+            });
+        }
+        function closeAllForms(event) {
+            var forms = document.querySelectorAll('.popup-form');
+            var overlay = document.querySelector('.overlay');
+            
+            if (event.target === overlay) {
+                forms.forEach(function (form) {
+                    form.style.display = 'none';
+                });
+
+                overlay.style.display = 'none';
+            }
+        }
+
+        function showNotification(message, isSuccess) {
+            var notification = document.getElementById('serverNotification');
+            notification.textContent = message;
+
+            if (isSuccess) {
+                notification.style.backgroundColor = '#4CAF50';
+            } else {
+                notification.style.backgroundColor = '#e74c3c';
+            }
+
+            notification.style.display = 'block';
+
+            // Hide the notification after a delay (e.g., 3 seconds)
+            setTimeout(function () {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Assuming you have a form with id "salary-form-id", "orders-form-id", "suppliers-form-id"
+        document.getElementById('salary-form-id').addEventListener('submit', function (event) {
+            handleFormSubmission(event, 'recordsalary.php');
+        });
+
+        document.getElementById('orders-form-id').addEventListener('submit', function (event) {
+            handleFormSubmission(event, 'recordstock.php');
+        });
+
+        document.getElementById('suppliers-form-id').addEventListener('submit', function (event) {
+            handleFormSubmission(event, 'recordsuppliers.php');
+        });
+
+        function handleFormSubmission(event, phpScript) {
+            event.preventDefault();
+
+            // Your existing form submission logic
+            // ...
+
+            // Example handling of the server response
+            fetch(phpScript, {
+                method: 'POST',
+                body: new FormData(event.target),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification(data.message, true);
+                } else {
+                    showNotification(data.message, false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error if needed
+            });
+        }
+    </script>
+</body>
+
+</html>
