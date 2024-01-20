@@ -1,8 +1,9 @@
 <?php
+// Start the session
+session_start();
+
 // Include the configuration file
 include 'config.php';
-
-session_start();
 
 try {
     // Create a PDO connection using the configuration from config.php
@@ -14,7 +15,7 @@ try {
     $locationName = $_GET['locationName'] ?? '';
 
     if (empty($storeName) || empty($locationName)) {
-        // If store name or location is not set, redirect to an error page or handle accordingly
+        // If store name or location is not set, handle accordingly (e.g., show an error message)
         echo "Error: Store name or location not set.";
         exit();
     }
@@ -57,7 +58,7 @@ try {
     $_SESSION['locationName'] = $locationName;
 
     // Redirect to viewinventory.php
-    header('Location: viewinventory.php');
+    header("Location: viewinventory.php");
     exit();
 
 } catch (PDOException $e) {
