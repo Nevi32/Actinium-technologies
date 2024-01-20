@@ -13,7 +13,7 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body, html {
+           body, html {
             height: 100%;
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -191,7 +191,7 @@ session_start();
             <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-        <div id="content">
+            <div id="content">
             <!-- Store Selection Options -->
             <div id="store-selection">
                 <label for="store-type">Select Store Type:</label>
@@ -239,7 +239,25 @@ session_start();
                     </tr>
                 </thead>
                 <tbody id="main-entry-table-body">
-                    <!-- Main entry data will be dynamically inserted here -->
+                    <!-- Display inventory data using PHP -->
+                    <?php
+                    // Check if inventory data is set in the session
+                    $inventoryData = $_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null;
+
+                    if ($inventoryData) {
+                        foreach ($inventoryData as $entry) {
+                            echo "<tr>";
+                            echo "<td>{$entry['product_name']}</td>";
+                            echo "<td>{$entry['category']}</td>";
+                            echo "<td>{$entry['total_quantity']}</td>";
+                            echo "<td>{$entry['quantity_description']}</td>";
+                            echo "<td><button class=\"more-info-button\" onclick=\"showDetailedEntries({$entry['main_entry_id']})\">More Info</button></td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='5'>No inventory data available.</td></tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
 
@@ -253,113 +271,38 @@ session_start();
                 </div>
             </div>
 
-            <!-- Alert Message -->
-            <div id="alert-message" class="alert-message" style="display: none;"></div>
-
             <!-- Include your JavaScript scripts here -->
             <script>
                 // Your existing JavaScript code here
 
-                    // View Inventory function
+                // ...
+
+                // View Inventory function
                 function viewInventory() {
                     // Fetch main entry data and store information from session
-                    const mainEntryDataSession = <?php echo json_encode($_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null); ?>;
-                    const storeTypeSession = <?php echo json_encode($_SESSION['storeType'] ?? null); ?>;
+                    const inventoryData = <?php echo json_encode($inventoryData); ?>;
+                    const storeType = <?php echo json_encode($storeType); ?>;
 
-                    if (mainEntryDataSession) {
+                    if (inventoryData) {
                         // Display store type
-                        displayStoreType(storeTypeSession);
+                        displayStoreType(storeType);
 
                         // Update the content of the current page with the main entry data
-                        displayMainEntryData(mainEntryDataSession);
+                        displayMainEntryData(inventoryData);
                     } else {
-                        showAlert('No main entry data available.');
+                        showAlert('No inventory data available.');
                     }
                 }
-                // Display store type
-                function displayStoreType(storeType) {
-                    const welcomeMessage = document.getElementById('welcome-message');
-                    welcomeMessage.textContent = `Welcome to ${storeType} Inventory Management`;
-                }
 
-                // Display main entry data
-                function displayMainEntryData(mainEntryData, searchTerm) {
-                    const mainEntryTableBody = document.getElementById('main-entry-table-body');
-                    mainEntryTableBody.innerHTML = ''; // Clear existing content
-
-                    mainEntryData.forEach((entry) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${entry.product_name}</td>
-                            <td>${entry.category}</td>
-                            <td>${entry.total_quantity}</td>
-                            <td>${entry.quantity_description}</td>
-                            <td>
-                                <button class="more-info-button" onclick="showDetailedEntries(${entry.id})">More Info</button>
-                            </td>
-                        `;
-                        mainEntryTableBody.appendChild(row);
-                    });
-                }
-
-                // Show detailed entries for the selected main entry ID
-                function showDetailedEntries(mainEntryId) {
-                    // Fetch detailed entries for the selected main entry ID
-                    const detailedEntries = <?php echo json_encode(getDetailedEntries($mainEntryId)); ?>;
-
-                    // Display detailed entries in the modal
-                    displayDetailedEntries(detailedEntries);
-                    // Show the modal
-                    openModal();
-                }
-
-                // Display detailed entries in the modal
-                function displayDetailedEntries(detailedEntries) {
-                    const modalBodyContent = document.getElementById('modal-body-content');
-                    modalBodyContent.innerHTML = ''; // Clear existing content
-
-                    detailedEntries.forEach((entry) => {
-                        const paragraph = document.createElement('p');
-                        paragraph.textContent = `${entry.field_name}: ${entry.field_value}`;
-                        modalBodyContent.appendChild(paragraph);
-                    });
-                }
-
-                // Open modal
-                function openModal() {
-                    const modal = document.getElementById('detailed-entries-modal');
-                    modal.style.display = 'block';
-                }
-
-                // Close modal
-                function closeModal() {
-                    const modal = document.getElementById('detailed-entries-modal');
-                    modal.style.display = 'none';
-                }
+                // ...
 
                 // Call viewInventory when the page is loaded
                 document.addEventListener('DOMContentLoaded', function () {
                     viewInventory();
                 });
 
-                // New functions for store selection
-                function handleStoreTypeChange() {
-                    const storeTypeSelect = document.getElementById('store-type');
-                    const selectedStoreType = storeTypeSelect.value;
+                 
 
-                    // Save selected store type to session
-                    <?php
-                    $_SESSION['store_type'] = "' + selectedStoreType + '";
-                    ?>
-                }
-
-                function handleSatelliteButtonClick(locationName) {
-                    // Your existing handleSatelliteButtonClick function
-                }
-
-                function setStoreSessionData(storeName, locationName, locationType) {
-                    // Your existing setStoreSessionData function
-                }
             </script>
         </div>
     </div>
