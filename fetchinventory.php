@@ -19,32 +19,42 @@ try {
         exit();
     }
 
-    // Check if the store has satellite stores
-    $satelliteCheckQuery = "SELECT COUNT(*) AS count FROM stores WHERE store_name = ? AND location_name = ?";
-    $satelliteCheckStmt = $pdo->prepare($satelliteCheckQuery);
-    $satelliteCheckStmt->execute([$storeName, $locationName]);
-    $satelliteCount = $satelliteCheckStmt->fetch(PDO::FETCH_ASSOC)['count'];
+    // Check if the store is a main store or satellite
+    $storeTypeQuery = "SELECT location_type FROM stores WHERE store_name = ? AND location_name = ?";
+    $storeTypeStmt = $pdo->prepare($storeTypeQuery);
+    $storeTypeStmt->execute([$storeName, $locationName]);
+    $storeType = $storeTypeStmt->fetchColumn();
 
-    if ($satelliteCount > 0) {
-        // Fetch inventory for the main store and its satellite stores
-        $inventoryQuery = "SELECT main_entry_id, product_name, category, total_quantity, quantity_description, store_id
-                           FROM main_entry
-                           WHERE store_name = ? AND location_name = ?";
-    } else {
-        // Fetch inventory only for the main store
-        $inventoryQuery = "SELECT main_entry_id, product_name, category, total_quantity, quantity_description, store_id
-                           FROM main_entry
-                           WHERE store_name = ? AND location_name = ?";
-    }
+    // Fetch inventory based on store_id
+    $inventoryQuery = "SELECT main_entry_id, product_name, category, total_quantity, quantity_description, store_id
+                       FROM main_entry
+                       WHERE store_id IN (SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?)";
 
     $inventoryStmt = $pdo->prepare($inventoryQuery);
     $inventoryStmt->execute([$storeName, $locationName]);
     $inventoryData = $inventoryStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Set session variables
+    if ($storeType === 'main_store') {
+        // If it's a main store, fetch individual inventory data
+        $individualInventoryQuery = "SELECT entry_id, quantity, quantity_description, price, record_date, sale_id, store_id
+                                     FROM inventory
+                                     WHERE store_id = (SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?)";
+
+        $individualInventoryStmt = $pdo->prepare($individualInventoryQuery);
+        $individualInventoryStmt->execute([$storeName, $locationName]);
+        $individualInventoryData = $individualInventoryStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Set session variables for main store data
+        $_SESSION['main_store_inventory_data'] = $inventoryData;
+        $_SESSION['main_store_individual_inventory_data'] = $individualInventoryData;
+    } else {
+        // If it's a satellite store, set session variables
+        $_SESSION['satellite_inventory_data'] = $inventoryData;
+    }
+
+    // Set common session variables
     $_SESSION['storeName'] = $storeName;
     $_SESSION['locationName'] = $locationName;
-    $_SESSION['inventory_data'] = $inventoryData;
 
     // Redirect to viewinventory.php
     header('Location: viewinventory.php');
