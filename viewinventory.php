@@ -13,7 +13,7 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-           body, html {
+        body, html {
             height: 100%;
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -40,7 +40,7 @@ session_start();
         #content {
             flex: 1;
             padding: 20px;
-            margin-left: 170px; /* Adjust content area margin to accommodate the fixed sidebar */
+            margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
         }
 
         #sidebar a {
@@ -191,123 +191,176 @@ session_start();
             <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-            <div id="content">
-            <!-- Store Selection Options -->
-            <div id="store-selection">
-                <label for="store-type">Select Store Type:</label>
-                <select id="store-type" onchange="handleStoreTypeChange()">
-                    <option value="mainstore">Main Store</option>
-                    <?php
-                    // Check if there are satellite stores in the session
-                    $satelliteStores = $_SESSION['satellite_stores'] ?? null;
+        <div id="content">
+            <div class="alert" id="alert-message"></div>
 
-                    if ($satelliteStores) {
-                        echo '<option value="satellite">Satellite Stores</option>';
-                    }
-                    ?>
-                </select>
-
-                <!-- Satellite Store Buttons (hidden by default) -->
-                <div id="satellite-buttons" class="satellite-buttons" style="display: none;">
-                    <?php
-                    foreach ($satelliteStores as $satelliteStore) {
-                        echo '<button class="satellite-button" onclick="handleSatelliteButtonClick(\'' . $satelliteStore['location_name'] . '\')">' . $satelliteStore['location_name'] . '</button>';
-                    }
-                    ?>
-                </div>
-            </div>
-
-            <!-- Search Bar -->
+            <!-- Add the search bar -->
             <div id="search-bar">
                 <label for="product-search">Search Product:</label>
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
             </div>
 
-            <!-- Inventory Table -->
-            <h1>Welcome to Inventory Management</h1>
-            <p>This is where your inventory data will be displayed.</p>
+            <div id="main-entry-table-container">
+                <h1>Welcome to Inventory Management</h1>
+                <p>This is where your inventory data will be displayed.</p>
 
-            <table id="main-entry-table">
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Category</th>
-                        <th>Total Quantity</th>
-                        <th>Quantity Description</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="main-entry-table-body">
-                    <!-- Display inventory data using PHP -->
-                    <?php
-                    // Check if inventory data is set in the session
-                    $inventoryData = $_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null;
+                <table id="main-entry-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Total Quantity</th>
+                            <th>Quantity Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="main-entry-table-body">
+                        <!-- Display inventory data using PHP -->
+                        <?php
+                        // Check if inventory data is set in the session
+                        $inventoryData = $_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null;
 
-                    if ($inventoryData) {
-                        foreach ($inventoryData as $entry) {
-                            echo "<tr>";
-                            echo "<td>{$entry['product_name']}</td>";
-                            echo "<td>{$entry['category']}</td>";
-                            echo "<td>{$entry['total_quantity']}</td>";
-                            echo "<td>{$entry['quantity_description']}</td>";
-                            echo "<td><button class=\"more-info-button\" onclick=\"showDetailedEntries({$entry['main_entry_id']})\">More Info</button></td>";
-                            echo "</tr>";
+                        if ($inventoryData) {
+                            foreach ($inventoryData as $entry) {
+                                echo "<tr>";
+                                echo "<td>{$entry['product_name']}</td>";
+                                echo "<td>{$entry['category']}</td>";
+                                echo "<td>{$entry['total_quantity']}</td>";
+                                echo "<td>{$entry['quantity_description']}</td>";
+                                echo "<td><button class=\"more-info-button\" onclick=\"showDetailedEntries({$entry['main_entry_id']})\">More Info</button></td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            // Display a message if no inventory data is available
+                            echo "<tr><td colspan='5'>No inventory data available.</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='5'>No inventory data available.</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+                        ?>
+                    </tbody>
+                </table>
+            </div>
 
-            <!-- Modal for Detailed Entries -->
+            <!-- Modal for detailed entries -->
             <div id="detailed-entries-modal" class="modal">
                 <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <div id="modal-body-content">
-                        <!-- Detailed entry data will be dynamically inserted here -->
+                    <div class="modal-header">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Detailed Info on Inventory Entry</h2>
+                    </div>
+                    <div class="modal-body" id="modal-body-content">
+                        <!-- Detailed inventory data will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
 
-            <!-- Include your JavaScript scripts here -->
-            <script>
-                // Your existing JavaScript code here
+                <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
 
-                // ...
+<script>
+    let inventoryData;
 
-                // View Inventory function
-                function viewInventory() {
-                    // Fetch main entry data and store information from session
-                    const inventoryData = <?php echo json_encode($inventoryData); ?>;
-                    const storeType = <?php echo json_encode($storeType); ?>;
+    // Function to view inventory data
+    function viewInventory() {
+        // Fetch inventory data from session
+        const inventoryDataSession = <?php echo json_encode($_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null); ?>;
 
-                    if (inventoryData) {
-                        // Display store type
-                        displayStoreType(storeType);
+        if (inventoryDataSession) {
+            // Update the content of the current page with the inventory data
+            inventoryData = inventoryDataSession;
+            displayInventoryData(inventoryData);
+            // Display more info button for each entry
+            addMoreInfoButtons(inventoryData);
+        } else {
+            showAlert('No inventory data available.');
+        }
+    }
 
-                        // Update the content of the current page with the main entry data
-                        displayMainEntryData(inventoryData);
-                    } else {
-                        showAlert('No inventory data available.');
-                    }
-                }
+    // Function to display inventory data
+    function displayInventoryData(inventoryData, searchTerm) {
+        var tableBody = document.querySelector('#main-entry-table-body');
+        tableBody.innerHTML = '';
 
-                // ...
+        inventoryData.forEach(function (entry) {
+            if (!searchTerm || entry.product_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.product_name}</td>
+                    <td>${entry.category}</td>
+                    <td>${entry.total_quantity}</td>
+                    <td>${entry.quantity_description}</td>
+                    <td><button class="more-info-button" onclick="showDetailedEntries(${entry.main_entry_id})">More Info</button></td>
+                `;
+                tableBody.appendChild(row);
+            }
+        });
+    }
 
-                // Call viewInventory when the page is loaded
-                document.addEventListener('DOMContentLoaded', function () {
-                    viewInventory();
-                });
+    // Function to add more info buttons
+    function addMoreInfoButtons(inventoryData) {
+        // Additional info buttons for each entry (if needed)
+    }
 
-                 
+    // Function to show detailed entries in the modal
+    function showDetailedEntries(mainEntryId) {
+        const detailedEntry = inventoryData.find(function (entry) {
+            return entry.main_entry_id === mainEntryId;
+        });
 
-            </script>
+        var modalBody = document.querySelector('#modal-body-content');
+        modalBody.innerHTML = '';
+
+        var row = document.createElement('div');
+        row.innerHTML = `
+            <p>Product Name: ${detailedEntry.product_name}</p>
+            <p>Category: ${detailedEntry.category}</p>
+            <p>Total Quantity: ${detailedEntry.total_quantity}</p>
+            <p>Quantity Description: ${detailedEntry.quantity_description}</p>
+        `;
+        modalBody.appendChild(row);
+
+        document.getElementById('detailed-entries-modal').style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('detailed-entries-modal').style.display = 'none';
+    }
+
+    // Function to display an alert
+    function showAlert(message) {
+        var alertMessage = document.getElementById('alert-message');
+        alertMessage.innerHTML = message;
+        alertMessage.style.display = 'block';
+
+        setTimeout(function () {
+            alertMessage.style.display = 'none';
+        }, 3000);
+    }
+
+    // Function to search for a product
+    function searchProduct() {
+        var searchInput = document.getElementById('product-search').value;
+        displayInventoryData(inventoryData, searchInput);
+    }
+
+    // Call viewInventory when the page is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        viewInventory();
+    });
+
+    // Logout functionality
+    document.getElementById('logoutLink').addEventListener('click', function (event) {
+        // Prevent the default behavior of the link
+        event.preventDefault();
+
+        // Redirect the user to the logout.php file for logout
+        window.location.href = 'logout.php';
+    });
+</script>
+
+
+
         </div>
     </div>
-
-    <!-- Include your additional JavaScript scripts here -->
 </body>
 
 </html>
