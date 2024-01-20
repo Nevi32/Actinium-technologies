@@ -191,7 +191,7 @@ session_start();
             <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-         <div id="content">
+        <div id="content">
             <!-- Store Selection Options -->
             <div id="store-selection">
                 <label for="store-type">Select Store Type:</label>
@@ -260,47 +260,81 @@ session_start();
             <script>
                 // Your existing JavaScript code here
 
-                // View Inventory function
+                    // View Inventory function
                 function viewInventory() {
-                    // Fetch main entry data from session
-                    const mainEntryDataSession = <?php echo json_encode($_SESSION['main_entry_data'] ?? null); ?>;
+                    // Fetch main entry data and store information from session
+                    const mainEntryDataSession = <?php echo json_encode($_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null); ?>;
+                    const storeTypeSession = <?php echo json_encode($_SESSION['storeType'] ?? null); ?>;
 
                     if (mainEntryDataSession) {
+                        // Display store type
+                        displayStoreType(storeTypeSession);
+
                         // Update the content of the current page with the main entry data
                         displayMainEntryData(mainEntryDataSession);
                     } else {
                         showAlert('No main entry data available.');
                     }
                 }
+                // Display store type
+                function displayStoreType(storeType) {
+                    const welcomeMessage = document.getElementById('welcome-message');
+                    welcomeMessage.textContent = `Welcome to ${storeType} Inventory Management`;
+                }
 
                 // Display main entry data
                 function displayMainEntryData(mainEntryData, searchTerm) {
-                    // Your existing displayMainEntryData function
-                }
+                    const mainEntryTableBody = document.getElementById('main-entry-table-body');
+                    mainEntryTableBody.innerHTML = ''; // Clear existing content
 
-                // Add more info buttons for each main entry
-                function addMoreInfoButtons(mainEntryData) {
-                    // Your existing addMoreInfoButtons function
+                    mainEntryData.forEach((entry) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${entry.product_name}</td>
+                            <td>${entry.category}</td>
+                            <td>${entry.total_quantity}</td>
+                            <td>${entry.quantity_description}</td>
+                            <td>
+                                <button class="more-info-button" onclick="showDetailedEntries(${entry.id})">More Info</button>
+                            </td>
+                        `;
+                        mainEntryTableBody.appendChild(row);
+                    });
                 }
 
                 // Show detailed entries for the selected main entry ID
                 function showDetailedEntries(mainEntryId) {
-                    // Your existing showDetailedEntries function
+                    // Fetch detailed entries for the selected main entry ID
+                    const detailedEntries = <?php echo json_encode(getDetailedEntries($mainEntryId)); ?>;
+
+                    // Display detailed entries in the modal
+                    displayDetailedEntries(detailedEntries);
+                    // Show the modal
+                    openModal();
+                }
+
+                // Display detailed entries in the modal
+                function displayDetailedEntries(detailedEntries) {
+                    const modalBodyContent = document.getElementById('modal-body-content');
+                    modalBodyContent.innerHTML = ''; // Clear existing content
+
+                    detailedEntries.forEach((entry) => {
+                        const paragraph = document.createElement('p');
+                        paragraph.textContent = `${entry.field_name}: ${entry.field_value}`;
+                        modalBodyContent.appendChild(paragraph);
+                    });
+                }
+
+                // Open modal
+                function openModal() {
+                    const modal = document.getElementById('detailed-entries-modal');
+                    modal.style.display = 'block';
                 }
 
                 // Close modal
                 function closeModal() {
-                    // Your existing closeModal function
-                }
-
-                // Show alert message
-                function showAlert(message) {
-                    // Your existing showAlert function
-                }
-
-                // Search product
-                function searchProduct() {
-                    // Your existing searchProduct function
+                    const modal = document.getElementById('detailed-entries-modal');
+                    modal.style.display = 'none';
                 }
 
                 // Call viewInventory when the page is loaded
@@ -310,7 +344,13 @@ session_start();
 
                 // New functions for store selection
                 function handleStoreTypeChange() {
-                    // Your existing handleStoreTypeChange function
+                    const storeTypeSelect = document.getElementById('store-type');
+                    const selectedStoreType = storeTypeSelect.value;
+
+                    // Save selected store type to session
+                    <?php
+                    $_SESSION['store_type'] = "' + selectedStoreType + '";
+                    ?>
                 }
 
                 function handleSatelliteButtonClick(locationName) {
