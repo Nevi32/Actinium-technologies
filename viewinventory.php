@@ -13,174 +13,178 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
+      <style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+    }
 
-        #dashboard {
-            display: flex;
-            height: 100vh; /* Use viewport height to make sure the layout covers the entire screen */
-        }
+    #dashboard {
+        display: flex;
+        height: 100vh; /* Use viewport height to make sure the layout covers the entire screen */
+    }
 
-        #sidebar {
-            width: 150px;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            position: fixed; /* Fix the sidebar position */
-            height: 100%;
-        }
+    #sidebar {
+        width: 150px;
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        position: fixed; /* Fix the sidebar position */
+        height: 100%;
+    }
 
-        #content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
-        }
+    #content {
+        flex: 1;
+        padding: 20px;
+        margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
+    }
 
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
+    #sidebar a {
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 15px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
 
-        #sidebar i {
-            margin-right: 10px;
-        }
+    #sidebar i {
+        margin-right: 10px;
+    }
 
-        #sidebar a:not(:last-child) {
-            margin-bottom: 60px;
-        }
+    #sidebar a:not(:last-child) {
+        margin-bottom: 60px;
+    }
 
-        #user-info {
-            display: none;
-            color: #fff;
-            margin-top: 5px;
-            padding: 10px;
-            background-color: #555;
-            border-radius: 15px;
-        }
+    #user-info {
+        display: none;
+        color: #fff;
+        margin-top: 5px;
+        padding: 10px;
+        background-color: #555;
+        border-radius: 15px;
+    }
 
-        #content {
-            flex: 1;
-            padding: 20px;
-        }
+    #content {
+        flex: 1;
+        padding: 20px;
+    }
 
-        #main-entry-table-container {
-            margin-top: 20px;
-        }
+    #main-entry-table-container {
+        margin-top: 20px;
+    }
 
-        #main-entry-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+    #main-entry-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
 
-        #main-entry-table th,
-        #main-entry-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+    #main-entry-table th,
+    #main-entry-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
 
-        #main-entry-table th {
-            background-color: #3498db;
-            color: #fff;
-        }
+    #main-entry-table th {
+        background-color: #3498db;
+        color: #fff;
+    }
 
-        #main-entry-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+    #main-entry-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
 
-        .more-info-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+    .more-info-button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 12px;
+        margin: 2px 2px;
+        cursor: pointer;
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
 
-        .modal-header {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-        }
+    .modal-header {
+        padding: 2px 16px;
+        background-color: #5cb85c;
+        color: white;
+    }
 
-        .modal-body {
-            padding: 2px 16px;
-        }
+    .modal-body {
+        padding: 2px 16px;
+    }
 
-        #search-bar {
-            margin-top: 20px;
-        }
+    #search-bar {
+        margin-top: 20px;
+    }
 
-        #search-bar label {
-            margin-right: 10px;
-        }
+    #search-bar label {
+        margin-right: 10px;
+    }
 
-        #search-bar input {
-            margin-right: 10px;
-        }
+    #search-bar input {
+        margin-right: 10px;
+    }
 
-        #search-bar button {
-            cursor: pointer;
-        }
+    #search-bar button {
+        cursor: pointer;
+    }
+</style>
+
+
     </style>
 </head>
 
 <body>
     <div id="dashboard">
         <div id="sidebar">
-            <div class="welcome-message" id="welcome-message"></div>
+           <div class="welcome-message" id="welcome-message"></div>
             <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
             <div id="user-info">
                 <!-- User info will be displayed here using JavaScript -->
@@ -190,12 +194,21 @@ session_start();
             <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
             <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
+        </div> 
+
         <div id="content">
             <div class="alert" id="alert-message"></div>
 
-            <!-- Add the search bar -->
+            <!-- Add the search bar and store type selection -->
             <div id="search-bar">
+                <!-- Store Type Selection -->
+                <label for="store-type-select">Select Store Type:</label>
+                <select id="store-type-select" onchange="changeStoreType()">
+                    <option value="main_store">Main Store</option>
+                    <option value="satellite">Satellite Store</option>
+                </select>
+
+                <!-- Search Bar -->
                 <label for="product-search">Search Product:</label>
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
@@ -240,7 +253,8 @@ session_start();
                 </table>
             </div>
 
-            <!-- Modal for detailed entries -->
+            <!-- Modal for detailed entries (unchanged) -->
+                  <!-- Modal for detailed entries -->
             <div id="detailed-entries-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -251,10 +265,10 @@ session_start();
                         <!-- Detailed inventory data will be dynamically inserted here -->
                     </div>
                 </div>
-            </div>
+            </div> 
 
-                <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
-
+           <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
+             <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
 <script>
     let inventoryData;
 
@@ -342,6 +356,19 @@ session_start();
         displayInventoryData(inventoryData, searchInput);
     }
 
+    // Function to change the store type
+    function changeStoreType() {
+        var storeTypeSelect = document.getElementById('store-type-select');
+        var selectedStoreType = storeTypeSelect.value;
+
+        // Redirect to the corresponding page based on the selected store type
+        if (selectedStoreType === 'main_store') {
+            window.location.href = 'viewinventory.php?storeType=main_store';
+        } else if (selectedStoreType === 'satellite') {
+            window.location.href = 'viewinventory.php?storeType=satellite';
+        }
+    }
+
     // Call viewInventory when the page is loaded
     document.addEventListener('DOMContentLoaded', function () {
         viewInventory();
@@ -356,7 +383,6 @@ session_start();
         window.location.href = 'logout.php';
     });
 </script>
-
 
 
         </div>
