@@ -99,21 +99,13 @@ try {
         echo "Error: Unknown store type.";
         exit();
     }
-
-    // Output the data as JSON (for testing purposes)
-    echo json_encode([
-        'mainstore_data' => $_SESSION['mainstoreData'],
-        'mainstore_individual_data' => $_SESSION['mainstore_individual_entry_data'],
-        'satellite_data' => $_SESSION['satelliteData'],
-        'satellite_individual_data' => $_SESSION['satellite_individual_entry_data']
-    ]);
-
-    // Redirect to viewinventory.php if needed
-     header("Location: viewinventory.php");
-     exit();
 } catch (PDOException $e) {
     // Handle database errors
     echo "Error fetching inventory data: " . $e->getMessage();
 }
+
+// Redirect to viewinventory.php if needed
+header("Location: viewinventory.php");
+exit();
 ?>
 

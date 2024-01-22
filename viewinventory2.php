@@ -7,7 +7,7 @@ session_start();
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Inventory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -21,7 +21,7 @@ session_start();
 
         #dashboard {
             display: flex;
-            height: 100vh;
+            height: 100vh; /* Use viewport height to make sure the layout covers the entire screen */
         }
 
         #sidebar {
@@ -33,14 +33,14 @@ session_start();
             flex-direction: column;
             align-items: flex-start;
             justify-content: flex-start;
-            position: fixed;
+            position: fixed; /* Fix the sidebar position */
             height: 100%;
         }
 
         #content {
             flex: 1;
             padding: 20px;
-            margin-left: 200px;
+            margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
         }
 
         #sidebar a {
@@ -76,12 +76,6 @@ session_start();
 
         #main-entry-table-container {
             margin-top: 20px;
-        }
-
-        #satellite-buttons-container {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
         }
 
         #main-entry-table {
@@ -194,29 +188,18 @@ session_start();
             <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
             <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
             <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-            <a href="home.php" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-
         <div id="content">
             <div class="alert" id="alert-message"></div>
 
-            <!-- Add the search bar and store type selection -->
+            <!-- Add the search bar -->
             <div id="search-bar">
-                <!-- Store Type Selection -->
-                <label for="store-type-select">Select Store Type:</label>
-                <select id="store-type-select" onchange="changeStoreType()">
-                    <option value="main_store">Main Store</option>
-                    <option value="satellite">Satellite Store</option>
-                </select>
-
-                <!-- Search Bar -->
                 <label for="product-search">Search Product:</label>
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
             </div>
-
-            <div id="satellite-buttons-container"></div>
 
             <div id="main-entry-table-container">
                 <h1>Welcome to Inventory Management</h1>
@@ -236,10 +219,10 @@ session_start();
                         <!-- Display inventory data using PHP -->
                         <?php
                         // Check if inventory data is set in the session
-                        $inventoryData = $_SESSION['mainstoreData'] ?? $_SESSION['satelliteData'] ?? null;
+                        $mainEntryData = $_SESSION['main_entry_data'] ?? $_SESSION['satellite_main_entry_data'] ?? null;
 
-                        if ($inventoryData) {
-                            foreach ($inventoryData as $entry) {
+                        if ($mainEntryData) {
+                            foreach ($mainEntryData as $entry) {
                                 echo "<tr>";
                                 echo "<td>{$entry['product_name']}</td>";
                                 echo "<td>{$entry['category']}</td>";
@@ -257,46 +240,46 @@ session_start();
                 </table>
             </div>
 
-            <!-- Modal for detailed entries -->
-            <div id="detailed-entries-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <h2>Detailed Info on Inventory Entry</h2>
-                    </div>
-                    <div class="modal-body" id="modal-body-content">
-                        <!-- Detailed inventory data will be dynamically inserted here -->
-                    </div>
-                </div>
-            </div>
+                 <!-- Modal for detailed entries -->
+    <div id="detailed-entries-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Detailed Info on Inventory Entry</h2>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+            <!-- Include your existing JavaScript code here -->
 
-            <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
+            <!-- ... (your existing JavaScript code) ... -->
+
             <script>
-                // Initialize inventoryData JavaScript variable
-                let inventoryData = <?php echo json_encode($inventoryData); ?>;
+                // Your existing JavaScript code goes here
+                let mainEntryData;
+                let individualEntryData;
 
                 // Function to view inventory data
                 function viewInventory() {
-                    // Fetch inventory data from session
-                    const inventoryDataSession = <?php echo json_encode($_SESSION['mainstoreData'] ?? $_SESSION['satelliteData'] ?? null); ?>;
+                    // Fetch main entry data from session
+                    mainEntryData = <?php echo json_encode($_SESSION['main_entry_data'] ?? $_SESSION['satellite_main_entry_data'] ?? null); ?>;
+                    // Fetch individual entry data from session
+                    individualEntryData = <?php echo json_encode($_SESSION['individual_entry_data'] ?? null); ?>;
 
-                    if (inventoryDataSession) {
-                        // Update the content of the current page with the inventory data
-                        inventoryData = inventoryDataSession;
-                        displayInventoryData(inventoryData);
-                        // Display more info button for each entry
-                        addMoreInfoButtons(inventoryData);
+                    if (mainEntryData) {
+                        // Update the content of the current page with the main entry data
+                        displayMainEntryData(mainEntryData);
+                        // Display more info button for each main entry
+                        addMoreInfoButtons(mainEntryData);
                     } else {
-                        showAlert('No inventory data available.');
+                        showAlert('No main entry data available.');
                     }
                 }
 
-                // Function to display inventory data
-                function displayInventoryData(inventoryData, searchTerm) {
+                // Function to display main entry data
+                function displayMainEntryData(mainEntryData, searchTerm) {
                     var tableBody = document.querySelector('#main-entry-table-body');
                     tableBody.innerHTML = '';
 
-                    inventoryData.forEach(function (entry) {
+                    mainEntryData.forEach(function (entry) {
                         if (!searchTerm || entry.product_name.toLowerCase().includes(searchTerm.toLowerCase())) {
                             var row = document.createElement('tr');
                             row.innerHTML = `
@@ -304,49 +287,47 @@ session_start();
                                 <td>${entry.category}</td>
                                 <td>${entry.total_quantity}</td>
                                 <td>${entry.quantity_description}</td>
-                                <td><button class="more-info-button" onclick="showDetailedEntries(${entry.main_entry_id})">More Info</button></td>
+                                <td><button class="more-info-button" onclick="showDetailedEntries(${entry['main_entry_id']})">More Info</button></td>
                             `;
                             tableBody.appendChild(row);
                         }
                     });
                 }
 
-                // Function to add more info buttons
-                function addMoreInfoButtons(inventoryData) {
-                    // Additional info buttons for each entry (if needed)
+                // Function to add more info buttons for main entry
+                function addMoreInfoButtons(mainEntryData) {
+                    // Additional info buttons for each main entry (if needed)
                 }
 
-                // Function to show detailed entries in the modal
-                function showDetailedEntries(mainEntryId) {
-                    const detailedEntry = inventoryData.find(function (entry) {
-                        return entry.main_entry_id === mainEntryId;
-                    });
+                 // Function to show detailed entries in the modal
+function showDetailedEntries(mainEntryId) {
+    const detailedEntries = individualEntryData.filter(function (entry) {
+        return entry.main_entry_id === mainEntryId;
+    });
 
-                    const detailedIndividualEntries = <?php echo json_encode($_SESSION['mainstore_individual_entry_data'] ?? []); ?>;
-                    const filteredEntries = detailedIndividualEntries.filter(function (entry) {
-                        return entry.main_entry_id === mainEntryId;
-                    });
+    if (detailedEntries.length === 0) {
+        console.error("Detailed entries not found for main entry ID:", mainEntryId);
+        // You can display a message or take another action to inform the user
+        return;
+    }
 
-                    var modalBody = document.querySelector('#modal-body-content');
-                    modalBody.innerHTML = '';
+    var modalBody = document.querySelector('#modal-body-content');
+    modalBody.innerHTML = '';
 
-                    var row = document.createElement('div');
-                    row.innerHTML = `
-                        <p>Product Name: ${detailedEntry.product_name}</p>
-                        <p>Category: ${detailedEntry.category}</p>
-                        <p>Total Quantity: ${detailedEntry.total_quantity}</p>
-                        <p>Quantity Description: ${detailedEntry.quantity_description}</p>
-                        <h3>Individual Entries:</h3>
-                        <ul>
-                            ${filteredEntries.map(function (individualEntry) {
-                                return `<li>Quantity: ${individualEntry.quantity}, Description: ${individualEntry.quantity_description}, Price: ${individualEntry.price}, Date: ${individualEntry.record_date}</li>`;
-                            }).join('')}
-                        </ul>
-                    `;
-                    modalBody.appendChild(row);
+    detailedEntries.forEach(function (detailedEntry) {
+        var row = document.createElement('div');
+        row.innerHTML = `
+            <p>Product Name: ${detailedEntry.product_name || 'N/A'}</p>
+            <p>Category: ${detailedEntry.category || 'N/A'}</p>
+            <p>Total Quantity: ${detailedEntry.total_quantity || 'N/A'}</p>
+            <p>Quantity Description: ${detailedEntry.quantity_description || 'N/A'}</p>
+            <p>Date: ${detailedEntry.record_date || 'N/A'}</p>
+        `;
+        modalBody.appendChild(row);
+    });
 
-                    document.getElementById('detailed-entries-modal').style.display = 'block';
-                }
+    document.getElementById('detailed-entries-modal').style.display = 'block';
+}
 
                 // Function to close the modal
                 function closeModal() {
@@ -367,50 +348,7 @@ session_start();
                 // Function to search for a product
                 function searchProduct() {
                     var searchInput = document.getElementById('product-search').value;
-                    displayInventoryData(inventoryData, searchInput);
-                }
-
-                // Function to change the store type
-                function changeStoreType() {
-                    var storeTypeSelect = document.getElementById('store-type-select');
-                    var selectedStoreType = storeTypeSelect.value;
-
-                    if (selectedStoreType === 'main_store') {
-                        // Redirect to the main store page
-                        window.location.href = 'viewinventory.php?storeType=main_store';
-                    } else if (selectedStoreType === 'satellite') {
-                        // Display buttons with satellite locations
-                        displaySatelliteButtons();
-                    }
-                }
-
-                // Function to display buttons with satellite locations
-                function displaySatelliteButtons() {
-                    var satelliteData = <?php echo json_encode($_SESSION['satelliteData'] ?? []); ?>;
-                    var buttonsContainer = document.getElementById('satellite-buttons-container');
-
-                    // Clear existing buttons
-                    buttonsContainer.innerHTML = '';
-
-                    // Create buttons for each satellite store
-                    satelliteData.forEach(function (satelliteStore) {
-                        var button = document.createElement('button');
-                        button.textContent = satelliteStore.location_name;
-                        button.addEventListener('click', function () {
-                            // Display satellite store data when a button is clicked
-                            displaySatelliteStoreData(satelliteStore);
-                        });
-
-                        buttonsContainer.appendChild(button);
-                    });
-                }
-
-                // Function to display satellite store data
-                function displaySatelliteStoreData(satelliteStore) {
-                    // Update the displayed inventory with the data from the selected satellite store
-                    inventoryData = satelliteStore.main_entry_data;
-                    displayInventoryData(inventoryData);
-                    addMoreInfoButtons(inventoryData);
+                    displayMainEntryData(mainEntryData, searchInput);
                 }
 
                 // Call viewInventory when the page is loaded

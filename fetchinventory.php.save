@@ -1,0 +1,93 @@
+<?php
+// Start the session
+session_start();
+
+// Include the configuration file
+include 'config.php';
+
+try {
+    // Create a PDO connection using the configuration from config.php
+    $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Retrieve store information from query parameters
+    $storeName = $_GET['storeName'] ?? '';
+    $locationName = $_GET['locationName'] ?? '';
+
+    if (empty($storeName) || empty($locationName)) {
+        // If store name or location is not set, handle accordingly (e.g., show an error message)
+        echo "Error: Store name or location not set.";
+        exit();
+    }
+
+    // Fetch main entry based on store_id
+    $mainEntryQuery = "SELECT me.main_entry_id, me.product_name, me.category, me.total_quantity, me.quantity_description, me.store_id, MAX(i.record_date) as record_date
+                       FROM main_entry me
+                       LEFT JOIN inventory i ON me.main_entry_id = i.main_entry_id
+                       WHERE me.store_id IN (SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?)
+                       GROUP BY me.main_entry_id, me.product_name, me.category, me.total_quantity, me.quantity_description, me.store_id";
+
+    $mainEntryStmt = $pdo->prepare($mainEntryQuery);
+    $mainEntryStmt->execute([$storeName, $locationName]);
+    $mainEntryData = $mainEntryStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Set common session variables
+    $_SESSION['storeName'] = $storeName;
+    $_SESSION['locationName'] = $locationName;
+
+    // Check if the store is a main store or satellite
+    $storeTypeQuery = "SELECT location_type FROM stores WHERE store_name = ? AND location_name = ?";
+    $storeTypeStmt = $pdo->prepare($storeTypeQuery);
+    $storeTypeStmt->execute([$storeName, $locationName]);
+    $storeType = $storeTypeStmt->fetchColumn();
+
+    if ($storeType === 'main_store') {
+        // If it's a main store, fetch individual inventory data with main_entry_id
+        $individualEntryQuery = "SELECT i.entry_id, i.quantity, i.quantity_description, i.price, i.record_date, i.sale_id, i.store_id, me.main_entry_id
+                                 FROM inventory i
+                                 LEFT JOIN main_entry me ON i.main_entry_id = me.main_entry_id
+                                 WHERE i.store_id = (SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?)";
+
+        $individualEntryStmt = $pdo->prepare($individualEntryQuery);
+        $individualEntryStmt->execute([$storeName, $locationName]);
+        $individualEntryData = $individualEntryStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Set session variables for main store data
+        $_SESSION['main_entry_data'] = $main_storemainEntryData;
+        $_SESSION['individual_entry_data'] = $main_storeindividualEntryData;
+        $_SESSION['storeType'] = 'main_store';
+        $_SESSION['store_id'] = $mainEntryData[0]['store_id']; // Assuming all main entries have the same store_id
+        $_SESSION['main_entry_id'] = $mainEntryData[0]['main_entry_id']; // Assuming all main entries have the same main_entry_id
+    } else {
+        // If it's a satellite store, set session variables
+        $_SESSION['storeType'] = 'satellite';
+
+        // Session variables for each satellite store
+        foreach ($mainEntryData as $satelliteData) {
+            $_SESSION['satellite_main_entry_data'][] = $satelliteData;
+            $_SESSION['store_id'][] = $satelliteData['store_id'];
+            $_SESSION['main_entry_id'][] = $satelliteData['main_entry_id'];
+
+            // Fetch and session individual entry data for each satellite store
+            $satelliteIndividualEntryQuery = "SELECT i.entry_id, i.quantity, i.quantity_description, i.price, i.record_date, i.sale_id, i.store_id, me.main_entry_id
+                                              FROM inventory i
+                                              LEFT JOIN main_entry me ON i.main_entry_id = me.main_entry_id
+                                              WHERE i.store_id = ?";
+            $satelliteIndividualEntryStmt = $pdo->prepare($satelliteIndividualEntryQuery);
+            $satelliteIndividualEntryStmt->execute([$satelliteData['store_id']]);
+            $_SESSION['satellite_individual_entry_data'][] = $satelliteIndividualEntryStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+    }
+
+    // Output the data as JSON (for testing purposes)
+    echo json_encode(['main_entry_data' => $mainEntryData, 'individual_entry_data' => $individualEntryData]);
+
+    // Redirect to viewinventory.php if needed
+    // header("Location: viewinventory.php");
+    // exit();
+} catch (PDOException $e) {
+    // Handle database errors
+    echo "Error fetching inventory data: " . $e->getMessage();
+}
+?>
+

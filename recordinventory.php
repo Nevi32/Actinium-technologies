@@ -45,38 +45,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $storeId = $storeData['store_id'];
 
-        // Check if the product already exists in the main_entry table
-        $existingRecord = $pdo->prepare("SELECT * FROM main_entry WHERE product_name = ? AND category = ? AND store_id = ?");
-        $existingRecord->execute([$productName, $category, $storeId]);
+        // Check if the product already exists in the main_entry table for the specified store
+        $existingRecord = $pdo->prepare("SELECT * FROM main_entry WHERE product_name = ? AND store_id = ?");
+        $existingRecord->execute([$productName, $storeId]);
         $existingData = $existingRecord->fetch(PDO::FETCH_ASSOC);
 
         if ($existingData !== false) {
-            // Product already exists as a main entry, insert a new individual entry
-            $mainEntryId = $existingData['main_entry_id'];
+            // Product already exists for this store
 
-            // Insert the individual entry
-            $insertStmt = $pdo->prepare("INSERT INTO inventory (main_entry_id, quantity, quantity_description, price, record_date, store_id) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)");
-            $insertStmt->execute([$mainEntryId, $quantity, $quantityDescription, $price, $storeId]);
+            // Check if the category is different
+            if ($existingData['category'] !== $category) {
+                // Product has a different category, insert a new main entry
+                $insertMainStmt = $pdo->prepare("INSERT INTO main_entry (product_name, category, total_quantity, quantity_description, store_id) VALUES (?, ?, ?, ?, ?)");
+                $insertMainStmt->execute([$productName, $category, $quantity, $quantityDescription, $storeId]);
 
-            // Update the total inventory in the main entry
-            $updateTotalStmt = $pdo->prepare("UPDATE main_entry SET total_quantity = total_quantity + ? WHERE main_entry_id = ?");
-            $updateTotalStmt->execute([$quantity, $mainEntryId]);
+                // Retrieve the main entry_id for the newly inserted main entry
+                $mainEntryId = $pdo->lastInsertId();
+            } else {
+                // Product has the same category, update the existing main entry
+                $mainEntryId = $existingData['main_entry_id'];
 
-            echo "Individual entry added successfully!";
+                // Update the total quantity in the existing main entry
+                $updateTotalStmt = $pdo->prepare("UPDATE main_entry SET total_quantity = total_quantity + ? WHERE main_entry_id = ?");
+                $updateTotalStmt->execute([$quantity, $mainEntryId]);
+            }
         } else {
-            // Product does not exist as a main entry, insert a new main entry
+            // Product does not exist for this store, insert a new main entry
             $insertMainStmt = $pdo->prepare("INSERT INTO main_entry (product_name, category, total_quantity, quantity_description, store_id) VALUES (?, ?, ?, ?, ?)");
             $insertMainStmt->execute([$productName, $category, $quantity, $quantityDescription, $storeId]);
 
             // Retrieve the main entry_id for the newly inserted main entry
             $mainEntryId = $pdo->lastInsertId();
-
-            // Insert the individual entry
-            $insertStmt = $pdo->prepare("INSERT INTO inventory (main_entry_id, quantity, quantity_description, price, record_date, store_id) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)");
-            $insertStmt->execute([$mainEntryId, $quantity, $quantityDescription, $price, $storeId]);
-
-            echo "Main entry and individual entry added successfully!";
         }
+
+        // Insert the individual entry
+        $insertStmt = $pdo->prepare("INSERT INTO inventory (main_entry_id, quantity, quantity_description, price, record_date, store_id) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)");
+        $insertStmt->execute([$mainEntryId, $quantity, $quantityDescription, $price, $storeId]);
+
+        echo "Entry added successfully!";
     } catch (PDOException $e) {
         // Handle any PDO exceptions and display an error message
         echo "Error: " . $e->getMessage();
