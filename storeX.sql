@@ -32,9 +32,10 @@ CREATE TABLE main_entry (
     total_quantity DECIMAL(10, 2) NOT NULL,
     quantity_description VARCHAR(255),
     store_id INT,
-    CONSTRAINT uc_product_category UNIQUE (product_name, category),
+    CONSTRAINT uc_product_category_store UNIQUE (product_name, category, store_id),
     FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
+
 
 
 -- Create the inventory table
