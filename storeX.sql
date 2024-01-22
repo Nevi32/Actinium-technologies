@@ -25,16 +25,18 @@ CREATE TABLE users (
     FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
 
--- Create the main_entry table
 CREATE TABLE main_entry (
-    main_entry_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    product_name VARCHAR(100) NOT NULL UNIQUE,
+    main_entry_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL,
-    total_quantity DECIMAL(10,2) NOT NULL,
+    total_quantity DECIMAL(10, 2) NOT NULL,
     quantity_description VARCHAR(255),
     store_id INT,
+    CONSTRAINT uc_product_category_store UNIQUE (product_name, category, store_id),
     FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
+
+
 
 -- Create the inventory table
 CREATE TABLE inventory (
