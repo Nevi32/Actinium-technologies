@@ -7,7 +7,7 @@ session_start();
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+ <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Inventory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -78,7 +78,11 @@ session_start();
     #main-entry-table-container {
         margin-top: 20px;
     }
-
+    #satellite-buttons-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+     }
     #main-entry-table {
         width: 100%;
         border-collapse: collapse;
@@ -178,7 +182,6 @@ session_start();
 </style>
 
 
-    </style>
 </head>
 
 <body>
@@ -213,6 +216,8 @@ session_start();
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
             </div>
+              
+            <div id="satellite-buttons-container"></div>
 
             <div id="main-entry-table-container">
                 <h1>Welcome to Inventory Management</h1>
@@ -232,7 +237,7 @@ session_start();
                         <!-- Display inventory data using PHP -->
                         <?php
                         // Check if inventory data is set in the session
-                        $inventoryData = $_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null;
+                        $inventoryData = $_SESSION['mainstoreData'] ?? $_SESSION['satelliteData'] ?? null;
 
                         if ($inventoryData) {
                             foreach ($inventoryData as $entry) {
@@ -253,8 +258,7 @@ session_start();
                 </table>
             </div>
 
-            <!-- Modal for detailed entries (unchanged) -->
-                  <!-- Modal for detailed entries -->
+            <!-- Modal for detailed entries -->
             <div id="detailed-entries-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -265,17 +269,17 @@ session_start();
                         <!-- Detailed inventory data will be dynamically inserted here -->
                     </div>
                 </div>
-            </div> 
+            </div>
 
-           <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
-             <!-- Add this JavaScript code inside your <script> tag at the end of the HTML body -->
+              <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
 <script>
-    let inventoryData;
+    // Initialize inventoryData JavaScript variable
+    let inventoryData = <?php echo json_encode($inventoryData); ?>;
 
     // Function to view inventory data
     function viewInventory() {
         // Fetch inventory data from session
-        const inventoryDataSession = <?php echo json_encode($_SESSION['main_store_inventory_data'] ?? $_SESSION['satellite_inventory_data'] ?? null); ?>;
+        const inventoryDataSession = <?php echo json_encode($_SESSION['mainstoreData'] ?? $_SESSION['satelliteData'] ?? null); ?>;
 
         if (inventoryDataSession) {
             // Update the content of the current page with the inventory data
@@ -319,6 +323,11 @@ session_start();
             return entry.main_entry_id === mainEntryId;
         });
 
+        const detailedIndividualEntries = <?php echo json_encode($_SESSION['mainstore_individual_entry_data'] ?? []); ?>;
+        const filteredEntries = detailedIndividualEntries.filter(function (entry) {
+            return entry.main_entry_id === mainEntryId;
+        });
+
         var modalBody = document.querySelector('#modal-body-content');
         modalBody.innerHTML = '';
 
@@ -328,6 +337,12 @@ session_start();
             <p>Category: ${detailedEntry.category}</p>
             <p>Total Quantity: ${detailedEntry.total_quantity}</p>
             <p>Quantity Description: ${detailedEntry.quantity_description}</p>
+            <h3>Individual Entries:</h3>
+            <ul>
+                ${filteredEntries.map(function (individualEntry) {
+                    return `<li>Quantity: ${individualEntry.quantity}, Description: ${individualEntry.quantity_description}, Price: ${individualEntry.price}, Date: ${individualEntry.record_date}</li>`;
+                }).join('')}
+            </ul>
         `;
         modalBody.appendChild(row);
 
@@ -339,7 +354,7 @@ session_start();
         document.getElementById('detailed-entries-modal').style.display = 'none';
     }
 
-    // Function to display an alert
+      // Function to display an alert
     function showAlert(message) {
         var alertMessage = document.getElementById('alert-message');
         alertMessage.innerHTML = message;
@@ -356,23 +371,47 @@ session_start();
         displayInventoryData(inventoryData, searchInput);
     }
 
+     
     // Function to change the store type
     function changeStoreType() {
         var storeTypeSelect = document.getElementById('store-type-select');
         var selectedStoreType = storeTypeSelect.value;
 
-        // Redirect to the corresponding page based on the selected store type
         if (selectedStoreType === 'main_store') {
+            // Redirect to the main store page
             window.location.href = 'viewinventory.php?storeType=main_store';
         } else if (selectedStoreType === 'satellite') {
-            window.location.href = 'viewinventory.php?storeType=satellite';
+            // Display buttons with satellite locations
+            displaySatelliteButtons();
         }
+    }
+
+    // Function to display buttons with satellite locations
+    function displaySatelliteButtons() {
+        var satelliteData = <?php echo json_encode($_SESSION['satelliteData'] ?? []); ?>;
+        var buttonsContainer = document.getElementById('satellite-buttons-container');
+
+        // Clear existing buttons
+        buttonsContainer.innerHTML = '';
+
+        // Create buttons for each satellite store
+        satelliteData.forEach(function (satelliteStore) {
+            var button = document.createElement('button');
+            button.textContent = satelliteStore.location_name;
+            button.addEventListener('click', function () {
+                // Redirect to the inventory page of the selected satellite store
+                window.location.href = 'viewinventory.php?storeType=satellite&store_id=' + satelliteStore.store_id;
+            });
+
+            buttonsContainer.appendChild(button);
+        });
     }
 
     // Call viewInventory when the page is loaded
     document.addEventListener('DOMContentLoaded', function () {
         viewInventory();
     });
+
 
     // Logout functionality
     document.getElementById('logoutLink').addEventListener('click', function (event) {
@@ -383,7 +422,6 @@ session_start();
         window.location.href = 'logout.php';
     });
 </script>
-
 
         </div>
     </div>
