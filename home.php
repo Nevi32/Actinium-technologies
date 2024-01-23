@@ -164,10 +164,11 @@
 
     <div id="content">
       <div class="row">
-        <div class="card inventory" onclick="redirectToPage('inventory.php');">
-          <h3>Inventory</h3>
-          <p>You can record and view your inventory here.</p>
+         <div class="card inventory" onclick="redirectToPage('selectinventorypage.php');">
+         <h3>Inventory</h3>
+         <p>You can record and view your inventory here.</p>
         </div>
+
         <div class="card sales" onclick="redirectToPage('sales.html');">
           <h3>Sales</h3>
           <p>Track and analyze your sales data.</p>
@@ -192,17 +193,10 @@
       userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
     }
 
-    function redirectToPage(page) {
-      // Redirect to the specified page with user info
-      var urlParams = new URLSearchParams(window.location.search);
-      var userId = urlParams.get('user_id') || '';
-      var username = urlParams.get('username') || '';
-      var role = urlParams.get('role') || '';
-      var storeName = urlParams.get('store_name') || '';
-      var locationName = urlParams.get('location_name') || ''; // Add location info
-
-      window.location.href = page + '?user_id=' + userId + '&username=' + username + '&role=' + role + '&store_name=' + storeName + '&location_name=' + locationName;
-    }
+      function redirectToPage(page) {
+    // Redirect to the specified page without passing user info in the URL
+    window.location.href = page;
+  }
     document.addEventListener('DOMContentLoaded', function() {
     var role = "<?php echo $_SESSION['role']; ?>";
 
