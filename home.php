@@ -190,7 +190,7 @@ body, html {
 
       <!-- Satellite Stores card -->
       <div class="row">
-        <div class="card stock-satellite-stores" onclick="redirectToPage('satellitestores.html');">
+        <div class="card stock-satellite-stores" onclick="redirectToPage('restock_satellite_store.php');">
           <h3>Satellite Stores</h3>
           <p>Manage stock and data for satellite stores.</p>
         </div>
