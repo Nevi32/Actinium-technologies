@@ -18,15 +18,16 @@
     }
 
     #sidebar {
-      width: 200px;
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;  /* Make the sidebar fixed */
+  height: 100%;
+   }
     #sidebar a {
       color: #fff;
       text-decoration: none;
@@ -54,10 +55,11 @@
     }
 
     #content {
-      flex: 1;
-      padding: 20px;
-    }
-
+  flex: 1;
+  padding: 20px;
+  margin-left: 220px;  /* Adjust the margin to make space for the fixed sidebar */
+  overflow-y: scroll;  /* Allow the content to scroll vertically */
+}
     .welcome-message {
       margin-bottom: 20px;
     }
@@ -102,7 +104,15 @@
       background-color: #f39c12;
       color: #fff;
     }
-
+   
+     .stock-satellite-stores {
+        background-color: #16a085;  /* Adjust the background color as needed */
+        color: #fff;
+     }
+     .stock-satellite-stores p {
+      margin: 10px 0;
+      font-size: 1em;
+    }
     .mpesa-c2b {
       background-color: #9b59b6;
       color: #fff;
@@ -184,6 +194,12 @@
           <p>Explore detailed statistics and reports.</p>
         </div>
       </div>
+       <div class="row">
+         <div class="card stock-satellite-stores" onclick="redirectToPage('satellitestores.html');">
+          <h3>Satellite Stores</h3>
+         <p>Manage stock and data for satellite stores.</p>
+     </div>
+
     </div>
   </div>
 
