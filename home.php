@@ -6,18 +6,18 @@
   <title>Store Management Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-    }
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
 
-    #dashboard {
-      display: flex;
-      height: 100%;
-    }
+#dashboard {
+  display: flex;
+  height: 100%;
+}
 
-    #sidebar {
+#sidebar {
   width: 200px;
   background-color: #333;
   color: #fff;
@@ -25,141 +25,149 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  position: fixed;  /* Make the sidebar fixed */
+  position: fixed;
   height: 100%;
-   }
-    #sidebar a {
-      color: #fff;
-      text-decoration: none;
-      margin-bottom: 15px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-    }
+}
 
-    #sidebar i {
-      margin-right: 10px;
-    }
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
 
-    #sidebar a:not(:last-child) {
-      margin-bottom: 60px;
-    }
+#sidebar i {
+  margin-right: 10px;
+}
 
-    #user-info {
-      display: none;
-      color: #fff;
-      margin-top: 5px;
-      padding: 10px;
-      background-color: #555;
-      border-radius: 15px;
-    }
+#sidebar a:not(:last-child) {
+  margin-bottom: 60px;
+}
 
-    #content {
+#user-info {
+  display: none;
+  color: #fff;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #555;
+  border-radius: 15px;
+}
+
+#content {
   flex: 1;
   padding: 20px;
-  margin-left: 220px;  /* Adjust the margin to make space for the fixed sidebar */
-  overflow-y: scroll;  /* Allow the content to scroll vertically */
+  margin-left: 220px;
+  overflow-y: scroll;
 }
-    .welcome-message {
-      margin-bottom: 20px;
-    }
 
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+.welcome-message {
+  margin-bottom: 25px;
+  font-size: 2em; /* Increase font size for a bolder look */
+  font-weight: bold; /* Make the text bold */
+  color: #333; /* Adjust the color to your preference */
+}
 
-    .card {
-      width: calc(50% - 20px);
-      height: 200px;
-      margin: 10px;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      cursor: pointer;
-      transition: background-color 0.3s ease-in-out;
-    }
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
-    .card:hover {
-      background-color: #eee;
-    }
+.card, .stock-satellite-stores {
+  width: calc(50% - 20px);
+  height: 200px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
 
-    .inventory {
-      background-color: #3498db;
-      color: #fff;
-    }
+.card:hover, .stock-satellite-stores:hover {
+  background-color: #16a085;
+  color: #fff;
+}
 
-    .sales {
-      background-color: #2ecc71;
-      color: #fff;
-    }
+.inventory {
+  background-color: #3498db;
+  color: #fff;
+}
 
-    .orders {
-      background-color: #e74c3c;
-      color: #fff;
-    }
+.sales {
+  background-color: #2ecc71;
+  color: #fff;
+}
 
-    .stats {
-      background-color: #f39c12;
-      color: #fff;
-    }
-   
-     .stock-satellite-stores {
-        background-color: #16a085;  /* Adjust the background color as needed */
-        color: #fff;
-     }
-     .stock-satellite-stores p {
-      margin: 10px 0;
-      font-size: 1em;
-    }
-    .mpesa-c2b {
-      background-color: #9b59b6;
-      color: #fff;
-    }
+.orders {
+  background-color: #e74c3c;
+  color: #fff;
+}
 
-    .mpesa-b2b {
-      background-color: #e67e22;
-      color: #fff;
-    }
+.stats {
+  background-color: #f39c12;
+  color: #fff;
+}
 
-    .card h3 {
-      margin: 0;
-      font-size: 1.5em;
-    }
+.stock-satellite-stores {
+  width: calc(100% - 20px);
+  height: 300px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  background-color: #16a085; /* Adjusted background color */
+  color: #fff;
+}
 
-    .card p {
-      margin: 10px 0;
-      font-size: 1em;
-    }
+.mpesa-c2b {
+  background-color: #9b59b6;
+  color: #fff;
+}
+
+.mpesa-b2b {
+  background-color: #e67e22;
+  color: #fff;
+}
+
+.card h3, .stock-satellite-stores h3 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.card p, .stock-satellite-stores p {
+  margin: 10px 0;
+  font-size: 1em;
+}
+
+#logoutLink {
+  cursor: pointer;
+}
+
+/* ... (additional styles if needed) ... */
+
+
   </style>
 </head>
 <body>
   <?php
-  // Start the session to access session variables
   session_start();
-
-  // Check if the user is logged in
   if (!isset($_SESSION['user_id'])) {
-      header("Location: login.html");
-      exit();
+    header("Location: login.html");
+    exit();
   }
   ?>
   <div id="dashboard">
     <div id="sidebar">
-      <div class="welcome-message" id="welcome-message">
-        <?php
-        // Populate welcome message with session data
-        echo "Welcome to the " . $_SESSION['store_name'] . " System";
-        ?>
-      </div>
-      <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+     <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
       <div id="user-info">
         <?php
-        // Populate user info with session data
         echo "User ID: " . $_SESSION['user_id'] . " <br> Username: " . $_SESSION['username'] . " <br> Role: " . $_SESSION['role'];
 
-        // Additional info for owner or comp staff
         if ($_SESSION['role'] === 'owner' || $_SESSION['comp_staff'] == 1) {
           echo "<br> Store Name: " . $_SESSION['store_name'] . " <br> Location: " . $_SESSION['location_name'];
         }
@@ -169,14 +177,30 @@
       <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
       <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
       <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>  
+      <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <div id="content">
+      <!-- Move the welcome message here -->
+      <div class="welcome-message" id="welcome-message">
+        <?php
+        echo "Welcome to the " . $_SESSION['store_name'] . " System";
+        ?>
+      </div>
+
+      <!-- Satellite Stores card -->
       <div class="row">
-         <div class="card inventory" onclick="redirectToPage('selectinventorypage.php');">
-         <h3>Inventory</h3>
-         <p>You can record and view your inventory here.</p>
+        <div class="card stock-satellite-stores" onclick="redirectToPage('satellitestores.html');">
+          <h3>Satellite Stores</h3>
+          <p>Manage stock and data for satellite stores.</p>
+        </div>
+      </div>
+
+      <!-- Other cards below the Satellite Stores card -->
+      <div class="row">
+        <div class="card inventory" onclick="redirectToPage('selectinventorypage.php');">
+          <h3>Inventory</h3>
+          <p>You can record and view your inventory here.</p>
         </div>
 
         <div class="card sales" onclick="redirectToPage('sales.html');">
@@ -194,17 +218,12 @@
           <p>Explore detailed statistics and reports.</p>
         </div>
       </div>
-       <div class="row">
-         <div class="card stock-satellite-stores" onclick="redirectToPage('satellitestores.html');">
-          <h3>Satellite Stores</h3>
-         <p>Manage stock and data for satellite stores.</p>
-     </div>
 
+      <!-- ... (existing script content) ... -->
     </div>
   </div>
-
   <script>
-    function toggleUserInfo() {
+  function toggleUserInfo() {
       var userInfo = document.getElementById('user-info');
       userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
     }
@@ -263,6 +282,7 @@
       // Redirect the user to the logout.php file for logout
       window.location.href = 'logout.php';
     });
+
   </script>
 </body>
 </html>
