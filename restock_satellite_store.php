@@ -6,7 +6,7 @@
   <title>Restock Satellite Stores</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <style>
- /* Global styles */
+   /* Global styles */
 body, html {
   height: 100%;
   margin: 0;
@@ -147,6 +147,10 @@ body, html {
   cursor: pointer;
 }
 
+#popup-message {
+  margin-bottom: 15px;
+}
+
 /* Additional styles if needed... */
 
 
@@ -184,16 +188,17 @@ body, html {
       <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
       <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
-     <div id="content">
+
+    <div id="content">
       <!-- Restock form -->
       <div id="restock-form">
         <h2>Create Restock Order</h2>
-        <form action="submit_restock_order.php" method="post">
+        <form id="restockForm" onsubmit="event.preventDefault(); submitForm();">
           <label for="quantity">Quantity:</label>
           <input type="text" id="quantity" name="quantity" required>
 
           <label for="satellite-location">Satellite Location:</label>
-          <select id="satellite-location" name="satellite-location" required></select>
+          <select id="satellite-location" name="destination-location" required></select>
 
           <!-- Additional fields -->
           <label for="price">Price:</label>
@@ -224,48 +229,73 @@ body, html {
     <div class="popup-content">
       <span class="close-popup" onclick="closeViewOrdersPopup()">&times;</span>
       <h2>Restock Orders</h2>
-      <?php echo "Fetching restock orders functionality not implemented yet"; ?>
+      <div id="popup-message"></div>
       <button onclick="downloadOrders()">Download Orders</button>
     </div>
   </div>
 
   <script>
-    // Fetch satellite stores and populate the dropdown
-    window.onload = function() {
-      fetch('fetch_satellite_stores.php')
-        .then(response => response.json())
-        .then(data => {
-          const select = document.getElementById('satellite-location');
-          data.forEach(store => {
-            const option = document.createElement('option');
-            option.value = store.location_name;
-            option.text = store.location_name;
-            select.add(option);
-          });
-        })
-        .catch(error => console.error('Error fetching satellite stores:', error));
-    };
+   // Fetch satellite stores and populate the dropdown
+  window.onload = function () {
+    fetch('fetch_satellite_stores.php')
+      .then(response => response.json())
+      .then(data => {
+        const select = document.getElementById('satellite-location');
+        data.forEach(store => {
+          const option = document.createElement('option');
+          option.value = store.location_name;
+          option.text = store.location_name;
+          select.add(option);
+        });
+      })
+      .catch(error => console.error('Error fetching satellite stores:', error));
+  };
 
-    function toggleUserInfo() {
-      var userInfo = document.getElementById('user-info');
-      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
+  function toggleUserInfo() {
+    var userInfo = document.getElementById('user-info');
+    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+  }
 
-    function openViewOrdersPopup() {
-      document.getElementById('view-orders-popup').style.display = 'flex';
-    }
+  function openViewOrdersPopup() {
+    document.getElementById('view-orders-popup').style.display = 'flex';
+  }
 
-    function closeViewOrdersPopup() {
-      document.getElementById('view-orders-popup').style.display = 'none';
-    }
+  function closeViewOrdersPopup() {
+    document.getElementById('view-orders-popup').style.display = 'none';
+  }
 
-    function downloadOrders() {
-      // Implement download functionality here
-      alert('Downloading orders...');
-      // Replace the alert with actual download logic
-    }
+  function downloadOrders() {
+    // Implement download functionality here
+    alert('Downloading orders...');
+    // Replace the alert with actual download logic
+  }
 
-    // Other scripts...
+  function submitForm() {
+    // Get form data
+    const form = document.getElementById('restockForm');
+    const formData = new FormData(form);
+
+    // Send form data using fetch
+    fetch('recordRestock.php', {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Display the response message in a separate pop-up
+        document.getElementById('popup-message').innerHTML = data.message;
+        openResponsePopup();
+      })
+      .catch(error => console.error('Error submitting form:', error));
+  }
+
+  function openResponsePopup() {
+    // Display a separate pop-up for success or error messages
+    // You can customize this part based on your design or use a library like SweetAlert
+    const popupMessage = document.getElementById('popup-message').innerHTML;
+    alert('Displaying response pop-up: ' + popupMessage);
+  }
+
   </script>
 </body>
 </html>
