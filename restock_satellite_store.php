@@ -203,10 +203,10 @@
           <input type="text" id="price" name="price" required>
 
           <label for="product-name">Product Name:</label>
-          <input type="text" id="product-name" name="product-name" required>
+          <select id="product-name" name="product-name" required></select>
 
           <label for="category">Category:</label>
-          <input type="text" id="category" name="category" required>
+          <select id="category" name="category" required></select>
 
           <!-- Hidden input fields for store_name and location_name -->
           <input type="hidden" id="store-name" name="store-name" value="<?php echo $_SESSION['store_name']; ?>">
@@ -225,16 +225,17 @@
       </div>
     </div>
   </div>
-
   <!-- View Orders Popup -->
-  <div id="view-orders-popup">
-    <div class="popup-content">
-      <span class="close-popup" onclick="closeViewOrdersPopup()">&times;</span>
-      <h2>Restock Orders</h2>
-      <div id="popup-message"></div>
-      <button onclick="downloadOrders()">Download Orders</button>
-    </div>
+<div id="view-orders-popup">
+  <div class="popup-content">
+    <span class="close-popup" onclick="closeViewOrdersPopup()">&times;</span>
+    <h2>Restock Orders</h2>
+    <div id="popup-message"></div>
+    <div id="orders-list"></div>
+    <button onclick="downloadOrders()">Download Orders</button>
   </div>
+</div>
+
 
   <script>
     // Fetch satellite stores and populate the dropdown
@@ -251,6 +252,31 @@
           });
         })
         .catch(error => console.error('Error fetching satellite stores:', error));
+
+      // Fetch products and categories and populate select fields
+      fetch('fetchproducts.php')
+        .then(response => response.json())
+        .then(data => {
+          const productSelect = document.getElementById('product-name');
+          const categorySelect = document.getElementById('category');
+
+          // Populate product select field
+          data.products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product;
+            option.text = product;
+            productSelect.appendChild(option);
+          });
+
+          // Populate category select field
+          data.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.text = category;
+            categorySelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error fetching products:', error));
     };
 
     function toggleUserInfo() {
@@ -266,33 +292,90 @@
       document.getElementById('view-orders-popup').style.display = 'none';
     }
 
-    function downloadOrders() {
-      // Implement download functionality here
-      alert('Downloading orders...');
-      // Replace the alert with actual download logic
-    }
 
     function submitForm() {
-      // Get form data
-      const form = document.getElementById('restockForm');
-      const formData = new FormData(form);
+  // Prevent default form submission
+  event.preventDefault();
 
-      // Append store_name and location_name to the formData
-      formData.append('store_name', document.getElementById('store-name').value);
-      formData.append('location_name', document.getElementById('location-name').value);
+  // Get form data
+  const form = document.getElementById('restockForm');
+  const formData = new FormData(form);
 
-      // Send form data using fetch
-      fetch('recordRestock.php', {
-        method: 'POST',
-        body: formData
+  // Append store_name and location_name to the formData
+  formData.append('store_name', document.getElementById('store-name').value);
+  formData.append('location_name', document.getElementById('location-name').value);
+
+  // Send form data using fetch
+  fetch('recordRestock.php', {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Display the response message in a separate pop-up
+      alert(data.message);
+    })
+    .catch(error => console.error('Error submitting form:', error));
+}
+
+
+  // Function to fetch and display restock orders
+  function fetchRestockOrders() {
+    fetch('fetchRestockOrders.php')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Populate orders list
+          const ordersList = document.getElementById('orders-list');
+          ordersList.innerHTML = ''; // Clear previous content
+          data.orders.forEach(order => {
+            const orderInfo = document.createElement('div');
+            orderInfo.innerHTML = `<strong>Product Name:</strong> ${order.product_name}<br>
+                                   <strong>Category:</strong> ${order.category}<br>
+                                   <strong>Price:</strong> ${order.price}<br>
+                                   <strong>Date:</strong> ${order.order_date}<br>
+                                   <strong>Satellite Location:</strong> ${order.satellite_location}<br><br>`;
+            ordersList.appendChild(orderInfo);
+          });
+        } else {
+          // Display error message if fetching orders fails
+          document.getElementById('popup-message').innerText = data.message;
+        }
       })
-        .then(response => response.json())
-        .then(data => {
-          // Display the response message in a separate pop-up
-          document.getElementById('popup-message').innerHTML = data.message;
-          openResponsePopup();
-        })
-        .catch(error => console.error('Error submitting form:', error));
+      .catch(error => console.error('Error fetching restock orders:', error));
+  }
+
+  // Function to open the view orders popup and fetch orders
+  function openViewOrdersPopup() {
+    document.getElementById('view-orders-popup').style.display = 'flex';
+    fetchRestockOrders(); // Fetch restock orders when popup is opened
+  }
+
+   // Close the view orders popup when clicking on the "x" icon
+    document.getElementById('close-popup').addEventListener('click', function() {
+        document.getElementById('view-orders-popup').style.display = 'none';
+    });
+
+    // Download orders functionality
+    function downloadOrders() {
+        fetch('fetchRestockOrders.php')
+            .then(response => response.text())
+            .then(data => {
+                // Create a Blob object containing the text data
+                const blob = new Blob([data], { type: 'text/plain' });
+                // Create a temporary URL for the Blob object
+                const url = window.URL.createObjectURL(blob);
+                // Create a link element to trigger the download
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'restock_orders.txt';
+                // Simulate a click on the link to start the download
+                document.body.appendChild(link);
+                link.click();
+                // Clean up by revoking the URL
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Error downloading orders:', error));
     }
 
     function openResponsePopup() {

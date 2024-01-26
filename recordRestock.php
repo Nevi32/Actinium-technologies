@@ -1,93 +1,68 @@
 <?php
-// Include the database configuration
-include('config.php');
+// Include database credentials
+include 'config.php';
 
-// Function to establish a database connection using PDO
-function connectToDatabase()
-{
-    global $databaseConfig;
-
-    try {
-        $conn = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $conn;
-    } catch (PDOException $e) {
-        die("Connection failed: " . $e->getMessage());
-    }
+// Establish database connection
+try {
+    $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    // Return error message if database connection fails
+    $response = ['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()];
+    echo json_encode($response);
+    exit(); // Exit script
 }
 
-// Function to find the main store ID based on store name and location
-function getMainStoreId($storeName, $locationName)
-{
-    $conn = connectToDatabase();
+// Retrieve form data
+$quantity = $_POST['quantity'];
+$price = $_POST['price'];
+$product_name = $_POST['product-name'];
+$category = $_POST['category'];
+$store_name = $_POST['store-name'];
+$location_name = $_POST['location-name'];
+$destination_location = $_POST['destination-location'];
 
-    $query = "SELECT store_id FROM stores WHERE store_name = ? AND location_name = ? AND location_type = 'main_store'";
-    
-    try {
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$storeName, $locationName]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    // Retrieve main store ID
+    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = :store_name AND location_name = :location_name");
+    $stmt->execute(['store_name' => $store_name, 'location_name' => $location_name]);
+    $main_store_id = $stmt->fetchColumn();
 
-        if ($result) {
-            return $result['store_id'];
+    // Retrieve destination store ID
+    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE location_name = :destination_location AND location_type = 'satellite'");
+    $stmt->execute(['destination_location' => $destination_location]);
+    $destination_store_id = $stmt->fetchColumn();
+
+    // Check if main store and destination store IDs are valid
+    if ($main_store_id && $destination_store_id) {
+        // Retrieve main entry ID from main entry table
+        $stmt = $pdo->prepare("SELECT main_entry_id FROM main_entry WHERE product_name = :product_name AND category = :category AND store_id = :main_store_id");
+        $stmt->execute(['product_name' => $product_name, 'category' => $category, 'main_store_id' => $main_store_id]);
+        $main_entry_id = $stmt->fetchColumn();
+
+        // Check if main entry exists
+        if ($main_entry_id) {
+            // Insert restock order into inventory_orders table
+            $stmt = $pdo->prepare("INSERT INTO inventory_orders (main_store_id, destination_store_id, main_entry_id, quantity, price) VALUES (:main_store_id, :destination_store_id, :main_entry_id, :quantity, :price)");
+            $stmt->execute(['main_store_id' => $main_store_id, 'destination_store_id' => $destination_store_id, 'main_entry_id' => $main_entry_id, 'quantity' => $quantity, 'price' => $price]);
+
+            // Return success message
+            $response = ['success' => true, 'message' => 'Restock order successfully recorded.'];
+            echo json_encode($response);
+        } else {
+            // Return error message if main entry does not exist
+            $response = ['success' => false, 'message' => 'Main entry not found for the provided product and category in the main store inventory.'];
+            echo json_encode($response);
         }
-
-        return null;
-    } catch (PDOException $e) {
-        die("Error: " . $e->getMessage());
+    } else {
+        // Return error message if main store or destination store not found
+        $response = ['success' => false, 'message' => 'Main store or destination store not found.'];
+        echo json_encode($response);
     }
-}
-
-// Function to find the satellite store ID based on location
-function getSatelliteStoreId($locationName)
-{
-    $conn = connectToDatabase();
-
-    $query = "SELECT store_id FROM stores WHERE location_name = ? AND location_type = 'satellite'";
-    
-    try {
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$locationName]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($result) {
-            return $result['store_id'];
-        }
-
-        return null;
-    } catch (PDOException $e) {
-        die("Error: " . $e->getMessage());
-    }
-}
-
-// Main logic to handle the restock process
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    session_start();
-
-    // Get data from the form
-    $storeName = $_POST['store-name'];
-    $locationName = $_POST['location-name'];
-    $productName = $_POST['product-name'];
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price']; // Add this line to get the price from the form
-
-    // Get main store and satellite store IDs
-    $mainStoreId = getMainStoreId($storeName, $locationName);
-    $satelliteStoreId = getSatelliteStoreId($_POST['destination-location']);
-
-    // Display the collected data
-    echo "Main Store ID: $mainStoreId<br>";
-    echo "Satellite Store ID: $satelliteStoreId<br>";
-    echo "Product Name: $productName<br>";
-    echo "Quantity: $quantity<br>";
-    echo "Price: $price<br>";
-
-    // You can add additional checks or data processing here
-
-} else {
-    // If the request method is not POST, return an error
-    header("HTTP/1.1 405 Method Not Allowed");
-    echo "Method Not Allowed";
+} catch (PDOException $e) {
+    // Return error message for any database query errors
+    $response = ['success' => false, 'message' => 'Error recording restock order: ' . $e->getMessage()];
+    echo json_encode($response);
 }
 ?>
 
