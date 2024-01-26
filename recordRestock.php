@@ -1,69 +1,93 @@
 <?php
-// Include the configuration file
-require_once 'config.php';
+// Include the database configuration
+include('config.php');
 
-// Start the session
-session_start();
-
-// Function to send JSON response
-function sendResponse($status, $message) {
-    header('Content-Type: application/json');
-    echo json_encode(['status' => $status, 'message' => $message]);
-    exit();
-}
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    sendResponse('error', 'User not logged in');
-}
-
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $quantity = $_POST['quantity'];
-    $productName = $_POST['product-name'];
-    $category = $_POST['category'];
-    $destinationLocation = $_POST['destination-location'];
+// Function to establish a database connection using PDO
+function connectToDatabase()
+{
+    global $databaseConfig;
 
     try {
-        // Create a new PDO instance
-        $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Get main_store_id from the stores table
-        $storeStmt = $pdo->prepare("SELECT store_id FROM stores WHERE location_name = ? AND location_type = 'main_store'");
-        $storeStmt->execute([$destinationLocation]);
-        $storeRow = $storeStmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($storeRow) {
-            $destinationStoreId = $storeRow['store_id'];
-
-            // Check if the product exists in the main_store inventory
-            $mainEntryStmt = $pdo->prepare("SELECT main_entry_id FROM main_entry WHERE product_name = ? AND category = ? AND store_id = ?");
-            $mainEntryStmt->execute([$productName, $category, $destinationStoreId]);
-            $mainEntryRow = $mainEntryStmt->fetch(PDO::FETCH_ASSOC);
-
-            $mainEntryId = ($mainEntryRow) ? $mainEntryRow['main_entry_id'] : null;
-
-            // Insert the record into inventory_orders table
-            $insertStmt = $pdo->prepare("INSERT INTO inventory_orders (main_store_id, destination_store_id, main_entry_id, quantity, order_date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)");
-            $insertStmt->execute([$destinationStoreId, $destinationStoreId, $mainEntryId, $quantity]);
-
-            // Send success message in JSON format
-            sendResponse('success', 'Restock order recorded successfully');
-        } else {
-            // Send error message in JSON format
-            sendResponse('error', 'Invalid destination location');
-        }
+        $conn = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $conn;
     } catch (PDOException $e) {
-        // Log the error details
-        error_log("Database Error: " . $e->getMessage(), 0);
-        // Send error message in JSON format
-        sendResponse('error', 'Database error');
+        die("Connection failed: " . $e->getMessage());
     }
+}
+
+// Function to find the main store ID based on store name and location
+function getMainStoreId($storeName, $locationName)
+{
+    $conn = connectToDatabase();
+
+    $query = "SELECT store_id FROM stores WHERE store_name = ? AND location_name = ? AND location_type = 'main_store'";
+    
+    try {
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$storeName, $locationName]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return $result['store_id'];
+        }
+
+        return null;
+    } catch (PDOException $e) {
+        die("Error: " . $e->getMessage());
+    }
+}
+
+// Function to find the satellite store ID based on location
+function getSatelliteStoreId($locationName)
+{
+    $conn = connectToDatabase();
+
+    $query = "SELECT store_id FROM stores WHERE location_name = ? AND location_type = 'satellite'";
+    
+    try {
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$locationName]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return $result['store_id'];
+        }
+
+        return null;
+    } catch (PDOException $e) {
+        die("Error: " . $e->getMessage());
+    }
+}
+
+// Main logic to handle the restock process
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    session_start();
+
+    // Get data from the form
+    $storeName = $_POST['store-name'];
+    $locationName = $_POST['location-name'];
+    $productName = $_POST['product-name'];
+    $quantity = $_POST['quantity'];
+    $price = $_POST['price']; // Add this line to get the price from the form
+
+    // Get main store and satellite store IDs
+    $mainStoreId = getMainStoreId($storeName, $locationName);
+    $satelliteStoreId = getSatelliteStoreId($_POST['destination-location']);
+
+    // Display the collected data
+    echo "Main Store ID: $mainStoreId<br>";
+    echo "Satellite Store ID: $satelliteStoreId<br>";
+    echo "Product Name: $productName<br>";
+    echo "Quantity: $quantity<br>";
+    echo "Price: $price<br>";
+
+    // You can add additional checks or data processing here
+
 } else {
-    // Send error message in JSON format
-    sendResponse('error', 'Form not submitted');
+    // If the request method is not POST, return an error
+    header("HTTP/1.1 405 Method Not Allowed");
+    echo "Method Not Allowed";
 }
 ?>
 

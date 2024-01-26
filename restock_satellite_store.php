@@ -6,154 +6,152 @@
   <title>Restock Satellite Stores</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <style>
-   /* Global styles */
-body, html {
-  height: 100%;
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-}
+    /* Global styles */
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+    }
 
-/* Dashboard layout */
-#dashboard {
-  display: flex;
-  height: 100%;
-}
+    /* Dashboard layout */
+    #dashboard {
+      display: flex;
+      height: 100%;
+    }
 
-/* Sidebar styles */
-#sidebar {
-  width: 200px;
-  background-color: #333;
-  color: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  position: fixed;
-  height: 100%;
-}
+    /* Sidebar styles */
+    #sidebar {
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: fixed;
+      height: 100%;
+    }
 
-#sidebar a {
-  color: #fff;
-  text-decoration: none;
-  margin-bottom: 25px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
+    #sidebar a {
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 25px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
 
-#sidebar i {
-  margin-right: 10px;
-}
+    #sidebar i {
+      margin-right: 10px;
+    }
 
-#sidebar a:not(:last-child) {
-  margin-bottom: 100px;
-}
+    #sidebar a:not(:last-child) {
+      margin-bottom: 100px;
+    }
 
-/* User info display */
-#user-info {
-  display: none;
-  color: #fff;
-  margin-top: 5px;
-  padding: 10px;
-  background-color: #555;
-  border-radius: 15px;
-}
+    /* User info display */
+    #user-info {
+      display: none;
+      color: #fff;
+      margin-top: 5px;
+      padding: 10px;
+      background-color: #555;
+      border-radius: 15px;
+    }
 
-/* Content area styles */
-#content {
-  flex: 1;
-  padding: 20px;
-  margin-left: 220px;
-  overflow-y: scroll;
-}
+    /* Content area styles */
+    #content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 220px;
+      overflow-y: scroll;
+    }
 
-/* Restock form styles */
-#restock-form {
-  width: 50%;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 15px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+    /* Restock form styles */
+    #restock-form {
+      width: 50%;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 15px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-#restock-form label {
-  display: block;
-  margin-top: 10px;
-}
+    #restock-form label {
+      display: block;
+      margin-top: 10px;
+    }
 
-#restock-form input,
-#restock-form select {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0 15px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
+    #restock-form input,
+    #restock-form select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
 
-#restock-form button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+    #restock-form button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-#restock-form button:hover {
-  background-color: #45a049;
-}
+    #restock-form button:hover {
+      background-color: #45a049;
+    }
 
-/* View Orders card styles */
-#view-orders-card {
-  background-color: #3498db;
-  color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  cursor: pointer;
-}
+    /* View Orders card styles */
+    #view-orders-card {
+      background-color: #3498db;
+      color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
 
-#view-orders-card:hover {
-  background-color: #2980b9;
-}
+    #view-orders-card:hover {
+      background-color: #2980b9;
+    }
 
-/* View Orders Popup styles */
-#view-orders-popup {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-}
+    /* View Orders Popup styles */
+    #view-orders-popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
 
-.popup-content {
-  width: 60%;
-  padding: 20px;
-  border-radius: 15px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+    .popup-content {
+      width: 60%;
+      padding: 20px;
+      border-radius: 15px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-.close-popup {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
+    .close-popup {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
 
-#popup-message {
-  margin-bottom: 15px;
-}
+    #popup-message {
+      margin-bottom: 15px;
+    }
 
-/* Additional styles if needed... */
-
-
+    /* Additional styles if needed... */
   </style>
 </head>
 <body>
@@ -210,6 +208,10 @@ body, html {
           <label for="category">Category:</label>
           <input type="text" id="category" name="category" required>
 
+          <!-- Hidden input fields for store_name and location_name -->
+          <input type="hidden" id="store-name" name="store-name" value="<?php echo $_SESSION['store_name']; ?>">
+          <input type="hidden" id="location-name" name="location-name" value="<?php echo $_SESSION['location_name']; ?>">
+
           <button type="submit">Submit Order</button>
         </form>
       </div>
@@ -235,67 +237,70 @@ body, html {
   </div>
 
   <script>
-   // Fetch satellite stores and populate the dropdown
-  window.onload = function () {
-    fetch('fetch_satellite_stores.php')
-      .then(response => response.json())
-      .then(data => {
-        const select = document.getElementById('satellite-location');
-        data.forEach(store => {
-          const option = document.createElement('option');
-          option.value = store.location_name;
-          option.text = store.location_name;
-          select.add(option);
-        });
+    // Fetch satellite stores and populate the dropdown
+    window.onload = function () {
+      fetch('fetch_satellite_stores.php')
+        .then(response => response.json())
+        .then(data => {
+          const select = document.getElementById('satellite-location');
+          data.forEach(store => {
+            const option = document.createElement('option');
+            option.value = store.location_name;
+            option.text = store.location_name;
+            select.add(option);
+          });
+        })
+        .catch(error => console.error('Error fetching satellite stores:', error));
+    };
+
+    function toggleUserInfo() {
+      var userInfo = document.getElementById('user-info');
+      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function openViewOrdersPopup() {
+      document.getElementById('view-orders-popup').style.display = 'flex';
+    }
+
+    function closeViewOrdersPopup() {
+      document.getElementById('view-orders-popup').style.display = 'none';
+    }
+
+    function downloadOrders() {
+      // Implement download functionality here
+      alert('Downloading orders...');
+      // Replace the alert with actual download logic
+    }
+
+    function submitForm() {
+      // Get form data
+      const form = document.getElementById('restockForm');
+      const formData = new FormData(form);
+
+      // Append store_name and location_name to the formData
+      formData.append('store_name', document.getElementById('store-name').value);
+      formData.append('location_name', document.getElementById('location-name').value);
+
+      // Send form data using fetch
+      fetch('recordRestock.php', {
+        method: 'POST',
+        body: formData
       })
-      .catch(error => console.error('Error fetching satellite stores:', error));
-  };
+        .then(response => response.json())
+        .then(data => {
+          // Display the response message in a separate pop-up
+          document.getElementById('popup-message').innerHTML = data.message;
+          openResponsePopup();
+        })
+        .catch(error => console.error('Error submitting form:', error));
+    }
 
-  function toggleUserInfo() {
-    var userInfo = document.getElementById('user-info');
-    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-  }
-
-  function openViewOrdersPopup() {
-    document.getElementById('view-orders-popup').style.display = 'flex';
-  }
-
-  function closeViewOrdersPopup() {
-    document.getElementById('view-orders-popup').style.display = 'none';
-  }
-
-  function downloadOrders() {
-    // Implement download functionality here
-    alert('Downloading orders...');
-    // Replace the alert with actual download logic
-  }
-
-  function submitForm() {
-    // Get form data
-    const form = document.getElementById('restockForm');
-    const formData = new FormData(form);
-
-    // Send form data using fetch
-    fetch('recordRestock.php', {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Display the response message in a separate pop-up
-        document.getElementById('popup-message').innerHTML = data.message;
-        openResponsePopup();
-      })
-      .catch(error => console.error('Error submitting form:', error));
-  }
-
-  function openResponsePopup() {
-    // Display a separate pop-up for success or error messages
-    // You can customize this part based on your design or use a library like SweetAlert
-    const popupMessage = document.getElementById('popup-message').innerHTML;
-    alert('Displaying response pop-up: ' + popupMessage);
-  }
-
+    function openResponsePopup() {
+      // Display a separate pop-up for success or error messages
+      // You can customize this part based on your design or use a library like SweetAlert
+      const popupMessage = document.getElementById('popup-message').innerHTML;
+      alert('Displaying response pop-up: ' + popupMessage);
+    }
   </script>
 </body>
 </html>
