@@ -28,11 +28,11 @@ try {
 
     $storeId = $store['store_id'];
 
-    // Fetch restock orders related to the store ID
+    // Fetch restock orders that are not cleared
     $stmt = $pdo->prepare("SELECT o.order_id, e.product_name, e.category, o.quantity
                             FROM inventory_orders o
                             INNER JOIN main_entry e ON o.main_entry_id = e.main_entry_id
-                            WHERE o.destination_store_id = ?");
+                            WHERE o.destination_store_id = ? AND o.cleared = 0"); // Only select orders that are not cleared
     $stmt->execute([$storeId]);
     $restockOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
