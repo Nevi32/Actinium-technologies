@@ -120,33 +120,36 @@
     }
 
     /* View Orders Popup styles */
-    #view-orders-popup {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
+   #view-orders-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
 
-    .popup-content {
-      width: 60%;
-      padding: 20px;
-      border-radius: 15px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+.popup-content {
+  position: relative; /* Added to make the close button position relative to this container */
+  width: 60%;
+  max-width: 600px; /* Added to limit maximum width of popup content */
+  padding: 20px;
+  border-radius: 15px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-    .close-popup {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-    }
-
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px; /* Adjust font size for better visibility */
+  color: #333; /* Adjust color for better visibility */
+}
     #popup-message {
       margin-bottom: 15px;
     }
@@ -225,7 +228,8 @@
       </div>
     </div>
   </div>
-   <div id="view-orders-popup">
+  <!-- View Orders Popup -->
+<div id="view-orders-popup">
     <div class="popup-content">
       <span class="close-popup" id="close-popup">&times;</span>
       <h2>Restock Orders</h2>
@@ -234,7 +238,7 @@
       <button onclick="downloadOrders()">Download Orders</button>
     </div>
   </div>
-
+</div>
   <script>
     // Fetch satellite stores and populate the dropdown
     window.onload = function () {
@@ -286,10 +290,10 @@
       document.getElementById('view-orders-popup').style.display = 'flex';
     }
 
-    function closeViewOrdersPopup() {
-      document.getElementById('view-orders-popup').style.display = 'none';
-    }
-
+      // Function to close the view orders popup
+  document.getElementById('close-popup').addEventListener('click', function() {
+    document.getElementById('view-orders-popup').style.display = 'none';
+  });
 
     function submitForm() {
   // Prevent default form submission
@@ -354,27 +358,40 @@
         document.getElementById('view-orders-popup').style.display = 'none';
     });
 
-    // Download orders functionality
     function downloadOrders() {
-        fetch('fetchRestockOrders.php')
-            .then(response => response.text())
-            .then(data => {
-                // Create a Blob object containing the text data
-                const blob = new Blob([data], { type: 'text/plain' });
-                // Create a temporary URL for the Blob object
-                const url = window.URL.createObjectURL(blob);
-                // Create a link element to trigger the download
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'restock_orders.txt';
-                // Simulate a click on the link to start the download
-                document.body.appendChild(link);
-                link.click();
-                // Clean up by revoking the URL
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(error => console.error('Error downloading orders:', error));
-    }
+  fetch('fetchRestockOrders.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        let formattedOrders = ''; // Variable to store formatted orders
+        // Format each order
+        data.orders.forEach(order => {
+          formattedOrders += `Product Name: ${order.product_name}\n` +
+                             `Category: ${order.category}\n` +
+                             `Price: ${order.price}\n` +
+                             `Date: ${order.order_date}\n` +
+                             `Satellite Location: ${order.satellite_location}\n\n`;
+        });
+        // Create a Blob object containing the formatted orders
+        const blob = new Blob([formattedOrders], { type: 'text/plain' });
+        // Create a temporary URL for the Blob object
+        const url = window.URL.createObjectURL(blob);
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'restock_orders.txt';
+        // Simulate a click on the link to start the download
+        document.body.appendChild(link);
+        link.click();
+        // Clean up by revoking the URL
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Error downloading orders:', data.message);
+      }
+    })
+    .catch(error => console.error('Error downloading orders:', error));
+}
+
 
     function openResponsePopup() {
       // Display a separate pop-up for success or error messages
