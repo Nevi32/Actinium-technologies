@@ -225,17 +225,15 @@
       </div>
     </div>
   </div>
-  <!-- View Orders Popup -->
-<div id="view-orders-popup">
-  <div class="popup-content">
-    <span class="close-popup" onclick="closeViewOrdersPopup()">&times;</span>
-    <h2>Restock Orders</h2>
-    <div id="popup-message"></div>
-    <div id="orders-list"></div>
-    <button onclick="downloadOrders()">Download Orders</button>
+   <div id="view-orders-popup">
+    <div class="popup-content">
+      <span class="close-popup" id="close-popup">&times;</span>
+      <h2>Restock Orders</h2>
+      <div id="popup-message"></div>
+      <div id="orders-list" style="max-height: 300px; overflow-y: auto;"></div>
+      <button onclick="downloadOrders()">Download Orders</button>
+    </div>
   </div>
-</div>
-
 
   <script>
     // Fetch satellite stores and populate the dropdown
