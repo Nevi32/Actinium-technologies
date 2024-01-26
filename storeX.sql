@@ -91,6 +91,7 @@ CREATE TABLE inventory_orders (
     main_entry_id INT,
     quantity DECIMAL(10,2) NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     FOREIGN KEY (main_store_id) REFERENCES stores(store_id),
     FOREIGN KEY (destination_store_id) REFERENCES stores(store_id),
     FOREIGN KEY (main_entry_id) REFERENCES main_entry(main_entry_id)
