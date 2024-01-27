@@ -1,9 +1,13 @@
 <?php
+require_once 'config.php';
+
+// Check if user is logged in
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.html");
-    exit();
+    http_response_code(401);
+    exit("Unauthorized");
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -45,9 +49,7 @@ if (!isset($_SESSION['user_id'])) {
     #sidebar i {
       margin-right: 10px;
     }
-    #sidebar a:not(:last-child) {
-  margin-bottom: 100px;
-}
+
     #user-info {
       display: none;
       color: #fff;
@@ -113,6 +115,12 @@ if (!isset($_SESSION['user_id'])) {
     th {
       background-color: #f2f2f2;
     }
+
+    /* Additional style for the cleared button */
+    .cleared-button {
+      background-color: #4CAF50; /* Green */
+    }
+
   </style>
 </head>
 <body>
@@ -181,10 +189,38 @@ if (!isset($_SESSION['user_id'])) {
       } else {
         let tableHTML = '<table><thead><tr><th>Product Name</th><th>Category</th><th>Price</th><th>Quantity</th><th>Quantity Description</th><th>Status</th></tr></thead><tbody>';
         data.forEach(order => {
-          tableHTML += `<tr><td>${order.product_name}</td><td>${order.category}</td><td>${order.price}</td><td>${order.quantity}</td><td>${order.quantity_description}</td><td><button style="background-color: red;">Pending</button></td></tr>`;
+          let statusButton = order.cleared === 1 ? '<button class="cleared-button" style="pointer-events:none;">Cleared</button>' : '<button onclick="confirmArrival(' + order.order_id + ')" style="background-color: red;">Pending</button>';
+          tableHTML += `<tr><td>${order.product_name}</td><td>${order.category}</td><td>${order.price}</td><td>${order.quantity}</td><td>${order.quantity_description}</td><td>${statusButton}</td></tr>`;
         });
         tableHTML += '</tbody></table>';
         content.innerHTML += tableHTML;
+      }
+    }
+
+    function confirmArrival(order_id) {
+      if (confirm("Did the product arrive?")) {
+        fetch('recordsatstoreinventory.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'order_id=' + order_id + '&confirm=yes',
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(data => {
+          alert(data); // Show success message
+          // Refresh the restock orders after success
+          viewRestockOrders();
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+          alert('There was an error processing your request.');
+        });
       }
     }
   </script>
