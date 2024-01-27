@@ -112,3 +112,29 @@ CREATE TABLE commissions (
     FOREIGN KEY (sales_id) REFERENCES sales(sale_id)
 );
 
+DELIMITER //
+
+CREATE TRIGGER subtract_quantity_after_order
+AFTER INSERT ON inventory_orders
+FOR EACH ROW
+BEGIN
+    DECLARE main_entry_quantity DECIMAL(10,2);
+
+    -- Get the current quantity from main_entry table in the main_store
+    SELECT total_quantity INTO main_entry_quantity
+    FROM main_entry ME
+    JOIN stores S ON ME.store_id = S.store_id
+    WHERE ME.main_entry_id = NEW.main_entry_id
+    AND S.location_type = 'main_store';
+
+    -- Subtract the ordered quantity from the main_entry table in the main_store
+    UPDATE main_entry ME
+    JOIN stores S ON ME.store_id = S.store_id
+    SET ME.total_quantity = main_entry_quantity - NEW.quantity
+    WHERE ME.main_entry_id = NEW.main_entry_id
+    AND S.location_type = 'main_store';
+END;
+//
+
+DELIMITER ;
+
