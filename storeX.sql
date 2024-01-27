@@ -83,17 +83,21 @@ CREATE TABLE notifications (
     FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
 
--- Create the inventory_orders table
 CREATE TABLE inventory_orders (
-    order_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL AUTO_INCREMENT,
     main_store_id INT,
     destination_store_id INT,
     main_entry_id INT,
     quantity DECIMAL(10,2) NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    FOREIGN KEY (main_store_id) REFERENCES stores(store_id),
-    FOREIGN KEY (destination_store_id) REFERENCES stores(store_id),
+    cleared TINYINT(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (order_id),
+    INDEX (main_store_id),
+    INDEX (destination_store_id),
+    INDEX (main_entry_id),
+    FOREIGN KEY (main_store_id) REFERENCES main_store(store_id),
+    FOREIGN KEY (destination_store_id) REFERENCES satellite_store(store_id),
     FOREIGN KEY (main_entry_id) REFERENCES main_entry(main_entry_id)
 );
 

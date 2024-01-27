@@ -165,6 +165,26 @@ session_start();
             padding: 2px 16px;
         }
 
+        .modal-content {
+    /* Adjust max-height for scrolling */
+    max-height: 400px;
+    /* Enable scrolling */
+    overflow-y: auto;
+}
+
+/* Style for download button */
+.download-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+}
         #search-bar {
             margin-top: 20px;
         }
@@ -180,6 +200,7 @@ session_start();
         #search-bar button {
             cursor: pointer;
         }
+        
     </style>
 </head>
 
@@ -257,18 +278,22 @@ session_start();
                 </table>
             </div>
 
-            <!-- Modal for detailed entries -->
-            <div id="detailed-entries-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <h2>Detailed Info on Inventory Entry</h2>
-                    </div>
-                    <div class="modal-body" id="modal-body-content">
-                        <!-- Detailed inventory data will be dynamically inserted here -->
-                    </div>
-                </div>
-            </div>
+          <!-- Modal for detailed entries -->
+<div id="detailed-entries-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Detailed Info on Inventory Entry</h2>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+            <!-- Detailed inventory data will be dynamically inserted here -->
+        </div>
+        <!-- Add download button -->
+        <div class="modal-footer">
+            <button class="download-button" onclick="downloadData()">Download Data</button>
+        </div>
+    </div>
+</div>
 
             <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
             <script>
@@ -417,6 +442,30 @@ session_start();
                 document.addEventListener('DOMContentLoaded', function () {
                     viewInventory();
                 });
+
+                // Function to download data as text file
+function downloadData() {
+    // Convert inventory data to text format
+    const data = JSON.stringify(inventoryData, null, 2);
+
+    // Create a Blob with the data
+    const blob = new Blob([data], { type: 'text/plain' });
+
+    // Create a temporary anchor element
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+
+    // Set the file name
+    a.download = 'inventory_data.txt';
+
+    // Append the anchor to the body and click it to trigger download
+    document.body.appendChild(a);
+    a.click();
+
+    // Remove the anchor from the body
+    document.body.removeChild(a);
+}
+
 
                 // Logout functionality
                 document.getElementById('logoutLink').addEventListener('click', function (event) {

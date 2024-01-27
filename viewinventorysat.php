@@ -7,13 +7,14 @@ session_start();
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Inventory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body, html {
+        body,
+        html {
             height: 100%;
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -113,6 +114,19 @@ session_start();
             cursor: pointer;
         }
 
+        .download-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 2px 2px;
+            cursor: pointer;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -133,6 +147,8 @@ session_start();
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
+            max-height: 70%;
+            overflow-y: auto;
         }
 
         .close {
@@ -219,7 +235,7 @@ session_start();
                         <!-- Display inventory data using PHP -->
                         <?php
                         // Check if inventory data is set in the session
-                        $mainEntryData = $_SESSION['main_entry_data'] ?? $_SESSION['satellite_main_entry_data'] ?? null;
+                        $mainEntryData = $_SESSION['main_entries'] ?? null;
 
                         if ($mainEntryData) {
                             foreach ($mainEntryData as $entry) {
@@ -240,133 +256,143 @@ session_start();
                 </table>
             </div>
 
-                 <!-- Modal for detailed entries -->
-    <div id="detailed-entries-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Detailed Info on Inventory Entry</h2>
-        </div>
-        <div class="modal-body" id="modal-body-content">
-            <!-- Include your existing JavaScript code here -->
-
-            <!-- ... (your existing JavaScript code) ... -->
-
-            <script>
-                // Your existing JavaScript code goes here
-                let mainEntryData;
-                let individualEntryData;
-
-                // Function to view inventory data
-                function viewInventory() {
-                    // Fetch main entry data from session
-                    mainEntryData = <?php echo json_encode($_SESSION['main_entry_data'] ?? $_SESSION['satellite_main_entry_data'] ?? null); ?>;
-                    // Fetch individual entry data from session
-                    individualEntryData = <?php echo json_encode($_SESSION['individual_entry_data'] ?? null); ?>;
-
-                    if (mainEntryData) {
-                        // Update the content of the current page with the main entry data
-                        displayMainEntryData(mainEntryData);
-                        // Display more info button for each main entry
-                        addMoreInfoButtons(mainEntryData);
-                    } else {
-                        showAlert('No main entry data available.');
-                    }
-                }
-
-                // Function to display main entry data
-                function displayMainEntryData(mainEntryData, searchTerm) {
-                    var tableBody = document.querySelector('#main-entry-table-body');
-                    tableBody.innerHTML = '';
-
-                    mainEntryData.forEach(function (entry) {
-                        if (!searchTerm || entry.product_name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                            var row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${entry.product_name}</td>
-                                <td>${entry.category}</td>
-                                <td>${entry.total_quantity}</td>
-                                <td>${entry.quantity_description}</td>
-                                <td><button class="more-info-button" onclick="showDetailedEntries(${entry['main_entry_id']})">More Info</button></td>
-                            `;
-                            tableBody.appendChild(row);
-                        }
-                    });
-                }
-
-                // Function to add more info buttons for main entry
-                function addMoreInfoButtons(mainEntryData) {
-                    // Additional info buttons for each main entry (if needed)
-                }
-
-                 // Function to show detailed entries in the modal
-function showDetailedEntries(mainEntryId) {
-    const detailedEntries = individualEntryData.filter(function (entry) {
-        return entry.main_entry_id === mainEntryId;
-    });
-
-    if (detailedEntries.length === 0) {
-        console.error("Detailed entries not found for main entry ID:", mainEntryId);
-        // You can display a message or take another action to inform the user
-        return;
-    }
-
-    var modalBody = document.querySelector('#modal-body-content');
-    modalBody.innerHTML = '';
-
-    detailedEntries.forEach(function (detailedEntry) {
-        var row = document.createElement('div');
-        row.innerHTML = `
-            <p>Product Name: ${detailedEntry.product_name || 'N/A'}</p>
-            <p>Category: ${detailedEntry.category || 'N/A'}</p>
-            <p>Total Quantity: ${detailedEntry.total_quantity || 'N/A'}</p>
-            <p>Quantity Description: ${detailedEntry.quantity_description || 'N/A'}</p>
-            <p>Date: ${detailedEntry.record_date || 'N/A'}</p>
-        `;
-        modalBody.appendChild(row);
-    });
-
-    document.getElementById('detailed-entries-modal').style.display = 'block';
-}
-
-                // Function to close the modal
-                function closeModal() {
-                    document.getElementById('detailed-entries-modal').style.display = 'none';
-                }
-
-                // Function to display an alert
-                function showAlert(message) {
-                    var alertMessage = document.getElementById('alert-message');
-                    alertMessage.innerHTML = message;
-                    alertMessage.style.display = 'block';
-
-                    setTimeout(function () {
-                        alertMessage.style.display = 'none';
-                    }, 3000);
-                }
-
-                // Function to search for a product
-                function searchProduct() {
-                    var searchInput = document.getElementById('product-search').value;
-                    displayMainEntryData(mainEntryData, searchInput);
-                }
-
-                // Call viewInventory when the page is loaded
-                document.addEventListener('DOMContentLoaded', function () {
-                    viewInventory();
-                });
-
-                // Logout functionality
-                document.getElementById('logoutLink').addEventListener('click', function (event) {
-                    // Prevent the default behavior of the link
-                    event.preventDefault();
-
-                    // Redirect the user to the logout.php file for logout
-                    window.location.href = 'logout.php';
-                });
-            </script>
+            <!-- Modal for detailed entries -->
+            <div id="detailed-entries-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Detailed Info on Inventory Entry</h2>
+                        <button class="download-button" onclick="downloadDetails()">Download</button>
+                    </div>
+                    <div class="modal-body" id="modal-body-content">
+                        <!-- Detailed entry data will be displayed here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Your existing JavaScript code goes here
+
+       // Function to show detailed entries in the modal
+    function showDetailedEntries(mainEntryId) {
+        // Fetch main entry data from session
+        let mainEntryData = <?php echo json_encode($_SESSION['main_entries'] ?? null); ?>;
+        // Fetch individual entry data from session
+        let individualEntryData = <?php echo json_encode($_SESSION['inventory_entries'] ?? null); ?>;
+
+        if (!mainEntryData || !individualEntryData) {
+            console.error("Main entry data or individual entry data not found in session.");
+            return;
+        }
+
+        // Find the main entry corresponding to the given mainEntryId
+        let mainEntry = mainEntryData.find(entry => entry.main_entry_id === mainEntryId);
+
+        if (!mainEntry) {
+            console.error("Main entry not found for main entry ID:", mainEntryId);
+            return;
+        }
+
+        let modalBody = document.getElementById('modal-body-content');
+        modalBody.innerHTML = '';
+
+        // Generate HTML for detailed entries
+        let detailHtml = `
+            <p>Product Name: ${mainEntry.product_name}</p>
+            <p>Category: ${mainEntry.category}</p>
+        `;
+
+        // Filter individual entry data for the given main entry ID
+        let detailedEntries = individualEntryData.filter(entry => entry.main_entry_id === mainEntryId);
+
+        if (detailedEntries.length === 0) {
+            detailHtml += `
+                <p>Total Quantity: N/A</p>
+                <p>Quantity Description: N/A</p>
+                <p>Price: N/A</p>
+                <p>Record Date: N/A</p>
+            `;
+        } else {
+            detailedEntries.forEach(entry => {
+                detailHtml += `
+                    <p>Total Quantity: ${entry.quantity || 'N/A'}</p>
+                    <p>Quantity Description: ${entry.quantity_description || 'N/A'}</p>
+                    <p>Price: ${entry.price || 'N/A'}</p>
+                    <p>Record Date: ${entry.record_date || 'N/A'}</p>
+                `;
+            });
+        }
+
+        modalBody.insertAdjacentHTML('beforeend', detailHtml);
+
+        // Display the modal
+        document.getElementById('detailed-entries-modal').style.display = 'block';
+    }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById('detailed-entries-modal').style.display = 'none';
+        }
+
+        // Function to search for a product
+        function searchProduct() {
+            let searchTerm = document.getElementById('product-search').value.toLowerCase();
+            let mainEntryData = <?php echo json_encode($_SESSION['main_entries'] ?? null); ?>;
+
+            if (!mainEntryData) {
+                console.error("Main entry data not found in session.");
+                return;
+            }
+
+            // Filter main entry data based on search term
+            let filteredEntries = mainEntryData.filter(entry => entry.product_name.toLowerCase().includes(searchTerm));
+
+            // Display filtered data
+            let tableBody = document.getElementById('main-entry-table-body');
+            tableBody.innerHTML = '';
+
+            filteredEntries.forEach(entry => {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.product_name}</td>
+                    <td>${entry.category}</td>
+                    <td>${entry.total_quantity}</td>
+                    <td>${entry.quantity_description}</td>
+                    <td><button class="more-info-button" onclick="showDetailedEntries(${entry.main_entry_id})">More Info</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to download the modal content as a text file
+        function downloadDetails() {
+            let modalContent = document.getElementById('modal-body-content').innerText;
+            let filename = 'inventory_details.txt';
+            let blob = new Blob([modalContent], { type: 'text/plain' });
+
+            // Create a temporary link element
+            let link = document.createElement('a');
+            link.download = filename;
+            link.href = window.URL.createObjectURL(blob);
+
+            // Trigger the download
+            link.click();
+
+            // Clean up
+            window.URL.revokeObjectURL(link.href);
+        }
+
+        // Logout functionality
+        document.getElementById('logoutLink').addEventListener('click', function(event) {
+            // Prevent the default behavior of the link
+            event.preventDefault();
+
+            // Redirect the user to the logout.php file for logout
+            window.location.href = 'logout.php';
+        });
+    </script>
 </body>
 
 </html>

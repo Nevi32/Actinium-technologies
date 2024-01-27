@@ -142,14 +142,14 @@ if (!isset($_SESSION['user_id'])) {
     <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
     <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
-
   <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="navbar-container">
-      <button class="nav-button" onclick="viewRestockOrders()">View Restock Orders</button>
-      <button class="nav-button" onclick="viewInventory()">View Inventory</button>
-    </div>
-  </nav>
+<nav class="navbar">
+  <div class="navbar-container">
+    <button class="nav-button" onclick="viewRestockOrders()">View Restock Orders</button>
+    <button class="nav-button" onclick="redirectToInventory()">View Inventory</button>
+  </div>
+</nav>
+
 
   <!-- Content -->
   <div id="content">
@@ -223,6 +223,10 @@ if (!isset($_SESSION['user_id'])) {
         });
       }
     }
+    function redirectToInventory() {
+  window.location.href = 'fetchinventory2.php';
+}
+
   </script>
 </body>
 </html>
