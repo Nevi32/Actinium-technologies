@@ -45,7 +45,9 @@ if (!isset($_SESSION['user_id'])) {
     #sidebar i {
       margin-right: 10px;
     }
-
+    #sidebar a:not(:last-child) {
+  margin-bottom: 100px;
+}
     #user-info {
       display: none;
       color: #fff;
@@ -97,7 +99,20 @@ if (!isset($_SESSION['user_id'])) {
     }
 
     /* Additional Styles */
-    /* Add any additional styles here */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
   </style>
 </head>
 <body>
@@ -114,10 +129,10 @@ if (!isset($_SESSION['user_id'])) {
       ?>
     </div>
     <a href="fetch_notifications.php"><i class="fas fa-bell"></i> Notifications</a>
-      <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-      <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-      <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
+    <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+    <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
 
   <!-- Navigation Bar -->
@@ -130,8 +145,9 @@ if (!isset($_SESSION['user_id'])) {
 
   <!-- Content -->
   <div id="content">
-    <!-- Content area where inventory restock list will be populated -->
-    <!-- Empty for now -->
+    <!-- Explanation for when the page first loads -->
+    <p>Welcome to the Restock Orders page. Click the button below to view restock orders.</p>
+    <!-- JavaScript populates the restock orders here -->
   </div>
 
   <!-- JavaScript -->
@@ -141,20 +157,7 @@ if (!isset($_SESSION['user_id'])) {
       userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
     }
 
-    // Function to populate user info
-    function populateUserInfo() {
-      // Fetch user info from the server-side or session variables
-      // and populate the user-info section in the sidebar
-      // Example:
-      // document.getElementById('user-id').innerText = "User ID: <?php echo $_SESSION['user_id']; ?>";
-      // document.getElementById('username').innerText = "Username: <?php echo $_SESSION['username']; ?>";
-      // document.getElementById('role').innerText = "Role: <?php echo $_SESSION['role']; ?>";
-    }
-
-    // Call the function to populate user info on page load
-    populateUserInfo();
-    
- function viewRestockOrders() {
+    function viewRestockOrders() {
       fetch('fetchrestock.php')
         .then(response => {
           if (!response.ok) {
@@ -176,11 +179,12 @@ if (!isset($_SESSION['user_id'])) {
       if (data.length === 0) {
         content.innerHTML += '<p>No restock orders found</p>';
       } else {
-        content.innerHTML += '<table><thead><tr><th>Order ID</th><th>Product Name</th><th>Category</th><th>Quantity</th></tr></thead><tbody>';
+        let tableHTML = '<table><thead><tr><th>Product Name</th><th>Category</th><th>Price</th><th>Quantity</th><th>Quantity Description</th><th>Status</th></tr></thead><tbody>';
         data.forEach(order => {
-          content.innerHTML += `<tr><td>${order.order_id}</td><td>${order.product_name}</td><td>${order.category}</td><td>${order.quantity}</td></tr>`;
+          tableHTML += `<tr><td>${order.product_name}</td><td>${order.category}</td><td>${order.price}</td><td>${order.quantity}</td><td>${order.quantity_description}</td><td><button style="background-color: red;">Pending</button></td></tr>`;
         });
-        content.innerHTML += '</tbody></table>';
+        tableHTML += '</tbody></table>';
+        content.innerHTML += tableHTML;
       }
     }
   </script>
