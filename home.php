@@ -203,7 +203,7 @@ body, html {
           <p>You can record and view your inventory here.</p>
         </div>
 
-        <div class="card sales" onclick="redirectToPage('sales.html');">
+        <div class="card sales" onclick="redirectToPage('sales.php');">
           <h3>Sales</h3>
           <p>Track and analyze your sales data.</p>
         </div>

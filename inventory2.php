@@ -49,6 +49,10 @@ if (!isset($_SESSION['user_id'])) {
     #sidebar i {
       margin-right: 10px;
     }
+    
+    #sidebar a:not(:last-child) {
+  margin-bottom: 100px;
+}
 
     #user-info {
       display: none;
