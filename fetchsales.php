@@ -56,7 +56,17 @@ try {
         $salesStmt->bindParam(':mainStoreId', $mainStoreId);
     }
     $salesStmt->execute();
-    $_SESSION['sales_data'] = $salesStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetching sales data along with sale date
+    $salesData = $salesStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Iterating over sales data to format date
+    foreach ($salesData as &$sale) {
+        // Formatting the sale date
+        $sale['record_date'] = date('Y-m-d H:i:s', strtotime($sale['record_date']));
+    }
+
+    $_SESSION['sales_data'] = $salesData;
 
     // Redirect to viewsales.php
     header('Location: viewsales.php');
