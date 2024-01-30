@@ -235,7 +235,7 @@ session_start();
                                 echo "<td>{$sale['quantity_sold']}</td>";
                                 echo "<td>{$sale['total_price']}</td>";
                                 echo "<td>{$sale['record_date']}</td>";
-                                // Add more cells if needed
+                                 echo "<td><button class='more-info-button' onclick='showDetailedEntries(" . $sale['sale_id'] . ")'>More Info</button></td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -246,7 +246,20 @@ session_start();
                     </tbody>
                 </table>
             </div>
-                 
+                 <div id="detailed-entries-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Detailed info on Sale</h2>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+            <!-- Detailed sale data will be dynamically inserted here -->
+        </div>
+        <div class="modal-footer">
+            <button onclick="downloadDetailedInfo(currentSaleId)" class="download-button">Download</button>
+        </div>
+    </div>
+</div>
 
             <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
             <script>
@@ -264,7 +277,7 @@ function displaySalesData(salesData, searchTerm) {
                 <td>${sale.quantity_sold}</td>
                 <td>${sale.total_price}</td>
                 <td>${sale.record_date}</td>
-                <!-- Add more cells if needed -->
+                <td><button class="more-info-button" onclick="showDetailedEntries(${sale.sale_id})">More Info</button></td>
             `;
             tableBody.appendChild(row);
         }
@@ -333,6 +346,51 @@ function fetchMainSalesData() {
     // Display the sales data for the main store
     displaySalesData(mainSalesData);
 }
+  function addMoreInfoButtons(salesData) {
+            // Additional info buttons for each sale (if needed)
+        }
+
+         // Function to show detailed entries in the modal
+    function showDetailedEntries(saleId) {
+        const detailedSale = salesData.find(function(sale) {
+            return sale.sale_id === saleId;
+        });
+
+        var modalBody = document.querySelector('#modal-body-content');
+        modalBody.innerHTML = `
+            <p>Product Name: ${detailedSale.product_name}</p>
+            <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
+            <p>Total Price: ${detailedSale.total_price}</p>
+            <p>Sale Date: ${detailedSale.record_date}</p>
+        `;
+
+        // Set the current sale ID for download function
+        currentSaleId = saleId;
+
+        document.getElementById('detailed-entries-modal').style.display = 'block';
+    }
+
+        function closeModal() {
+            document.getElementById('detailed-entries-modal').style.display = 'none';
+        }
+
+        function showAlert(message) {
+            var alertMessage = document.getElementById('alert-message');
+            alertMessage.innerHTML = message;
+            alertMessage.style.display = 'block';
+
+            setTimeout(function () {
+                alertMessage.style.display = 'none';
+            }, 3000);
+        }
+
+  document.getElementById('logoutLink').addEventListener('click', function (event) {
+            // Prevent the default behavior of the link
+            event.preventDefault();
+
+            // Redirect the user to the logout.php file for logout
+            window.location.href = 'logout.php';
+        });
 
 
             </script>
