@@ -1,6 +1,18 @@
 <?php
 include 'config.php';
 session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: login.html");
+    exit();
+}
+
+// Retrieve main store data from session
+$mainStoreSalesData = $_SESSION['main_store_data'] ?? [];
+$satelliteStoreData = $_SESSION['satellite_store_data'] ?? [];
+$satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
+
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +25,7 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
+        /* CSS styles go here */
         body,
         html {
             height: 100%;
@@ -199,19 +212,12 @@ session_start();
                 <label for="product-search">Search Product:</label>
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
+            </div>
 
-                  <!-- Display satellite store buttons -->
-    <h2>Satellite Stores</h2>
-    <div id="satellite-buttons">
-        <?php
-        // Check if satellite stores are available in session
-        if (isset($_SESSION['satellite_stores'])) {
-            foreach ($_SESSION['satellite_stores'] as $storeName) {
-                echo "<button onclick=\"fetchSatelliteSales('$storeName')\">$storeName</button>";
-            }
-        }
-        ?>
-    </div>
+            <!-- Display satellite store buttons -->
+            <h2>Satellite Stores</h2>
+            <div id="satellite-buttons" class="satellite-button-container">
+                <!-- Satellite store buttons will be dynamically inserted here -->
             </div>
 
             <div id="sales-table-container">
@@ -251,11 +257,71 @@ session_start();
 
     <!-- Include your JavaScript code here -->
     <script>
-        // Initialize salesData JavaScript variable
-        let salesData = <?php echo json_encode($_SESSION['main_store_sales_data'] ?? []); ?>;
-
+        // JavaScript code goes here
+        // Retrieve sales data from session
+        let mainStoreSalesData = <?php echo json_encode($_SESSION['main_store_data'] ?? []); ?>;
+        let satelliteStoreSalesData = <?php echo json_encode($_SESSION['satellite_store_data'] ?? []); ?>;
+        let satelliteStoreLocations = <?php echo json_encode($_SESSION['satellite_store_locations'] ?? []); ?>;
+        
         // Function to display sales data
         function displaySalesData() {
+            var tableBody = document.getElementById('sales-table-body');
+            tableBody.innerHTML = '';
+
+            mainStoreSalesData.forEach(function(sale) {
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${sale.product_name}</td>
+                    <td>${sale.quantity_sold}</td>
+                    <td>${sale.total_price}</td>
+                    <td>${sale.record_date}</td>
+       <td><button class="more-info-button" onclick="showDetailedSales('${sale.product_name}')">More Info</button></td>
+
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to change the store type
+        function changeStoreType() {
+            var storeTypeSelect = document.getElementById('store-type-select');
+            var selectedStoreType = storeTypeSelect.value;
+
+            // Show or hide satellite buttons based on the selected store type
+            var satelliteButtonContainer = document.getElementById('satellite-buttons');
+            if (selectedStoreType === 'satellite') {
+                satelliteButtonContainer.style.display = 'block';
+                displaySatelliteButtons();
+            } else {
+                satelliteButtonContainer.style.display = 'none';
+            }
+        }
+
+        // Function to display satellite store buttons
+        function displaySatelliteButtons() {
+            var satelliteButtonContainer = document.getElementById('satellite-buttons');
+            satelliteButtonContainer.innerHTML = '';
+
+            satelliteStoreLocations.forEach(function(location) {
+                var button = document.createElement('button');
+                button.textContent = location;
+                button.onclick = function() {
+                    fetchSatelliteSales(location);
+                };
+                satelliteButtonContainer.appendChild(button);
+            });
+        }
+
+        // Function to fetch satellite store sales data
+        function fetchSatelliteSales(location) {
+            // Get the sales data for the selected satellite store location
+            var salesData = satelliteStoreSalesData[location];
+            // Display sales data
+            displaySatelliteSalesData(salesData);
+        }
+
+        // Function to display satellite store sales data
+        function displaySatelliteSalesData(salesData) {
             var tableBody = document.getElementById('sales-table-body');
             tableBody.innerHTML = '';
 
@@ -272,23 +338,58 @@ session_start();
             });
         }
 
+        // Logout functionality
+        document.getElementById('logoutLink').addEventListener('click', function(event) {
+            // Prevent the default behavior of the link
+            event.preventDefault();
+
+            // Redirect the user to the logout.php file for logout
+            window.location.href = 'logout.php';
+        });
+
+        // Function to toggle user info display
+        function toggleUserInfo() {
+            var userInfo = document.getElementById('user-info');
+            if (userInfo.style.display === 'block') {
+                userInfo.style.display = 'none';
+            } else {
+                userInfo.style.display = 'block';
+            }
+        }
+
+        // Function to redirect to a page
+        function redirectToPage(page) {
+            window.location.href = page;
+        }
+
+        // Function to search for a product
+        function searchProduct() {
+            var searchInput = document.getElementById('product-search').value.toLowerCase();
+            var rows = document.querySelectorAll('#sales-table-body tr');
+
+            rows.forEach(function(row) {
+                var productName = row.cells[0].textContent.toLowerCase();
+                if (productName.includes(searchInput)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         // Function to show detailed sales in the modal
         function showDetailedSales(productName) {
-            const detailedSale = salesData.find(function(sale) {
-                return sale.product_name === productName;
-            });
-
             var modalBody = document.getElementById('modal-body-content');
             modalBody.innerHTML = '';
 
-            var row = document.createElement('div');
-            row.innerHTML = `
-                <p>Product Name: ${detailedSale.product_name}</p>
-                <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
-                <p>Total Price: ${detailedSale.total_price}</p>
-                <p>Record Date: ${detailedSale.record_date}</p>
-            `;
-            modalBody.appendChild(row);
+            var rows = document.querySelectorAll('#sales-table-body tr');
+            rows.forEach(function(row) {
+                var name = row.cells[0].textContent;
+                if (name === productName) {
+                    var cloneRow = row.cloneNode(true);
+                    modalBody.appendChild(cloneRow);
+                }
+            });
 
             document.getElementById('detailed-sales-modal').style.display = 'block';
         }
@@ -300,86 +401,33 @@ session_start();
 
         // Function to download sales data as text file
         function downloadSalesData() {
-            // Convert sales data to text format
-            const data = JSON.stringify(salesData, null, 2);
+            var salesTable = document.getElementById('sales-table');
+            var data = [];
 
-            // Create a Blob with the data
-            const blob = new Blob([data], { type: 'text/plain' });
-
-            // Create a temporary anchor element
-            const a = document.createElement('a');
-            a.href = window.URL.createObjectURL(blob);
-
-            // Set the file name
-            a.download = 'sales_data.txt';
-
-            // Append the anchor to the body and click it to trigger download
-            document.body.appendChild(a);
-            a.click();
-
-            // Remove the anchor from the body
-            document.body.removeChild(a);
-        }
-
-        // Function to search for a product
-        function searchProduct() {
-            var searchInput = document.getElementById('product-search').value.toLowerCase();
-            var filteredSalesData = salesData.filter(function(sale) {
-                return sale.product_name.toLowerCase().includes(searchInput);
-            });
-            displaySalesData(filteredSalesData);
-        }
-
-        // Function to change the store type
-        function changeStoreType() {
-            var storeTypeSelect = document.getElementById('store-type-select');
-            var selectedStoreType = storeTypeSelect.value;
-
-            // Show or hide satellite buttons based on the selected store type
-            var satelliteButtonContainer = document.getElementById('satellite-button-container');
-            if (selectedStoreType === 'satellite') {
-                satelliteButtonContainer.style.display = 'block';
-            } else {
-                satelliteButtonContainer.style.display = 'none';
-            }
-        }
-
-             // Function to fetch satellite store sales data
-        function fetchSatelliteSales(storeName) {
-            // Make an AJAX request to fetch sales data for the selected satellite store
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'fetchsales.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        // Sales data fetched successfully, display it on the page
-                        var salesData = JSON.parse(xhr.responseText);
-                        displaySalesData(salesData);
-                    } else {
-                        // Error occurred while fetching sales data
-                        console.error('Error fetching sales data:', xhr.status);
-                    }
+            for (var i = 0; i < salesTable.rows.length; i++) {
+                var rowData = [];
+                for (var j = 0; j < salesTable.rows[i].cells.length; j++) {
+                    rowData.push(salesTable.rows[i].cells[j].textContent);
                 }
-            };
-            xhr.send('storeName=' + encodeURIComponent(storeName));
+                data.push(rowData.join(','));
+            }
+
+            var csvContent = 'data:text/csv;charset=utf-8,';
+            data.forEach(function(row) {
+                csvContent += row + '\r\n';
+            });
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'sales_data.csv');
+            document.body.appendChild(link); // Required for FF
+
+            link.click();
         }
 
-        // Function to display sales data
-        function displaySalesData(salesData) {
-            // Display sales data on the page
-            console.log('Sales data for the selected satellite store:', salesData);
-        }
-
-
-        // Logout functionality
-        document.getElementById('logoutLink').addEventListener('click', function(event) {
-            // Prevent the default behavior of the link
-            event.preventDefault();
-
-            // Redirect the user to the logout.php file for logout
-            window.location.href = 'logout.php';
-        });
+        // Call displaySalesData function initially
+        displaySalesData();
     </script>
 </body>
 

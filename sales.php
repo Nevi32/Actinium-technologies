@@ -236,7 +236,7 @@ $location_name = isset($_SESSION['location_name']) ? $_SESSION['location_name'] 
 
     // Function to redirect to view sales page
     function viewSales() {
-        window.location.href = 'fetchsales.php';
+        window.location.href = 'whichsales.php';
     }
 
     // Function to display alert message
