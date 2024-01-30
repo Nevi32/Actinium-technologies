@@ -263,6 +263,7 @@ session_start();
 
             <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
             <script>
+  var salesData = <?php echo json_encode($_SESSION['mainstore_sales_data'] ?? $_SESSION['satellite_sales_data'] ?? []); ?>;
 
               // Function to display sales data
 function displaySalesData(salesData, searchTerm) {
@@ -351,24 +352,27 @@ function fetchMainSalesData() {
         }
 
          // Function to show detailed entries in the modal
-    function showDetailedEntries(saleId) {
-        const detailedSale = salesData.find(function(sale) {
-            return sale.sale_id === saleId;
-        });
+function showDetailedEntries(saleId) {
+    const detailedSale = salesData.find(function(sale) {
+        return sale.sale_id === saleId;
+    });
 
-        var modalBody = document.querySelector('#modal-body-content');
-        modalBody.innerHTML = `
-            <p>Product Name: ${detailedSale.product_name}</p>
-            <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
-            <p>Total Price: ${detailedSale.total_price}</p>
-            <p>Sale Date: ${detailedSale.record_date}</p>
-        `;
+    var modalBody = document.querySelector('#modal-body-content');
+    modalBody.innerHTML = `
+        <p>Product Name: ${detailedSale.product_name}</p>
+        <p>Category: ${detailedSale.category}</p>
+        <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
+        <p>Quantity Description: ${detailedSale.quantity_description}</p>
+        <p>Total Price: ${detailedSale.total_price}</p>
+        <p>Sale Date: ${detailedSale.record_date}</p>
+    `;
 
-        // Set the current sale ID for download function
-        currentSaleId = saleId;
+    // Set the current sale ID for download function
+    currentSaleId = saleId;
 
-        document.getElementById('detailed-entries-modal').style.display = 'block';
-    }
+    document.getElementById('detailed-entries-modal').style.display = 'block';
+}
+
 
         function closeModal() {
             document.getElementById('detailed-entries-modal').style.display = 'none';
@@ -383,6 +387,33 @@ function fetchMainSalesData() {
                 alertMessage.style.display = 'none';
             }, 3000);
         }
+
+        // Function to download detailed sale info
+function downloadDetailedInfo(saleId) {
+    const detailedSale = salesData.find(function(sale) {
+        return sale.sale_id === saleId;
+    });
+
+    // Prepare the data to be downloaded
+    const dataToDownload = `
+        Product Name: ${detailedSale.product_name}
+        Quantity Sold: ${detailedSale.quantity_sold}
+        Total Price: ${detailedSale.total_price}
+        Sale Date: ${detailedSale.record_date}
+    `;
+
+    // Create a Blob containing the data
+    const blob = new Blob([dataToDownload], { type: 'text/plain' });
+
+    // Create a download link and trigger click event
+    const downloadLink = document.createElement('a');
+    downloadLink.download = 'detailed_sale_info.txt';
+    downloadLink.href = window.URL.createObjectURL(blob);
+    downloadLink.click();
+
+    // Cleanup
+    window.URL.revokeObjectURL(downloadLink.href);
+}
 
   document.getElementById('logoutLink').addEventListener('click', function (event) {
             // Prevent the default behavior of the link

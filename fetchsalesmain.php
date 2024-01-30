@@ -16,7 +16,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Fetch sales data for the main store
-    $mainSalesStmt = $pdo->prepare("SELECT e.product_name, s.quantity_sold, s.total_price, s.record_date
+    $mainSalesStmt = $pdo->prepare("SELECT e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date
                                     FROM sales s
                                     INNER JOIN main_entry e ON s.main_entry_id = e.main_entry_id
                                     WHERE s.store_id IN (SELECT store_id FROM stores WHERE location_type = 'main_store')");
@@ -24,7 +24,7 @@ try {
     $mainSalesData = $mainSalesStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch sales data for satellite stores
-    $satelliteSalesStmt = $pdo->prepare("SELECT e.product_name, s.quantity_sold, s.total_price, s.record_date, st.location_name
+    $satelliteSalesStmt = $pdo->prepare("SELECT e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date, st.location_name
                                         FROM sales s
                                         INNER JOIN main_entry e ON s.main_entry_id = e.main_entry_id
                                         INNER JOIN stores st ON s.store_id = st.store_id
