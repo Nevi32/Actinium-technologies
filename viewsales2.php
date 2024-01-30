@@ -1,5 +1,5 @@
 <?php
-// Start the session
+include 'config.php';
 session_start();
 ?>
 
@@ -163,6 +163,11 @@ session_start();
             margin-top: 10px;
             cursor: pointer;
         }
+
+        /* Hide satellite buttons initially */
+        .satellite-button-container {
+            display: none;
+        }
     </style>
 </head>
 
@@ -183,35 +188,36 @@ session_start();
         <div id="content">
             <!-- Content goes here -->
             <div id="search-bar">
-                <!-- Store Type Selection -->
+                <!-- Select Store Type -->
                 <label for="store-type-select">Select Store Type:</label>
                 <select id="store-type-select" onchange="changeStoreType()">
                     <option value="main_store">Main Store</option>
                     <option value="satellite">Satellite Store</option>
                 </select>
 
-                <!-- Select Main Store -->
-                <label for="main-store-select">Select Main Store:</label>
-                <select id="main-store-select" onchange="initializeSatelliteStores()">
-                    <option value="1">Main Store 1</option>
-                    <option value="2">Main Store 2</option>
-                    <!-- Add options for other main stores as needed -->
-                </select>
-
                 <!-- Search Bar -->
                 <label for="product-search">Search Product:</label>
                 <input type="text" id="product-search" placeholder="Enter product name">
                 <button onclick="searchProduct()">Search</button>
-            </div>
 
-            <div id="satellite-buttons-container" style="display: none;"></div>
+                  <!-- Display satellite store buttons -->
+    <h2>Satellite Stores</h2>
+    <div id="satellite-buttons">
+        <?php
+        // Check if satellite stores are available in session
+        if (isset($_SESSION['satellite_stores'])) {
+            foreach ($_SESSION['satellite_stores'] as $storeName) {
+                echo "<button onclick=\"fetchSatelliteSales('$storeName')\">$storeName</button>";
+            }
+        }
+        ?>
+    </div>
+            </div>
 
             <div id="sales-table-container">
                 <table id="sales-table">
                     <thead>
                         <tr>
-                            <th>Sale ID</th>
-                            <th>Main Entry ID</th>
                             <th>Product Name</th>
                             <th>Quantity Sold</th>
                             <th>Total Price</th>
@@ -246,7 +252,7 @@ session_start();
     <!-- Include your JavaScript code here -->
     <script>
         // Initialize salesData JavaScript variable
-        let salesData = <?php echo json_encode($_SESSION['sales_data'] ?? []); ?>;
+        let salesData = <?php echo json_encode($_SESSION['main_store_sales_data'] ?? []); ?>;
 
         // Function to display sales data
         function displaySalesData() {
@@ -256,22 +262,20 @@ session_start();
             salesData.forEach(function(sale) {
                 var row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${sale.sale_id}</td>
-                    <td>${sale.main_entry_id}</td>
                     <td>${sale.product_name}</td>
                     <td>${sale.quantity_sold}</td>
                     <td>${sale.total_price}</td>
                     <td>${sale.record_date}</td>
-                    <td><button class="more-info-button" onclick="showDetailedSales(${sale.sale_id})">More Info</button></td>
+                    <td><button class="more-info-button" onclick="showDetailedSales('${sale.product_name}')">More Info</button></td>
                 `;
                 tableBody.appendChild(row);
             });
         }
 
         // Function to show detailed sales in the modal
-        function showDetailedSales(saleId) {
+        function showDetailedSales(productName) {
             const detailedSale = salesData.find(function(sale) {
-                return sale.sale_id === saleId;
+                return sale.product_name === productName;
             });
 
             var modalBody = document.getElementById('modal-body-content');
@@ -279,8 +283,6 @@ session_start();
 
             var row = document.createElement('div');
             row.innerHTML = `
-                <p>Sale ID: ${detailedSale.sale_id}</p>
-                <p>Main Entry ID: ${detailedSale.main_entry_id}</p>
                 <p>Product Name: ${detailedSale.product_name}</p>
                 <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
                 <p>Total Price: ${detailedSale.total_price}</p>
@@ -333,71 +335,42 @@ session_start();
             var storeTypeSelect = document.getElementById('store-type-select');
             var selectedStoreType = storeTypeSelect.value;
 
-            if (selectedStoreType === 'main_store') {
-                // Show satellite buttons container
-                document.getElementById('satellite-buttons-container').style.display = 'block';
+            // Show or hide satellite buttons based on the selected store type
+            var satelliteButtonContainer = document.getElementById('satellite-button-container');
+            if (selectedStoreType === 'satellite') {
+                satelliteButtonContainer.style.display = 'block';
             } else {
-                // Hide satellite buttons container
-                document.getElementById('satellite-buttons-container').style.display = 'none';
-
-                // Retrieve and display satellite stores associated with the selected main store
-                var mainStoreId = document.getElementById('main-store-select').value;
-                var satelliteStores = getSatelliteStores(mainStoreId);
-                displaySatelliteStores(satelliteStores);
+                satelliteButtonContainer.style.display = 'none';
             }
         }
 
-        // Function to retrieve satellite stores associated with the selected main store
-        function getSatelliteStores(mainStoreId) {
-            // Example code to retrieve satellite stores using AJAX or fetch API
-            // Replace this with your actual implementation to retrieve satellite stores data
-            // For demonstration purposes, I'm returning static data here
-            var satelliteStoresData = [
-                { id: 1, name: 'Satellite Store 1', main_store_id: 1 },
-                { id: 2, name: 'Satellite Store 2', main_store_id: 1 },
-                { id: 3, name: 'Satellite Store 3', main_store_id: 2 },
-                // Add more satellite stores as needed
-            ];
-
-            // Filter satellite stores based on the selected main store ID
-            var satelliteStores = satelliteStoresData.filter(function(store) {
-                return store.main_store_id == mainStoreId;
-            });
-
-            return satelliteStores;
+             // Function to fetch satellite store sales data
+        function fetchSatelliteSales(storeName) {
+            // Make an AJAX request to fetch sales data for the selected satellite store
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'fetchsales.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Sales data fetched successfully, display it on the page
+                        var salesData = JSON.parse(xhr.responseText);
+                        displaySalesData(salesData);
+                    } else {
+                        // Error occurred while fetching sales data
+                        console.error('Error fetching sales data:', xhr.status);
+                    }
+                }
+            };
+            xhr.send('storeName=' + encodeURIComponent(storeName));
         }
 
-        // Function to display satellite stores
-        function displaySatelliteStores(satelliteStores) {
-            var satelliteButtonsContainer = document.getElementById('satellite-buttons-container');
-            satelliteButtonsContainer.innerHTML = '';
-
-            satelliteStores.forEach(function(store) {
-                var button = document.createElement('button');
-                button.textContent = store.name;
-                button.className = 'satellite-button';
-                // Add click event listener to handle click on satellite store button
-                button.addEventListener('click', function() {
-                    // Add your logic to handle click on satellite store button
-                    // For example, you can retrieve and display sales data for the selected satellite store
-                    // This can involve making an AJAX request to fetch satellite store sales data
-                    console.log('Clicked on satellite store: ' + store.name);
-                });
-                satelliteButtonsContainer.appendChild(button);
-            });
+        // Function to display sales data
+        function displaySalesData(salesData) {
+            // Display sales data on the page
+            console.log('Sales data for the selected satellite store:', salesData);
         }
 
-        // Function to initialize satellite stores based on the selected main store
-        function initializeSatelliteStores() {
-            var mainStoreId = document.getElementById('main-store-select').value;
-            var satelliteStores = getSatelliteStores(mainStoreId);
-            displaySatelliteStores(satelliteStores);
-        }
-
-        // Call displaySalesData when the page is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            displaySalesData();
-        });
 
         // Logout functionality
         document.getElementById('logoutLink').addEventListener('click', function(event) {
