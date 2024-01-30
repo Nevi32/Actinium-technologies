@@ -187,7 +187,6 @@ session_start();
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
 
-        </div>
 
         <div id="content">
             <div class="alert" id="alert-message"></div>
