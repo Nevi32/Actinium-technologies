@@ -41,8 +41,9 @@ try {
     }
 
     // Sessionize the data
-    $_SESSION['main_store_data'] = $mainSalesData;
-    $_SESSION['satellite_store_data'] = $groupedSatelliteSalesData;
+    $_SESSION['storeType'] = 'main_store'; // Matching session variable naming
+    $_SESSION['mainstore_sales_data'] = $mainSalesData; // Matching session variable naming
+    $_SESSION['satellite_sales_data'] = $groupedSatelliteSalesData; // Matching session variable naming
 
     // Redirect to viewsales2.php
     header("Location: viewsales2.php");

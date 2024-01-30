@@ -1,18 +1,6 @@
 <?php
-include 'config.php';
+// Start the session
 session_start();
-
-// Check if the user is logged in
-if (!isset($_SESSION['username'])) {
-    header("Location: login.html");
-    exit();
-}
-
-// Retrieve main store data from session
-$mainStoreSalesData = $_SESSION['main_store_data'] ?? [];
-$satelliteStoreData = $_SESSION['satellite_store_data'] ?? [];
-$satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
-
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +13,7 @@ $satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        /* CSS styles go here */
+       /* CSS styles go here */
         body,
         html {
             height: 100%;
@@ -181,13 +169,14 @@ $satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
         .satellite-button-container {
             display: none;
         }
+
     </style>
 </head>
 
 <body>
     <div id="dashboard">
         <div id="sidebar">
-            <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+        <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
             <div id="user-info">
                 <!-- User info will be displayed here using JavaScript -->
             </div>
@@ -198,10 +187,14 @@ $satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
 
+        </div>
+
         <div id="content">
-            <!-- Content goes here -->
+            <div class="alert" id="alert-message"></div>
+
+            <!-- Add the search bar and store type selection -->
             <div id="search-bar">
-                <!-- Select Store Type -->
+                <!-- Store Type Selection -->
                 <label for="store-type-select">Select Store Type:</label>
                 <select id="store-type-select" onchange="changeStoreType()">
                     <option value="main_store">Main Store</option>
@@ -214,13 +207,12 @@ $satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
                 <button onclick="searchProduct()">Search</button>
             </div>
 
-            <!-- Display satellite store buttons -->
-            <h2>Satellite Stores</h2>
-            <div id="satellite-buttons" class="satellite-button-container">
-                <!-- Satellite store buttons will be dynamically inserted here -->
-            </div>
+            <div id="satellite-buttons-container"></div>
 
             <div id="sales-table-container">
+                <h1>Welcome to Sales Management</h1>
+                <p>This is where your sales data will be displayed.</p>
+
                 <table id="sales-table">
                     <thead>
                         <tr>
@@ -228,207 +220,125 @@ $satelliteLocations = $_SESSION['satellite_store_locations'] ?? [];
                             <th>Quantity Sold</th>
                             <th>Total Price</th>
                             <th>Record Date</th>
-                            <th>Action</th>
+                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">
-                        <!-- Sales data will be dynamically inserted here -->
+                        <!-- Display sales data using PHP -->
+                        <?php
+                        // Check if sales data is set in the session
+                        $salesData = $_SESSION['mainstore_sales_data'] ?? $_SESSION['satellite_sales_data'] ?? null;
+
+                        if ($salesData) {
+                            foreach ($salesData as $sale) {
+                                echo "<tr>";
+                                echo "<td>{$sale['product_name']}</td>";
+                                echo "<td>{$sale['quantity_sold']}</td>";
+                                echo "<td>{$sale['total_price']}</td>";
+                                echo "<td>{$sale['record_date']}</td>";
+                                // Add more cells if needed
+                                echo "</tr>";
+                            }
+                        } else {
+                            // Display a message if no sales data is available
+                            echo "<tr><td colspan='4'>No sales data available.</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
+                 
 
-            <!-- Modal for detailed sales -->
-            <div id="detailed-sales-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <h2>Detailed Sales Information</h2>
-                    </div>
-                    <div class="modal-body" id="modal-body-content">
-                        <!-- Detailed sales data will be displayed here -->
-                    </div>
-                    <div class="modal-footer">
-                        <button class="download-button" onclick="downloadSalesData()">Download Sales Data</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- Modify the JavaScript code inside your <script> tag at the end of the HTML body -->
+            <script>
 
-    <!-- Include your JavaScript code here -->
-    <script>
-        // JavaScript code goes here
-        // Retrieve sales data from session
-        let mainStoreSalesData = <?php echo json_encode($_SESSION['main_store_data'] ?? []); ?>;
-        let satelliteStoreSalesData = <?php echo json_encode($_SESSION['satellite_store_data'] ?? []); ?>;
-        let satelliteStoreLocations = <?php echo json_encode($_SESSION['satellite_store_locations'] ?? []); ?>;
-        
-        // Function to display sales data
-        function displaySalesData() {
-            var tableBody = document.getElementById('sales-table-body');
-            tableBody.innerHTML = '';
+              // Function to display sales data
+function displaySalesData(salesData, searchTerm) {
+    var tableBody = document.querySelector('#sales-table-body');
+    tableBody.innerHTML = '';
 
-            mainStoreSalesData.forEach(function(sale) {
-                var row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${sale.product_name}</td>
-                    <td>${sale.quantity_sold}</td>
-                    <td>${sale.total_price}</td>
-                    <td>${sale.record_date}</td>
-       <td><button class="more-info-button" onclick="showDetailedSales('${sale.product_name}')">More Info</button></td>
-
-                `;
-                tableBody.appendChild(row);
-            });
+    salesData.forEach(function (sale) {
+        if (!searchTerm || sale.product_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            var row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${sale.product_name}</td>
+                <td>${sale.quantity_sold}</td>
+                <td>${sale.total_price}</td>
+                <td>${sale.record_date}</td>
+                <!-- Add more cells if needed -->
+            `;
+            tableBody.appendChild(row);
         }
+    });
+}
 
-        // Function to change the store type
-        function changeStoreType() {
-            var storeTypeSelect = document.getElementById('store-type-select');
-            var selectedStoreType = storeTypeSelect.value;
+// Function to search for a product
+function searchProduct() {
+    var searchInput = document.getElementById('product-search').value;
+    displaySalesData(salesData, searchInput);
+}
 
-            // Show or hide satellite buttons based on the selected store type
-            var satelliteButtonContainer = document.getElementById('satellite-buttons');
-            if (selectedStoreType === 'satellite') {
-                satelliteButtonContainer.style.display = 'block';
-                displaySatelliteButtons();
-            } else {
-                satelliteButtonContainer.style.display = 'none';
-            }
-        }
+// Function to change the store type
+function changeStoreType() {
+    var storeTypeSelect = document.getElementById('store-type-select');
+    var selectedStoreType = storeTypeSelect.value;
 
-        // Function to display satellite store buttons
-        function displaySatelliteButtons() {
-            var satelliteButtonContainer = document.getElementById('satellite-buttons');
-            satelliteButtonContainer.innerHTML = '';
+    if (selectedStoreType === 'main_store') {
+        // Redirect to the main store page
+        window.location.href = 'viewsales2.php?storeType=main_store';
+    } else if (selectedStoreType === 'satellite') {
+        // Display buttons with satellite locations
+        displaySatelliteButtons();
+    }
+}
 
-            satelliteStoreLocations.forEach(function(location) {
-                var button = document.createElement('button');
-                button.textContent = location;
-                button.onclick = function() {
-                    fetchSatelliteSales(location);
-                };
-                satelliteButtonContainer.appendChild(button);
-            });
-        }
+// Function to display buttons with satellite locations
+function displaySatelliteButtons() {
+    var satelliteSalesData = <?php echo json_encode($_SESSION['satellite_sales_data'] ?? []); ?>;
+    var buttonsContainer = document.getElementById('satellite-buttons-container');
 
-        // Function to fetch satellite store sales data
-        function fetchSatelliteSales(location) {
-            // Get the sales data for the selected satellite store location
-            var salesData = satelliteStoreSalesData[location];
-            // Display sales data
-            displaySatelliteSalesData(salesData);
-        }
+    // Clear existing buttons
+    buttonsContainer.innerHTML = '';
 
-        // Function to display satellite store sales data
-        function displaySatelliteSalesData(salesData) {
-            var tableBody = document.getElementById('sales-table-body');
-            tableBody.innerHTML = '';
-
-            salesData.forEach(function(sale) {
-                var row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${sale.product_name}</td>
-                    <td>${sale.quantity_sold}</td>
-                    <td>${sale.total_price}</td>
-                    <td>${sale.record_date}</td>
-                    <td><button class="more-info-button" onclick="showDetailedSales('${sale.product_name}')">More Info</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Logout functionality
-        document.getElementById('logoutLink').addEventListener('click', function(event) {
-            // Prevent the default behavior of the link
-            event.preventDefault();
-
-            // Redirect the user to the logout.php file for logout
-            window.location.href = 'logout.php';
+    // Create buttons for each satellite store
+    Object.keys(satelliteSalesData).forEach(function (locationName) {
+        var button = document.createElement('button');
+        button.textContent = locationName;
+        button.addEventListener('click', function () {
+            // Display sales data for the selected satellite store
+            displaySalesData(satelliteSalesData[locationName]);
         });
 
-        // Function to toggle user info display
-        function toggleUserInfo() {
-            var userInfo = document.getElementById('user-info');
-            if (userInfo.style.display === 'block') {
-                userInfo.style.display = 'none';
-            } else {
-                userInfo.style.display = 'block';
-            }
-        }
+        buttonsContainer.appendChild(button);
+    });
+}
 
-        // Function to redirect to a page
-        function redirectToPage(page) {
-            window.location.href = page;
-        }
+// Call the initial function to display sales data
+document.addEventListener('DOMContentLoaded', function () {
+    var storeTypeSelect = document.getElementById('store-type-select');
+    var selectedStoreType = storeTypeSelect.value;
 
-        // Function to search for a product
-        function searchProduct() {
-            var searchInput = document.getElementById('product-search').value.toLowerCase();
-            var rows = document.querySelectorAll('#sales-table-body tr');
+    if (selectedStoreType === 'satellite') {
+        // Display buttons with satellite locations if the selected store type is satellite
+        displaySatelliteButtons();
+    } else {
+        // Fetch and display sales data for the main store if the selected store type is main store
+        fetchMainSalesData();
+    }
+});
 
-            rows.forEach(function(row) {
-                var productName = row.cells[0].textContent.toLowerCase();
-                if (productName.includes(searchInput)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
+// Function to fetch and display sales data for the main store
+function fetchMainSalesData() {
+    // Fetch sales data for the main store from the session
+    var mainSalesData = <?php echo json_encode($_SESSION['mainstore_sales_data'] ?? []); ?>;
+    // Display the sales data for the main store
+    displaySalesData(mainSalesData);
+}
 
-        // Function to show detailed sales in the modal
-        function showDetailedSales(productName) {
-            var modalBody = document.getElementById('modal-body-content');
-            modalBody.innerHTML = '';
 
-            var rows = document.querySelectorAll('#sales-table-body tr');
-            rows.forEach(function(row) {
-                var name = row.cells[0].textContent;
-                if (name === productName) {
-                    var cloneRow = row.cloneNode(true);
-                    modalBody.appendChild(cloneRow);
-                }
-            });
-
-            document.getElementById('detailed-sales-modal').style.display = 'block';
-        }
-
-        // Function to close the modal
-        function closeModal() {
-            document.getElementById('detailed-sales-modal').style.display = 'none';
-        }
-
-        // Function to download sales data as text file
-        function downloadSalesData() {
-            var salesTable = document.getElementById('sales-table');
-            var data = [];
-
-            for (var i = 0; i < salesTable.rows.length; i++) {
-                var rowData = [];
-                for (var j = 0; j < salesTable.rows[i].cells.length; j++) {
-                    rowData.push(salesTable.rows[i].cells[j].textContent);
-                }
-                data.push(rowData.join(','));
-            }
-
-            var csvContent = 'data:text/csv;charset=utf-8,';
-            data.forEach(function(row) {
-                csvContent += row + '\r\n';
-            });
-
-            var encodedUri = encodeURI(csvContent);
-            var link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'sales_data.csv');
-            document.body.appendChild(link); // Required for FF
-
-            link.click();
-        }
-
-        // Call displaySalesData function initially
-        displaySalesData();
-    </script>
+            </script>
+        </div>
+    </div>
 </body>
 
 </html>
