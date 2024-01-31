@@ -56,93 +56,64 @@
       margin-right: 10px;
     }
 
-    #content {
-      flex: 1;
-      padding: 20px;
-      display: flex;
-      flex-wrap: wrap;
-    }
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-    #user-info {
-      color: #fff;
-      margin-top: 5px;
-      padding: 10px;
-      background-color: #343a40;
-      border-radius: 15px;
-      width: 100%;
-    }
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-    .stats-section {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+.questions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-    .stats-card {
-      width: calc(48% - 20px);
-      margin: 20px 0;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease-in-out;
-      background-color: #fff;
-      cursor: pointer;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
+.question-card {
+  width: 300px;
+  padding: 20px;
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
 
-    .stats-card:hover {
-      transform: translateY(-5px);
-    }
+.question-card h2 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #333;
+}
 
-    .stats-section h2 {
-      color: #343a40;
-      width: 100%;
-      margin-bottom: 15px;
-    }
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  z-index: 1000;
+}
 
-    .stats-value {
-      font-size: 1.5em;
-      margin-top: auto;
-      margin-bottom: 10px;
-    }
+.popup-content {
+  max-width: 400px;
+}
 
-    .stats-chart {
-      margin-top: 20px;
-      flex: 1;
-    }
-
-    .popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      z-index: 1000;
-      max-width: 80%;
-      max-height: 80%;
-      overflow: auto;
-    }
-
-    .popup-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-
-  <div id="stats-page">
-    <div id="dashboard">
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+</style> 
+   <div id="dashboard">
         <div id="sidebar">
             <div class="welcome-message" id="welcome-message"></div>
             <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
@@ -156,217 +127,48 @@
             <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
      </div>
     <div id="content">
-      <div class="stats-section">
-        <div class="stats-card inventory" onclick="redirectToPage('inventory.html');">
-          <h2>Inventory</h2>
-          <div class="stats-value" id="total-available-quantity">Loading...</div>
-          <div class="stats-value" id="products-out-of-stock">Loading...</div>
-          <div class="stats-value" id="top-selling-products">Loading...</div>
-          <div class="stats-chart" id="inventory-chart"></div>
-        </div>
-
-        <div class="stats-card sales" onclick="redirectToPage('sales.html');">
-          <h2>Sales</h2>
-          <div class="stats-value" id="total-sales">Loading...</div>
-          <div class="stats-value" id="number-of-sales">Loading...</div>
-          <div class="stats-value" id="average-sale-amount">Loading...</div>
-          <div class="stats-chart" id="sales-over-time-chart"></div>
-          <div class="stats-value" id="busiest-sales-day-time">Loading...</div>
-        </div>
-      </div>
-
-      <div class="stats-section">
-        <div class="stats-card profitability" onclick="openPopup('profitability-popup');">
-          <h2>Profitability Metrics</h2>
-          <div class="stats-value" id="total-profit">Loading...</div>
-          <div class="stats-value" id="profit-margin">Loading...</div>
-        </div>
-
-        <div class="stats-card comparison" onclick="openPopup('comparison-popup');">
-          <h2>Comparison Metrics</h2>
-          <div class="stats-value" id="comparison-data">Loading...</div>
-        </div>
-      </div>
+<div class="container">
+  <h1>Store Statistics Dashboard</h1>
+  <div class="questions">
+    <div class="question-card" onclick="openPopup('profit-popup')">
+      <h2>How much profit was made?</h2>
     </div>
+    <div class="question-card" onclick="openPopup('total-sales-popup')">
+      <h2>What are the total sales?</h2>
+    </div>
+    <!-- Add more question cards here -->
   </div>
+</div>
 
-  <div id="profitability-popup" class="popup">
-    <span class="popup-close" onclick="closePopup('profitability-popup');">&times;</span>
-    <h2>Profitability Metrics</h2>
-    <div class="stats-value" id="total-profit-popup">Loading...</div>
-    <div class="stats-value" id="profit-margin-popup">Loading...</div>
-    <div class="stats-chart" id="profit-chart"></div>
+<div id="profit-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('profit-popup')">&times;</span>
+    <h2>Profit Details</h2>
+    <!-- Placeholder for profit details -->
   </div>
+</div>
 
-  <div id="comparison-popup" class="popup">
-      <span class="popup-close" onclick="closePopup('comparison-popup');">&times;</span>
-      <h2>Comparison Metrics</h2>
-      <div class="stats-value" id="comparison-data-popup">Loading...</div>
-      <div class="stats-chart" id="comparison-chart"></div>
+<div id="total-sales-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('total-sales-popup')">&times;</span>
+    <h2>Total Sales Details</h2>
+    <!-- Placeholder for total sales details -->
   </div>
+</div>
 
-  <script src="https://code.jscharting.com/latest/jscharting.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Fetch user details from the URL parameters
-      var urlParams = new URLSearchParams(window.location.search);
-      var userId = urlParams.get('user_id') || '';
-      var username = urlParams.get('username') || '';
-      var role = urlParams.get('role') || '';
-      var storeName = urlParams.get('store_name') || '';
+<!-- Add more popups as needed -->
 
-      // Update user info
-      var userInfo = document.getElementById('user-info');
-      userInfo.innerHTML = "User ID: " + userId + " <br> Username: " + username + " <br> Role: " + role;
+<script>
+  function openPopup(popupId) {
+    var popup = document.getElementById(popupId);
+    popup.style.display = 'block';
+  }
 
-      // Dummy data for the stats cards (replace with actual data)
-      document.getElementById('total-available-quantity').innerText = "Total Available Quantity: 10,000 units";
-      document.getElementById('products-out-of-stock').innerText = "Products Out of Stock: 5";
-      document.getElementById('top-selling-products').innerText = "Top Selling Products: Product A, Product B";
+  function closePopup(popupId) {
+    var popup = document.getElementById(popupId);
+    popup.style.display = 'none';
+  }
+</script>
 
-      document.getElementById('total-sales').innerText = "Total Sales: $100,000";
-      document.getElementById('number-of-sales').innerText = "Number of Sales: 50";
-      document.getElementById('average-sale-amount').innerText = "Average Sale Amount: $2,000";
-
-      document.getElementById('busiest-sales-day-time').innerText = "Busiest Sales Day/Time: Friday, 3:00 PM";
-
-      // Dummy data for the Profitability Metrics
-      document.getElementById('total-profit').innerText = "Total Profit: $500,000";
-      document.getElementById('profit-margin').innerText = "Profit Margin: 50%";
-
-      // Dummy data for the Comparison Metrics
-      document.getElementById('comparison-data').innerText = "Comparison Data: Compare with previous month";
-
-      // Example chart for Inventory
-      var inventoryChart = new JSC.Chart('inventory-chart', {
-        type: 'column',
-        series: [
-          {
-            points: [
-              { x: 'Product A', y: 500 },
-              { x: 'Product B', y: 700 },
-              { x: 'Product C', y: 300 }
-            ],
-            colors: ['#3498db', '#2ecc71', '#f39c12']
-          }
-        ]
-      });
-
-      // Example chart for Sales Over Time
-      var salesOverTimeChart = new JSC.Chart('sales-over-time-chart', {
-        type: 'line',
-        series: [
-          {
-            points: [
-              { x: 'Jan', y: 20000 },
-              { x: 'Feb', y: 30000 },
-              { x: 'Mar', y: 25000 },
-              { x: 'Apr', y: 35000 },
-              { x: 'May', y: 30000 }
-            ],
-            color: 'rgba(52, 152, 219, 1)'
-          }
-        ]
-      });
-
-      // Example chart for Profitability Metrics
-      var profitChart = new JSC.Chart('profit-chart', {
-        type: 'bar',
-        series: [
-          {
-            points: [
-              { x: 'Product A', y: 100000 },
-              { x: 'Product B', y: 150000 },
-              { x: 'Product C', y: 200000 }
-            ],
-            colors: ['#e74c3c', '#3498db', '#2ecc71']
-          }
-        ]
-      });
-
-      // Example chart for Comparison Metrics
-      var comparisonChart = new JSC.Chart('comparison-chart', {
-        type: 'line',
-        series: [
-          {
-            points: [
-              { x: 'Jan', y: 20000 },
-              { x: 'Feb', y: 30000 },
-              { x: 'Mar', y: 25000 },
-              { x: 'Apr', y: 35000 },
-              { x: 'May', y: 30000 }
-            ],
-            color: 'rgba(46, 204, 113, 1)'
-          }
-        ]
-      });
-    });
-
-    function toggleUserInfo() {
-      var userInfo = document.getElementById('user-info');
-      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
-
-    function redirectToPage(page) {
-      // Redirect to the specified page with user info
-      var urlParams = new URLSearchParams(window.location.search);
-      var userId = urlParams.get('user_id') || '';
-      var username = urlParams.get('username') || '';
-      var role = urlParams.get('role') || '';
-      var storeName = urlParams.get('store_name') || '';
-      window.location.href = page + '?user_id=' + userId + '&username=' + username + '&role=' + role + '&store_name=' + storeName;
-    }
-
-    function openPopup(popupId) {
-      var popup = document.getElementById(popupId);
-      popup.style.display = 'block';
-
-      // Render charts in popups
-      if (popupId === 'profitability-popup') {
-        var profitabilityChart = new JSC.Chart('profit-chart', {
-          type: 'bar',
-          series: [
-            {
-              points: [
-                { x: 'Product A', y: 100000 },
-                { x: 'Product B', y: 150000 },
-                { x: 'Product C', y: 200000 }
-              ],
-              colors: ['#e74c3c', '#3498db', '#2ecc71']
-            }
-          ]
-        });
-      } else if (popupId === 'comparison-popup') {
-        var comparisonChart = new JSC.Chart('comparison-chart', {
-          type: 'line',
-          series: [
-            {
-              points: [
-                { x: 'Jan', y: 20000 },
-                { x: 'Feb', y: 30000 },
-                { x: 'Mar', y: 25000 },
-                { x: 'Apr', y: 35000 },
-                { x: 'May', y: 30000 }
-              ],
-              color: 'rgba(46, 204, 113, 1)'
-            }
-          ]
-        });
-      }
-    }
-
-    function closePopup(popupId) {
-      var popup = document.getElementById(popupId);
-      popup.style.display = 'none';
-    }
-     document.getElementById('logoutLink').addEventListener('click', function(event) {
-    // Prevent the default behavior of the link
-    event.preventDefault();
-
-    // Redirect the user to the logout.php file for logout
-    window.location.href = 'logout.php';
-  });
-  </script>
 </body>
 </html>
-
