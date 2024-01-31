@@ -179,7 +179,7 @@ $location_name = isset($_SESSION['location_name']) ? $_SESSION['location_name'] 
     <div id="content">
         <div class="section-card">
             <h3>Record Sale</h3>
-            <form id="sales-form">
+            <form id="sales-form" method="post" action="recordsale.php">
                 <label for="productName">Product Name:</label>
                 <input type="text" name="productName" placeholder="Product name" required list="productList">
 
