@@ -203,7 +203,7 @@ body, html {
           <p>You can record and view your inventory here.</p>
         </div>
 
-        <div class="card sales" onclick="redirectToPage('sales.php');">
+        <div class="card sales" onclick="redirectToPage('sale.php');">
           <h3>Sales</h3>
           <p>Track and analyze your sales data.</p>
         </div>
@@ -213,7 +213,7 @@ body, html {
           <h3>Orders</h3>
           <p>Manage and process salary payments and stock orders efficiently.</p>
         </div>
-        <div class="card stats" onclick="redirectToPage('fetchdata.php');">
+        <div class="card stats" onclick="redirectToPage('stats.html');">
           <h3>Stats</h3>
           <p>Explore detailed statistics and reports.</p>
         </div>
