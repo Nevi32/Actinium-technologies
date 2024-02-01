@@ -101,7 +101,7 @@ body, html {
   color: #fff;
 }
 
-.orders {
+.StoreResources {
   background-color: #e74c3c;
   color: #fff;
 }
@@ -209,9 +209,9 @@ body, html {
         </div>
       </div>
       <div class="row">
-        <div class="card orders" onclick="redirectToPage('orders.html');">
-          <h3>Orders</h3>
-          <p>Manage and process salary payments and stock orders efficiently.</p>
+        <div class="card StoreResources" onclick="redirectToPage('StoreResources.php');">
+          <h3>StoreResources</h3>
+          <p>Manage and process your store resources like staff suppliers and bills efficiently.</p>
         </div>
         <div class="card stats" onclick="redirectToPage('stats.html');">
           <h3>Stats</h3>
