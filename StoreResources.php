@@ -182,30 +182,27 @@
       <div class="option" onclick="openStaffPopup()">Manage Staff</div>
       <div class="option" onclick="openPopup('suppliers')">Manage Suppliers</div>
       <div class="option" onclick="openPopup('bills')">Manage Bills</div>
+       <!-- Staff Popup -->
+<div class="popup" id="staffPopup">
+  <span class="close" onclick="closePopup('staffPopup')">&times;</span>
+  <div class="popup-content" style="width: 100%;">
+    <!-- Content for managing staff -->
+    <h2 style="margin-bottom: 20px;">Manage Staff</h2>
+    <table style="width: 100%;" id="staffTable">
+      <tr>
+        <th>Staff Name</th>
+        <th>Location</th>
+        <th>Commission Accumulated</th>
+        <th>Action</th>
+      </tr>
+    </table>
+    <div class="button-margin">
+      <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
+      <button class="action-button" onclick="resetCommissions()">Reset Commissions</button>
+    </div>
+  </div>
+</div>
 
-      <!-- Popups for managing resources -->
-      <!-- Staff Popup -->
-      <div class="popup" id="staffPopup">
-        <span class="close" onclick="closePopup('staffPopup')">&times;</span>
-        <div class="popup-content" style="width: 100%;">
-          <!-- Title for Store Type -->
-          <h2 style="margin-bottom: 20px;">Store Type: <?php echo $_SESSION['store_type']; ?></h2>
-          <!-- Content for managing staff -->
-          <h2 style="margin-bottom: 20px;">Manage Staff</h2>
-          <table style="width: 100%;" id="staffTable">
-            <tr>
-              <th>Staff Name</th>
-              <th>Location</th>
-              <th>Commission Accumulated</th>
-              <th>Action</th>
-            </tr>
-          </table>
-          <div class="button-margin">
-            <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
-            <button class="action-button" onclick="resetCommissions()">Reset Commissions</button>
-          </div>
-        </div>
-      </div>
 
       <!-- Other Popups -->
       <div class="popup" id="suppliersPopup">
@@ -299,22 +296,48 @@
       });
   }
 
-  function removeStaff(userId) {
-    fetch('removestaff.php?id=' + userId)
+   function removeStaff(userId) {
+  fetch('removestaff.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        fetchStaffInfo(); // Refresh staff list after removal
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error removing staff:', error);
+    });
+}
+
+function redirectToRegisterPage() {
+  window.location.href = 'registerX.php';
+}
+
+
+function calculateCommission(userId) {
+    fetch('calculate_commission.php?id=' + userId)
       .then(response => response.json())
       .then(data => {
-        fetchStaffInfo(); // Refresh staff list after removal
+        fetchStaffInfo(); // Refresh staff list after commission calculation
       })
       .catch(error => {
-        console.error('Error removing staff:', error);
+        console.error('Error calculating commission:', error);
       });
-  }
+}
 
-  function calculateCommission(userId) {
-    // Placeholder function for calculating commission
-    console.log('Calculating commission for user ID:', userId);
-    // Implement logic or call appropriate script for commission calculation
-  }
+function resetCommission(userId) {
+    fetch('resetcommission.php?id=' + userId)
+      .then(response => response.json())
+      .then(data => {
+        fetchStaffInfo(); // Refresh staff list after commission reset
+      })
+      .catch(error => {
+        console.error('Error resetting commission:', error);
+      });
+}
+
 
   </script>
 </body>

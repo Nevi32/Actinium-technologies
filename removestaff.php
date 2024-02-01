@@ -15,25 +15,28 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
         die("Connection failed: " . $e->getMessage());
     }
 
-    // Query to delete user from the users table
-    $query = "DELETE FROM users WHERE user_id = :user_id";
+    // Start a transaction to ensure data integrity
+    $pdo->beginTransaction();
 
     try {
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-        $stmt->execute();
+        // Delete related records from the sales table
+        $stmt_sales = $pdo->prepare("DELETE FROM sales WHERE user_id = :user_id");
+        $stmt_sales->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_sales->execute();
 
-        // Check if any rows were affected
-        $rowCount = $stmt->rowCount();
-        if($rowCount > 0){
-            // User deleted successfully
-            echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
-        } else {
-            // User not found or already deleted
-            echo json_encode(['success' => false, 'message' => 'User not found or already deleted']);
-        }
+        // Delete the user from the users table
+        $stmt_users = $pdo->prepare("DELETE FROM users WHERE user_id = :user_id");
+        $stmt_users->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_users->execute();
+
+        // Commit the transaction
+        $pdo->commit();
+
+        echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
     } catch (PDOException $e) {
-        // Handle database errors
+        // Roll back the transaction if an error occurs
+        $pdo->rollback();
+
         echo json_encode(['success' => false, 'message' => 'Error deleting user: ' . $e->getMessage()]);
     }
 } else {

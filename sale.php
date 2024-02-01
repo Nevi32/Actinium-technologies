@@ -274,7 +274,7 @@
     // Function to fetch staff names associated with the store
     function fetchStaffNames() {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'fetchstaff.php', true);
+      xhr.open('GET', 'fetchstaff2.php', true);
       xhr.onload = function() {
         if (xhr.status >= 200 && xhr.status < 400) {
           var staffNames = JSON.parse(xhr.responseText);
