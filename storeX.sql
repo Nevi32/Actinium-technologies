@@ -127,26 +127,23 @@ END;
 DELIMITER ;
 
 DELIMITER //
-
-CREATE TRIGGER update_main_entry_on_sale
+CREATE TRIGGER subtract_quantity_sold
 AFTER INSERT ON sales
 FOR EACH ROW
 BEGIN
-    DECLARE main_entry_quantity DECIMAL(10,2);
-    
-    -- Get the current quantity of the main entry in the store where the sale was made
+    DECLARE main_entry_quantity DECIMAL(10, 2);
+
+    -- Get the current quantity of the product in the main_entry table
     SELECT total_quantity INTO main_entry_quantity
     FROM main_entry
     WHERE main_entry_id = NEW.main_entry_id
     AND store_id = NEW.store_id;
-    
-    -- Subtract the quantity sold from the main entry
+
+    -- Subtract the quantity sold from the main_entry table
     UPDATE main_entry
     SET total_quantity = main_entry_quantity - NEW.quantity_sold
     WHERE main_entry_id = NEW.main_entry_id
     AND store_id = NEW.store_id;
-END;
-//
-
+END //
 DELIMITER ;
 

@@ -15,7 +15,8 @@ try {
 } catch (PDOException $e) {
     // Log the error details and redirect if connection fails
     error_log("Database Connection Error: " . $e->getMessage(), 0);
-    header("Location: error.html");
+    $_SESSION['error_message'] = "Database Connection Error: " . $e->getMessage();
+    header("Location: sale.php");
     exit();
 }
 
@@ -43,10 +44,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $store_id = $store_row['store_id'];
 
         // Get main entry id using product name, category, and store id
-        $stmt_main_entry = $pdo->prepare("SELECT main_entry_id FROM main_entry WHERE product_name = ? AND category = ? AND store_id = ?");
+        $stmt_main_entry = $pdo->prepare("SELECT main_entry_id, total_quantity FROM main_entry WHERE product_name = ? AND category = ? AND store_id = ?");
         $stmt_main_entry->execute([$product_name, $category, $store_id]);
         $main_entry_row = $stmt_main_entry->fetch(PDO::FETCH_ASSOC);
         $main_entry_id = $main_entry_row['main_entry_id'];
+        $total_quantity = $main_entry_row['total_quantity'];
+
+        // If product not available in inventory, return an error message
+        if (!$main_entry_id) {
+            $_SESSION['error_message'] = "Product not in inventory";
+            header("Location: sale.php");
+            exit();
+        }
 
         // Get user id using staff name and store id
         $stmt_user = $pdo->prepare("SELECT user_id FROM users WHERE full_name = ? AND store_id = ?");
@@ -54,21 +63,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_row = $stmt_user->fetch(PDO::FETCH_ASSOC);
         $user_id = $user_row['user_id'];
 
-        // Echoing the values for debugging
-        echo "Main Entry ID: " . $main_entry_id . "<br>";
-        echo "Store ID: " . $store_id . "<br>";
-        echo "User ID: " . $user_id . "<br>";
-
         // Insert sales data into the sales table
         $stmt_sales = $pdo->prepare("INSERT INTO sales (main_entry_id, quantity_sold, total_price, store_id, user_id) VALUES (?, ?, ?, ?, ?)");
         $stmt_sales->execute([$main_entry_id, $quantity_sold, $total_price, $store_id, $user_id]);
 
-        // No need to redirect, just echoing the values for debugging
-        echo "Sale processed successfully!";
+        // Set success message
+        $_SESSION['success_message'] = "Sale processed successfully!";
+        header("Location: sale.php");
+        exit();
     } catch (PDOException $e) {
-        // Log the error details and display the error message
+        // Log the error details and set error message
         error_log("Error Processing Sale: " . $e->getMessage(), 0);
-        echo "Error Processing Sale: " . $e->getMessage();
+        $_SESSION['error_message'] = "Error Processing Sale: " . $e->getMessage();
+        header("Location: sale.php");
+        exit();
     }
 } else {
     // Redirect if the request method is not POST

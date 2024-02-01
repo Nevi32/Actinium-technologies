@@ -5,42 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Store Statistics Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
-  <link rel="stylesheet" href="https://code.jscharting.com/latest/jscharting.css">
   <style>
     body {
       font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #f8f9fa;
-      overflow-x: hidden;
-    }
-     #dashboard {
-            display: flex;
-            height: 100vh; /* Use viewport height to make sure the layout covers the entire screen */
-        }
-    #stats-page {
       display: flex;
-      height: 100vh;
     }
 
     #sidebar {
-      width: 200px;
-      background-color: #343a40;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      transition: width 0.3s ease-in-out;
-      overflow: hidden;
-    }
+  width: 300px; /* Width of the sidebar */
+  background-color: #343a40;
+  color: #fff;
+  padding: 20px;
+  height: 100vh; /* Set height to 100% of viewport height */
+}
 
-    #sidebar:hover {
-      width: 250px;
-    }
 
     #sidebar a {
       color: #fff;
@@ -52,123 +33,191 @@
       justify-content: flex-start;
     }
 
-    #sidebar i {
-      margin-right: 10px;
+    #content {
+      flex-grow: 1;
+      padding: 20px;
     }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
+    .container {
+      border: 2px solid #dedede;
+      background-color: #f1f1f1;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px 0;
+      position: relative; /* Added for positioning icon */
+    }
 
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
+    /* Darker chat container */
+    .darker {
+      border-color: #ccc;
+      background-color: #ddd;
+    }
 
-.questions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+    /* Clear floats */
+    .container::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
 
-.question-card {
-  width: 300px;
-  padding: 20px;
-  margin: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
+    /* Style images */
+    .container img {
+      float: left;
+      max-width: 40px; /* Adjusted image size */
+      width: 100%;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
 
-.question-card h2 {
-  margin: 0;
-  font-size: 1.2em;
-  color: #333;
-}
+    /* Style the right image */
+    .container img.right {
+      float: right;
+      margin-left: 10px;
+      margin-right:0;
+    }
 
-.popup {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  z-index: 1000;
-}
+    /* Style time text */
+    .time-right {
+      float: right;
+      color: #aaa;
+    }
 
-.popup-content {
-  max-width: 400px;
-}
+    /* Style time text */
+    .time-left {
+      float: left;
+      color: #999;
+    }
 
-.popup-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
-</style> 
-   <div id="dashboard">
-        <div id="sidebar">
-            <div class="welcome-message" id="welcome-message"></div>
-            <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
-            <div id="user-info">
-                <!-- User info will be displayed here using JavaScript -->
-            </div>
-            <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
-            <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-            <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-            <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
-     </div>
-    <div id="content">
-<div class="container">
-  <h1>Store Statistics Dashboard</h1>
-  <div class="questions">
-    <div class="question-card" onclick="openPopup('profit-popup')">
-      <h2>How much profit was made?</h2>
+    /* Chat input */
+    .chat-input {
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 20px;
+      width: calc(100% - 70px); /* Adjusted for button width */
+      box-sizing: border-box;
+    }
+
+    .chat-btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    /* Popup content */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 2px solid #dedede;
+      border-radius: 5px;
+      padding: 20px;
+      z-index: 1000;
+      display: none; /* Initially hidden */
+    }
+
+    .popup-content {
+      max-height: 300px; /* Added max-height for scrolling */
+      overflow-y: auto; /* Added scrolling for overflow */
+    }
+
+    /* Download button */
+    .download-btn {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <div class="welcome-message" id="welcome-message">Welcome, User!</div>
+    <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+    <div id="user-info">
+        <!-- User info will be displayed here using JavaScript -->
     </div>
-    <div class="question-card" onclick="openPopup('total-sales-popup')">
-      <h2>What are the total sales?</h2>
+    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
+    <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+    <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+  <div id="content">
+    <!-- Chat messages -->
+    <div class="container darker">
+      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
+      <p>Hello! Welcome to the Store Statistics Dashboard.</p>
+      <span class="time-left">11:00</span>
     </div>
-    <!-- Add more question cards here -->
+
+    <div class="container">
+      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
+      <p>I'm your assistant here to help you with insights about your store's performance.</p>
+      <p>What would you like to know?</p>
+      <span class="time-right">11:02</span>
+    </div>
+
+    <!-- Options for the user to select -->
+    <div class="container darker">
+      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
+      <p>Please select from the following options by entering the corresponding number:</p>
+      <ol>
+        <li>Check profits</li>
+        <li>Check total sales data</li>
+        <li>Inventory data</li>
+        <!-- Add more options as needed -->
+      </ol>
+      <span class="time-left">11:05</span>
+    </div>
+
+    <!-- Chat input for the user to type their selection -->
+    <input type="text" class="chat-input" id="user-input" placeholder="Type your selection here...">
+    <button class="chat-btn" onclick="submitSelection()">Send</button>
   </div>
-</div>
 
-<div id="profit-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('profit-popup')">&times;</span>
-    <h2>Profit Details</h2>
-    <!-- Placeholder for profit details -->
+  <!-- Popup for displaying data -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('popup')">&times;</span>
+      <h2>Data Details</h2>
+      <p id="popup-content-placeholder">This is where the data details will be displayed.</p>
+      <!-- Add data details here -->
+      <button class="download-btn">Download</button>
+    </div>
   </div>
-</div>
 
-<div id="total-sales-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('total-sales-popup')">&times;</span>
-    <h2>Total Sales Details</h2>
-    <!-- Placeholder for total sales details -->
-  </div>
-</div>
+  <script>
+    function submitSelection() {
+      var userInput = document.getElementById("user-input").value;
+      document.getElementById("popup-content-placeholder").innerText = "You selected option " + userInput;
+      openPopup('popup');
+    }
 
-<!-- Add more popups as needed -->
+    function openPopup(popupId) {
+      var popup = document.getElementById(popupId);
+      popup.style.display = 'block';
+    }
 
-<script>
-  function openPopup(popupId) {
-    var popup = document.getElementById(popupId);
-    popup.style.display = 'block';
-  }
-
-  function closePopup(popupId) {
-    var popup = document.getElementById(popupId);
-    popup.style.display = 'none';
-  }
-</script>
-
+    function closePopup(popupId) {
+      var popup = document.getElementById(popupId);
+      popup.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
+
