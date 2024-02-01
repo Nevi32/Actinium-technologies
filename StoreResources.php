@@ -99,9 +99,10 @@
       transform: translate(-50%, -50%);
       background-color: #fff;
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 20px; /* Increased border-radius for rounded edges */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1000;
+      width: 70%; /* Increased width */
     }
 
     .popup-content {
@@ -113,6 +114,35 @@
       top: 10px;
       right: 10px;
       cursor: pointer;
+    }
+
+    /* Style for the table inside the popup */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* Style for action buttons */
+    .action-button {
+      background-color: blue;
+      color: white;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    /* Additional margin for buttons */
+    .button-margin {
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -149,25 +179,35 @@
       </div>
 
       <!-- Options for managing resources -->
-      <div class="option" onclick="openPopup('staff')">Manage Staff</div>
+      <div class="option" onclick="openStaffPopup()">Manage Staff</div>
       <div class="option" onclick="openPopup('suppliers')">Manage Suppliers</div>
       <div class="option" onclick="openPopup('bills')">Manage Bills</div>
 
       <!-- Popups for managing resources -->
+      <!-- Staff Popup -->
       <div class="popup" id="staffPopup">
         <span class="close" onclick="closePopup('staffPopup')">&times;</span>
-        <div class="popup-content">
+        <div class="popup-content" style="width: 100%;">
+          <!-- Title for Store Type -->
+          <h2 style="margin-bottom: 20px;">Store Type: <?php echo $_SESSION['store_type']; ?></h2>
           <!-- Content for managing staff -->
-          <h2>Manage Staff</h2>
-          <p>What staff management action would you like to perform?</p>
-          <ul>
-            <li><a href="#">Calculate Staff Commission</a></li>
-            <li><a href="#">Add Staff</a></li>
-            <li><a href="#">Remove Staff</a></li>
-          </ul>
+          <h2 style="margin-bottom: 20px;">Manage Staff</h2>
+          <table style="width: 100%;" id="staffTable">
+            <tr>
+              <th>Staff Name</th>
+              <th>Location</th>
+              <th>Commission Accumulated</th>
+              <th>Action</th>
+            </tr>
+          </table>
+          <div class="button-margin">
+            <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
+            <button class="action-button" onclick="resetCommissions()">Reset Commissions</button>
+          </div>
         </div>
       </div>
 
+      <!-- Other Popups -->
       <div class="popup" id="suppliersPopup">
         <span class="close" onclick="closePopup('suppliersPopup')">&times;</span>
         <div class="popup-content">
@@ -198,26 +238,84 @@
   </div>
 
   <script>
-    // JavaScript functions for opening and closing popups
-    function openPopup(option) {
-      var popup = document.getElementById(option + 'Popup');
-      if (popup) {
-        popup.style.display = 'block';
-      }
+    // JavaScript function for opening and closing popups
+      
+  function openPopup(popupId) {
+    var popup = document.getElementById(popupId);
+    if (popup) {
+      popup.style.display = 'block';
     }
+  }
 
-    function closePopup(popupId) {
-      var popup = document.getElementById(popupId);
-      if (popup) {
-        popup.style.display = 'none';
-      }
+  function closePopup(popupId) {
+    var popup = document.getElementById(popupId);
+    if (popup) {
+      popup.style.display = 'none';
     }
+  }
 
-    // JavaScript function to toggle user info display
-    function toggleUserInfo() {
-      var userInfo = document.getElementById('user-info');
-      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
+  function toggleUserInfo() {
+    var userInfo = document.getElementById('user-info');
+    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+  }
+
+  function openStaffPopup() {
+    openPopup('staffPopup');
+    fetchStaffInfo();
+  }
+
+  function fetchStaffInfo() {
+    fetch('fetchstaff.php')
+      .then(response => response.json())
+      .then(data => {
+        const staffTable = document.getElementById('staffTable');
+        staffTable.innerHTML = ''; // Clear existing rows
+        data.forEach(staff => {
+        
+       staffTable.innerHTML += `
+            <tr>
+              <th>Staff Name</th>
+              <th>Location</th>
+              <th>Commission Accumulated</th>
+              <th>Action</th>
+            </tr>
+          `;
+           
+        staffTable.innerHTML += `
+            <tr>
+              <td>${staff.name}</td>
+              <td>${staff.location}</td>
+              <td>${staff.commission}</td>
+              <td>
+                <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
+                <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
+              </td>
+            </tr>
+          `;
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching staff info:', error);
+      });
+  }
+
+  function removeStaff(userId) {
+    fetch('removestaff.php?id=' + userId)
+      .then(response => response.json())
+      .then(data => {
+        fetchStaffInfo(); // Refresh staff list after removal
+      })
+      .catch(error => {
+        console.error('Error removing staff:', error);
+      });
+  }
+
+  function calculateCommission(userId) {
+    // Placeholder function for calculating commission
+    console.log('Calculating commission for user ID:', userId);
+    // Implement logic or call appropriate script for commission calculation
+  }
+
   </script>
 </body>
 </html>
