@@ -19,6 +19,11 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     $pdo->beginTransaction();
 
     try {
+        // Delete related records from the commissions table
+        $stmt_commissions = $pdo->prepare("DELETE FROM commissions WHERE user_id = :user_id");
+        $stmt_commissions->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_commissions->execute();
+
         // Delete related records from the sales table
         $stmt_sales = $pdo->prepare("DELETE FROM sales WHERE user_id = :user_id");
         $stmt_sales->bindParam(':user_id', $userId, PDO::PARAM_INT);

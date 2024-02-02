@@ -198,7 +198,8 @@
     </table>
     <div class="button-margin">
       <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
-      <button class="action-button" onclick="resetCommissions()">Reset Commissions</button>
+      <button class="action-button" onclick="resetCommission()">Reset Commissions</button>
+
     </div>
   </div>
 </div>
