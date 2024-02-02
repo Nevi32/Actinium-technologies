@@ -12,16 +12,16 @@
       <h2>Store Statistics Dashboard</h2>
     </div>
     <nav class="sidebar-navigation">
-    <div class="welcome-message" id="welcome-message">Welcome, User!</div>
-    <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
-    <div id="user-info">
+      <div class="welcome-message" id="welcome-message">Welcome, User!</div>
+      <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+      <div id="user-info">
         <!-- User info will be displayed here using JavaScript -->
-    </div>
-    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
-    <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-    <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-    <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
+      <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+      <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
   </div>
 
@@ -63,7 +63,9 @@
     <div class="popup-content">
       <span class="popup-close" onclick="closePopup('popup')">&times;</span>
       <h2>Data Details</h2>
-      <p id="popup-content-placeholder">This is where the data details will be displayed.</p>
+      <div id="popup-content-placeholder">
+        <!-- Data details will be displayed here -->
+      </div>
       <button class="download-btn">Download</button>
     </div>
   </div>
@@ -100,7 +102,95 @@
     function submitSelection() {
       var userInput = document.getElementById("user-input").value;
       sendMessage("You selected: " + userInput);
-      openPopup('popup');
+
+      if (userInput === '1') {
+        fetchInventoryStats();
+      } else if (userInput === '2') {
+        fetchSalesStats();
+      } else if (userInput === '3') {
+        // Handle selection for Profit Stats
+        // Add your code here
+      } else {
+        sendMessage("Invalid selection. Please choose 1, 2, or 3.");
+      }
+    }
+
+    function fetchInventoryStats() {
+      $.ajax({
+        url: 'fetchinventorystats.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          handleInventoryStatsResponse(response);
+        },
+        error: function(xhr, status, error) {
+          sendMessage("Error fetching inventory stats: " + error);
+        }
+      });
+    }
+
+    function handleInventoryStatsResponse(response) {
+      if (response.error) {
+        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
+      } else {
+        var html = "";
+
+        // Main store inventory
+        html += "<p><strong>Main Store Inventory:</strong></p>";
+        html += "<ul>";
+        response.main_store_inventory.forEach(function(product) {
+          html += "<li>" + product.product_name + " - " + product.category + " - Total Quantity: " + product.total_quantity + " - " + product.quantity_description + "</li>";
+        });
+        html += "</ul>";
+
+        // Satellite stores inventory
+        html += "<p><strong>Satellite Stores Inventory:</strong></p>";
+        response.satellite_stores.forEach(function(store) {
+          html += "<p><strong>Store Name:</strong> " + store.location_name + "</p>";
+          html += "<ul>";
+          store.inventory.forEach(function(product) {
+            html += "<li>" + product.product_name + " - " + product.category + " - Total Quantity: " + product.total_quantity + " - " + product.quantity_description + "</li>";
+          });
+          html += "</ul>";
+        });
+
+        document.getElementById("popup-content-placeholder").innerHTML = html;
+        openPopup('popup');
+      }
+    }
+
+    function fetchSalesStats() {
+      $.ajax({
+        url: 'fetchsalesstats.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          handleSalesStatsResponse(response);
+        },
+        error: function(xhr, status, error) {
+          sendMessage("Error fetching sales stats: " + error);
+        }
+      });
+    }
+
+    function handleSalesStatsResponse(response) {
+      if (response.error) {
+        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
+      } else {
+        var html = "";
+
+        // Main store total sales
+        html += "<p><strong>Main Store Total Sales:</strong> " + response.main_store_total_sales + "</p>";
+
+        // Satellite stores total sales
+        html += "<p><strong>Satellite Stores Total Sales:</strong></p>";
+        response.satellite_store_sales.forEach(function(store) {
+          html += "<p><strong>Store Name:</strong> " + store.location_name + " - Total Sales: " + store.total_sales + "</p>";
+        });
+
+        document.getElementById("popup-content-placeholder").innerHTML = html;
+        openPopup('popup');
+      }
     }
   </script>
 </body>
