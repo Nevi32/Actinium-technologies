@@ -144,6 +144,41 @@
     .button-margin {
       margin-top: 20px;
     }
+    /* Style for the "Record Suppliers" form */
+#supplierForm {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+#supplierForm label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+#supplierForm input[type="text"],
+#supplierForm input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+#supplierForm button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#supplierForm button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
   </style>
 </head>
 <body>
@@ -180,56 +215,92 @@
 
       <!-- Options for managing resources -->
       <div class="option" onclick="openStaffPopup()">Manage Staff</div>
-      <div class="option" onclick="openPopup('suppliers')">Manage Suppliers</div>
-      <div class="option" onclick="openPopup('bills')">Manage Bills</div>
-       <!-- Staff Popup -->
-<div class="popup" id="staffPopup">
-  <span class="close" onclick="closePopup('staffPopup')">&times;</span>
-  <div class="popup-content" style="width: 100%;">
-    <!-- Content for managing staff -->
-    <h2 style="margin-bottom: 20px;">Manage Staff</h2>
-    <table style="width: 100%;" id="staffTable">
-      <tr>
-        <th>Staff Name</th>
-        <th>Location</th>
-        <th>Commission Accumulated</th>
-        <th>Action</th>
-      </tr>
-    </table>
-    <div class="button-margin">
-      <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
-      <button class="action-button" onclick="resetCommission()">Reset Commissions</button>
+      <div class="option" onclick="openPopup('suppliersPopup')">Manage Suppliers</div>
+      <div class="option" onclick="openPopup('billsPopup')">Manage Bills</div>
 
+      <!-- Staff Popup -->
+      <div class="popup" id="staffPopup">
+        <span class="close" onclick="closePopup('staffPopup')">&times;</span>
+        <div class="popup-content" style="width: 100%;">
+          <!-- Content for managing staff -->
+          <h2 style="margin-bottom: 20px;">Manage Staff</h2>
+          <table style="width: 100%;" id="staffTable">
+            <tr>
+              <th>Staff Name</th>
+              <th>Location</th>
+              <th>Commission Accumulated</th>
+              <th>Action</th>
+            </tr>
+          </table>
+          <div class="button-margin">
+            <button class="action-button" onclick="redirectToRegisterPage()">Add Staff</button>
+            <button class="action-button" onclick="resetCommission()">Reset Commissions</button>
+          </div>
+        </div>
+      </div>
+
+        <!-- Suppliers Popup -->
+<div class="popup" id="suppliersPopup">
+  <span class="close" onclick="closePopup('suppliersPopup')">&times;</span>
+  <div class="popup-content">
+    <h2>Manage Suppliers</h2>
+    <!-- Form for adding a new supplier -->
+    <form id="supplierForm" style="display: block;">
+      <label for="supplierName">Supplier Name:</label>
+      <input type="text" id="supplierName" name="supplierName" required><br><br>
+      <label for="phoneNumber">Phone Number:</label>
+      <input type="text" id="phoneNumber" name="phoneNumber" required><br><br>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email"><br><br>
+      <label for="address">Address:</label>
+      <input type="text" id="address" name="address"><br><br>
+      <button type="submit">Add Supplier</button>
+    </form>
+
+    <!-- List for displaying existing suppliers -->
+    <div id="supplierList" style="display: none;">
+      <table id="suppliersTable">
+        <thead>
+          <tr>
+            <th>Supplier Name</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows will be dynamically populated via JavaScript -->
+        </tbody>
+      </table>
     </div>
+    <br>
+    <!-- Button to toggle between form and list view -->
+    <button onclick="toggleSupplierView()">View Suppliers</button>
   </div>
 </div>
 
 
-      <!-- Other Popups -->
-      <div class="popup" id="suppliersPopup">
-        <span class="close" onclick="closePopup('suppliersPopup')">&times;</span>
-        <div class="popup-content">
-          <!-- Content for managing suppliers -->
-          <h2>Manage Suppliers</h2>
-          <p>What supplier management action would you like to perform?</p>
-          <ul>
-            <li><a href="#">Add Supplier</a></li>
-            <li><a href="#">Remove Supplier</a></li>
-          </ul>
-        </div>
-      </div>
-
+      <!-- Bills Popup -->
       <div class="popup" id="billsPopup">
         <span class="close" onclick="closePopup('billsPopup')">&times;</span>
         <div class="popup-content">
-          <!-- Content for managing bills -->
           <h2>Manage Bills</h2>
-          <p>What bill management action would you like to perform?</p>
-          <ul>
-            <li><a href="#">Record Transport</a></li>
-            <li><a href="#">Record Electric</a></li>
-            <li><a href="#">Record Rent</a></li>
-          </ul>
+          <!-- Spreadsheet-like table for managing bills -->
+          <table id="billsTable">
+            <thead>
+              <tr>
+                <th>Bill Type</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Table rows will be dynamically populated via JavaScript -->
+            </tbody>
+          </table>
+          <br>
+          <!-- Button to download bills as Excel file -->
+          <button onclick="downloadBills()">Download Bills</button>
         </div>
       </div>
     </div>
@@ -238,106 +309,170 @@
   <script>
     // JavaScript function for opening and closing popups
       
-  function openPopup(popupId) {
-    var popup = document.getElementById(popupId);
-    if (popup) {
-      popup.style.display = 'block';
+    function openPopup(popupId) {
+      var popup = document.getElementById(popupId);
+      if (popup) {
+        popup.style.display = 'block';
+      }
     }
-  }
 
-  function closePopup(popupId) {
-    var popup = document.getElementById(popupId);
-    if (popup) {
-      popup.style.display = 'none';
+    function closePopup(popupId) {
+      var popup = document.getElementById(popupId);
+      if (popup) {
+        popup.style.display = 'none';
+      }
     }
-  }
 
-  function toggleUserInfo() {
-    var userInfo = document.getElementById('user-info');
-    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-  }
+    function toggleUserInfo() {
+      var userInfo = document.getElementById('user-info');
+      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+    }
 
-  function openStaffPopup() {
-    openPopup('staffPopup');
-    fetchStaffInfo();
-  }
+    function openStaffPopup() {
+      openPopup('staffPopup');
+      fetchStaffInfo();
+    }
 
-  function fetchStaffInfo() {
-    fetch('fetchstaff.php')
-      .then(response => response.json())
-      .then(data => {
-        const staffTable = document.getElementById('staffTable');
-        staffTable.innerHTML = ''; // Clear existing rows
-        data.forEach(staff => {
-        
-       staffTable.innerHTML += `
+    function fetchStaffInfo() {
+      fetch('fetchstaff.php')
+        .then(response => response.json())
+        .then(data => {
+          const staffTable = document.getElementById('staffTable');
+          staffTable.innerHTML = ''; // Clear existing rows
+          data.forEach(staff => {
+           staffTable.innerHTML += `
             <tr>
               <th>Staff Name</th>
               <th>Location</th>
               <th>Commission Accumulated</th>
               <th>Action</th>
             </tr>
-          `;
-           
-        staffTable.innerHTML += `
-            <tr>
-              <td>${staff.name}</td>
-              <td>${staff.location}</td>
-              <td>${staff.commission}</td>
-              <td>
-                <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
-                <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
-              </td>
-            </tr>
-          `;
+          `; 
+           staffTable.innerHTML += `
+              <tr>
+                <td>${staff.name}</td>
+                <td>${staff.location}</td>
+                <td>${staff.commission}</td>
+                <td>
+                  <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
+                  <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
+                </td>
+              </tr>
+            `;
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching staff info:', error);
         });
-      })
-      .catch(error => {
-        console.error('Error fetching staff info:', error);
-      });
-  }
+    }
 
-   function removeStaff(userId) {
-  fetch('removestaff.php?id=' + userId)
+    function removeStaff(userId) {
+      fetch('removestaff.php?id=' + userId)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            fetchStaffInfo(); // Refresh staff list after removal
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error removing staff:', error);
+        });
+    }
+
+    function redirectToRegisterPage() {
+      window.location.href = 'registerX.php';
+    }
+
+    function calculateCommission(userId) {
+      fetch('calculate_commission.php?id=' + userId)
+        .then(response => response.json())
+        .then(data => {
+          fetchStaffInfo(); // Refresh staff list after commission calculation
+        })
+        .catch(error => {
+          console.error('Error calculating commission:', error);
+        });
+    }
+
+    function resetCommission(userId) {
+      fetch('resetcommission.php?id=' + userId)
+        .then(response => response.json())
+        .then(data => {
+          fetchStaffInfo(); // Refresh staff list after commission reset
+        })
+        .catch(error => {
+          console.error('Error resetting commission:', error);
+        });
+    }
+
+     // Function to toggle between form and list view
+function toggleSupplierView() {
+  var form = document.getElementById('supplierForm');
+  var list = document.getElementById('supplierList');
+
+  if (form.style.display === 'block') {
+    form.style.display = 'none';
+    list.style.display = 'block';
+    fetchSuppliers();
+  } else {
+    form.style.display = 'block';
+    list.style.display = 'none';
+  }
+}
+
+// Function to fetch and display suppliers
+function fetchSuppliers() {
+  fetch('fetchsuppliersinfo.php')
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        fetchStaffInfo(); // Refresh staff list after removal
-      } else {
-        alert(data.message);
-      }
+      const suppliersTable = document.getElementById('suppliersTable');
+      suppliersTable.innerHTML = ''; // Clear existing rows
+      data.forEach(supplier => {
+        suppliersTable.innerHTML += `
+          <tr>
+            <td>${supplier.supplier_name}</td>
+            <td>${supplier.phone_number}</td>
+            <td>${supplier.email}</td>
+            <td>${supplier.address}</td>
+          </tr>
+        `;
+      });
     })
     .catch(error => {
-      console.error('Error removing staff:', error);
+      console.error('Error fetching suppliers:', error);
     });
 }
 
-function redirectToRegisterPage() {
-  window.location.href = 'registerX.php';
-}
+// Function to add a new supplier
+document.getElementById('supplierForm').addEventListener('submit', function(event) {
+  event.preventDefault();
 
+  var formData = new FormData(this);
 
-function calculateCommission(userId) {
-    fetch('calculate_commission.php?id=' + userId)
-      .then(response => response.json())
-      .then(data => {
-        fetchStaffInfo(); // Refresh staff list after commission calculation
-      })
-      .catch(error => {
-        console.error('Error calculating commission:', error);
-      });
-}
-
-function resetCommission(userId) {
-    fetch('resetcommission.php?id=' + userId)
-      .then(response => response.json())
-      .then(data => {
-        fetchStaffInfo(); // Refresh staff list after commission reset
-      })
-      .catch(error => {
-        console.error('Error resetting commission:', error);
-      });
-}
+  fetch('recordsuppliers.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Handle success or display error message
+    if (data.success) {
+      // Clear form fields
+      this.reset();
+      // If in list view, refresh the list
+      if (document.getElementById('supplierList').style.display === 'block') {
+        fetchSuppliers();
+      }
+    } else {
+      alert(data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error recording supplier:', error);
+  });
+});
 
 
   </script>

@@ -9,16 +9,13 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Retrieve supplier information from the database
-    $sql = 'SELECT supplier_id, supplier_name, phone_number  FROM suppliers';
+    $sql = 'SELECT * FROM suppliers';
     $stmt = $pdo->query($sql);
     $suppliers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Session the supplier information in JSON format
-    $_SESSION['suppliers_info'] = json_encode($suppliers);
-
     // Return the JSON data
     header('Content-Type: application/json');
-    echo $_SESSION['suppliers_info'];
+    echo json_encode($suppliers);
 } catch (PDOException $e) {
     // Handle error
     echo json_encode(['error' => 'Error fetching supplier information: ' . $e->getMessage()]);
