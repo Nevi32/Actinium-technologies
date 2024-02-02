@@ -4,147 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Store Statistics Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
-      display: flex;
-    }
-
-    #sidebar {
-  width: 300px; /* Width of the sidebar */
-  background-color: #343a40;
-  color: #fff;
-  padding: 20px;
-  height: 100vh; /* Set height to 100% of viewport height */
-}
-
-
-    #sidebar a {
-      color: #fff;
-      text-decoration: none;
-      margin-bottom: 15px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
-    #content {
-      flex-grow: 1;
-      padding: 20px;
-    }
-
-    .container {
-      border: 2px solid #dedede;
-      background-color: #f1f1f1;
-      border-radius: 5px;
-      padding: 10px;
-      margin: 10px 0;
-      position: relative; /* Added for positioning icon */
-    }
-
-    /* Darker chat container */
-    .darker {
-      border-color: #ccc;
-      background-color: #ddd;
-    }
-
-    /* Clear floats */
-    .container::after {
-      content: "";
-      clear: both;
-      display: table;
-    }
-
-    /* Style images */
-    .container img {
-      float: left;
-      max-width: 40px; /* Adjusted image size */
-      width: 100%;
-      margin-right: 10px;
-      border-radius: 50%;
-    }
-
-    /* Style the right image */
-    .container img.right {
-      float: right;
-      margin-left: 10px;
-      margin-right:0;
-    }
-
-    /* Style time text */
-    .time-right {
-      float: right;
-      color: #aaa;
-    }
-
-    /* Style time text */
-    .time-left {
-      float: left;
-      color: #999;
-    }
-
-    /* Chat input */
-    .chat-input {
-      border: 2px solid #ddd;
-      border-radius: 5px;
-      padding: 10px;
-      margin-top: 20px;
-      width: calc(100% - 70px); /* Adjusted for button width */
-      box-sizing: border-box;
-    }
-
-    .chat-btn {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-
-    /* Popup content */
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      border: 2px solid #dedede;
-      border-radius: 5px;
-      padding: 20px;
-      z-index: 1000;
-      display: none; /* Initially hidden */
-    }
-
-    .popup-content {
-      max-height: 300px; /* Added max-height for scrolling */
-      overflow-y: auto; /* Added scrolling for overflow */
-    }
-
-    /* Download button */
-    .download-btn {
-      background-color: #4CAF50; /* Green */
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="sidebar">
+    <div class="sidebar-header">
+      <h2>Store Statistics Dashboard</h2>
+    </div>
+    <nav class="sidebar-navigation">
     <div class="welcome-message" id="welcome-message">Welcome, User!</div>
     <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
     <div id="user-info">
@@ -155,39 +22,40 @@
     <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
     <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
     <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
   </div>
 
   <div id="content">
-    <!-- Chat messages -->
-    <div class="container darker">
-      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
-      <p>Hello! Welcome to the Store Statistics Dashboard.</p>
-      <span class="time-left">11:00</span>
+    <div class="ChatWindow">
+      <div class="ChatItem ChatItem--bot">
+        <div class="ChatItem-meta">
+          <div class="ChatItem-avatar">
+            <img class="ChatItem-avatarImage" src="pict/chatbot.png">
+          </div>
+        </div>
+        <div class="ChatItem-chatContent">
+          <div class="ChatItem-chatText">Welcome to the Store Statistics Dashboard! What would you like to know?</div>
+          <!-- Options for the user to choose from -->
+          <div class="ChatItem-chatText">1. Inventory Stats</div>
+          <div class="ChatItem-chatText">2. Sales Stats</div>
+          <div class="ChatItem-chatText">3. Profit Stats</div>
+        </div>
+      </div>
+      <div class="ChatItem ChatItem--bot">
+        <div class="ChatItem-meta">
+          <div class="ChatItem-avatar">
+            <img class="ChatItem-avatarImage" src="pict/chatbot.png">
+          </div>
+        </div>
+        <div class="ChatItem-chatContent">
+          <div class="ChatItem-chatText">Choose the stats you wish to see:</div>
+        </div>
+      </div>
     </div>
-
-    <div class="container">
-      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
-      <p>I'm your assistant here to help you with insights about your store's performance.</p>
-      <p>What would you like to know?</p>
-      <span class="time-right">11:02</span>
+    <div class="InputBox">
+      <input type="text" class="chat-input" id="user-input" placeholder="Type your message here...">
+      <button class="chat-btn" onclick="submitSelection()">Send</button>
     </div>
-
-    <!-- Options for the user to select -->
-    <div class="container darker">
-      <img src="assistant_icon.png" alt="Assistant" class="assistant-icon">
-      <p>Please select from the following options by entering the corresponding number:</p>
-      <ol>
-        <li>Check profits</li>
-        <li>Check total sales data</li>
-        <li>Inventory data</li>
-        <!-- Add more options as needed -->
-      </ol>
-      <span class="time-left">11:05</span>
-    </div>
-
-    <!-- Chat input for the user to type their selection -->
-    <input type="text" class="chat-input" id="user-input" placeholder="Type your selection here...">
-    <button class="chat-btn" onclick="submitSelection()">Send</button>
   </div>
 
   <!-- Popup for displaying data -->
@@ -196,16 +64,27 @@
       <span class="popup-close" onclick="closePopup('popup')">&times;</span>
       <h2>Data Details</h2>
       <p id="popup-content-placeholder">This is where the data details will be displayed.</p>
-      <!-- Add data details here -->
       <button class="download-btn">Download</button>
     </div>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    function submitSelection() {
-      var userInput = document.getElementById("user-input").value;
-      document.getElementById("popup-content-placeholder").innerText = "You selected option " + userInput;
-      openPopup('popup');
+    function sendMessage(message) {
+      var chatWindow = document.querySelector(".ChatWindow");
+      var chatItem = document.createElement("div");
+      chatItem.className = "ChatItem ChatItem--bot";
+      chatItem.innerHTML = `
+        <div class="ChatItem-meta">
+          <div class="ChatItem-avatar">
+            <img class="ChatItem-avatarImage" src="bot_image.png">
+          </div>
+        </div>
+        <div class="ChatItem-chatContent">
+          <div class="ChatItem-chatText">${message}</div>
+        </div>
+      `;
+      chatWindow.appendChild(chatItem);
     }
 
     function openPopup(popupId) {
@@ -216,6 +95,12 @@
     function closePopup(popupId) {
       var popup = document.getElementById(popupId);
       popup.style.display = 'none';
+    }
+
+    function submitSelection() {
+      var userInput = document.getElementById("user-input").value;
+      sendMessage("You selected: " + userInput);
+      openPopup('popup');
     }
   </script>
 </body>

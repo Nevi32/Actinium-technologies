@@ -1,0 +1,164 @@
+/* Global styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+/* Sidebar styles */
+#sidebar {
+  width: 300px;
+  background-color: #343a40;
+  color: #fff;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+}
+
+.sidebar-header {
+  margin-bottom: 20px;
+}
+
+.sidebar-navigation {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar-navigation li {
+  margin-bottom: 10px;
+}
+
+/* Content styles */
+#content {
+  flex-grow: 1;
+  padding: 20px;
+  padding-left: 390px; /* Adjusted for sidebar width */
+  overflow-y: auto; /* Allow content area to scroll */
+}
+
+/* Chat window styles */
+.ChatWindow {
+  max-height: calc(100vh - 100px); /* Adjusted to accommodate input box */
+}
+
+/* Chat item styles */
+.ChatItem {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.ChatItem-meta {
+  display: flex;
+  align-items: center;
+}
+
+/* Avatar image styles */
+.ChatItem-avatar {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px; /* Add margin to separate image from text */
+}
+
+.ChatItem-avatarImage {
+  width: 100%;
+  border-radius: 50%;
+}
+
+/* Adjust bot and user images in different positions */
+.ChatItem--customer .ChatItem-avatar {
+  order: -1; /* Move user image to the left side */
+}
+
+.ChatItem--bot .ChatItem-avatar {
+  order: 2; /* Move bot image to the right side */
+}
+
+
+/* Chat text styles */
+.ChatItem-chatContent {
+  flex-grow: 1;
+}
+
+.ChatItem-chatText {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
+  max-width: 70%; /* Limit message width */
+  word-wrap: break-word; /* Allow long words to break */
+  word-break: break-all; /* Break words that exceed container width */
+}
+
+/* Input box styles */
+.InputBox {
+  position: fixed;
+  bottom: 20px;
+  left: 380px; /* Adjusted for sidebar width */
+  right: 20px;
+  width: calc(100% - 450px); /* Adjusted for sidebar width and padding */
+}
+
+.chat-input {
+  width: calc(100% - 120px); /* Adjusted for button width */
+  border-radius: 20px; /* Add border-radius for curved edges */
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.chat-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 20px; /* Add border-radius for curved edges */
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+/* Popup styles */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 2px solid #dedede;
+  border-radius: 5px;
+  padding: 20px;
+  z-index: 1000;
+  display: none;
+}
+
+.popup-content {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #888;
+}
+
+/* Download button */
+.download-btn {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
