@@ -105,9 +105,12 @@
       width: 70%; /* Increased width */
     }
 
-    .popup-content {
-      text-align: center;
-    }
+     .popup-content {
+  text-align: center;
+  max-height: 70vh; /* Set maximum height for the content area */
+  overflow-y: auto; /* Enable vertical scrolling when content overflows */
+}
+
 
     .close {
       position: absolute;

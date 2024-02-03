@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Sidebar and navigation -->
   <div id="sidebar">
     <div class="sidebar-header">
       <h2>Store Statistics Dashboard</h2>
@@ -25,6 +26,7 @@
     </nav>
   </div>
 
+  <!-- Content section -->
   <div id="content">
     <div class="ChatWindow">
       <div class="ChatItem ChatItem--bot">
@@ -70,8 +72,10 @@
     </div>
   </div>
 
+  <!-- jQuery library -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
+    // Function to send message to chat window
     function sendMessage(message) {
       var chatWindow = document.querySelector(".ChatWindow");
       var chatItem = document.createElement("div");
@@ -89,16 +93,19 @@
       chatWindow.appendChild(chatItem);
     }
 
+    // Function to open popup
     function openPopup(popupId) {
       var popup = document.getElementById(popupId);
       popup.style.display = 'block';
     }
 
+    // Function to close popup
     function closePopup(popupId) {
       var popup = document.getElementById(popupId);
       popup.style.display = 'none';
     }
 
+    // Function to handle user selection
     function submitSelection() {
       var userInput = document.getElementById("user-input").value;
       sendMessage("You selected: " + userInput);
@@ -108,13 +115,13 @@
       } else if (userInput === '2') {
         fetchSalesStats();
       } else if (userInput === '3') {
-        // Handle selection for Profit Stats
-        // Add your code here
+        fetchProfitStats();
       } else {
         sendMessage("Invalid selection. Please choose 1, 2, or 3.");
       }
     }
 
+    // Function to fetch inventory stats
     function fetchInventoryStats() {
       $.ajax({
         url: 'fetchinventorystats.php',
@@ -129,6 +136,7 @@
       });
     }
 
+    // Function to handle inventory stats response
     function handleInventoryStatsResponse(response) {
       if (response.error) {
         document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
@@ -159,6 +167,7 @@
       }
     }
 
+    // Function to fetch sales stats
     function fetchSalesStats() {
       $.ajax({
         url: 'fetchsalesstats.php',
@@ -173,6 +182,7 @@
       });
     }
 
+    // Function to handle sales stats response
     function handleSalesStatsResponse(response) {
       if (response.error) {
         document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
@@ -186,6 +196,42 @@
         html += "<p><strong>Satellite Stores Total Sales:</strong></p>";
         response.satellite_store_sales.forEach(function(store) {
           html += "<p><strong>Store Name:</strong> " + store.location_name + " - Total Sales: " + store.total_sales + "</p>";
+        });
+
+        document.getElementById("popup-content-placeholder").innerHTML = html;
+        openPopup('popup');
+      }
+    }
+
+    // Function to fetch profit stats
+    function fetchProfitStats() {
+      $.ajax({
+        url: 'fetchprofitstats.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          handleProfitStatsResponse(response);
+        },
+        error: function(xhr, status, error) {
+          sendMessage("Error fetching profit stats: " + error);
+        }
+      });
+    }
+
+    // Function to handle profit stats response
+    function handleProfitStatsResponse(response) {
+      if (response.error) {
+        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
+      } else {
+        var html = "";
+
+        // Main store profit
+        html += "<p><strong>Main Store Profit:</strong> " + response.main_store_profit + "</p>";
+
+        // Satellite stores profit
+        html += "<p><strong>Satellite Stores Profit:</strong></p>";
+        response.satellite_store_profit.forEach(function(store) {
+          html += "<p><strong>Store Name:</strong> " + store.location_name + " - Profit: " + store.profit + "</p>";
         });
 
         document.getElementById("popup-content-placeholder").innerHTML = html;

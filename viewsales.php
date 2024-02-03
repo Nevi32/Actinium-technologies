@@ -46,7 +46,7 @@ session_start();
         }
 
         #sidebar a:not(:last-child) {
-            margin-bottom: 60px;
+            margin-bottom: 100px;
         }
 
         #content {
@@ -174,7 +174,7 @@ session_start();
         <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
         <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
         <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-        <a href="home.html" onclick="redirectToPage('home.html');"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
         <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 

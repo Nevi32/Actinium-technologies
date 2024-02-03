@@ -45,7 +45,7 @@
         }
 
         #sidebar a:not(:last-child) {
-            margin-bottom: 60px;
+            margin-bottom: 100px;
         }
 
         #sidebar a:hover {
