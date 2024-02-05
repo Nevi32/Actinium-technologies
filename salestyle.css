@@ -1,0 +1,209 @@
+/* CSS styles for sale.php */
+
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+#sales-page {
+  display: flex;
+  height: 100%;
+}
+
+#sidebar {
+  width: 220px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+}
+
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+#sidebar i {
+  margin-right: 10px;
+  transition: transform 0.2s;
+}
+
+#sidebar a:not(:last-child) {
+  margin-bottom: 100px;
+}
+
+#sidebar a:hover {
+  background-color: #555;
+}
+
+#sidebar a:hover i {
+  transform: translateY(-3px);
+}
+
+#user-icon {
+  margin-bottom: 20px;
+}
+
+#user-info {
+  display: none;
+  color: #fff;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #555;
+  border-radius: 15px;
+}
+
+#content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 240px; /* Adjusted for sidebar width */
+  overflow-y: auto;
+}
+
+.navbar {
+  background-color: #fff; /* White background for navbar */
+  color: #333; /* Text color for navbar */
+  padding: 10px 20px;
+  margin-bottom: 20px;
+}
+
+.navbar a {
+  color: #3498db; /* Blue color for button */
+  text-decoration: none;
+  padding: 8px 16px; /* Increase padding for button */
+  border-radius: 5px; /* Rounded corners for button */
+  background-color: #fff; /* White background for button */
+  border: 2px solid #3498db; /* Blue border for button */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar a:hover {
+  background-color: #3498db; /* Blue background on hover */
+  color: #fff; /* White text on hover */
+}
+
+.section-card {
+  width: calc(100% - 40px); /* Reduced width of form card */
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background-color: #3498db;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.section-card h3 {
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.section-card label {
+  color: #fff;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.section-card input,
+.section-card select {
+  width: calc(100% - 20px); /* Reduced width of input fields */
+  padding: 8px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 5px;
+}
+
+.section-card button {
+  width: calc(100% - 20px); /* Reduced width of buttons */
+  padding: 8px;
+  border: none;
+  background-color: #fff;
+  color: #3498db;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.section-card button:hover {
+  background-color: #eee;
+}
+
+.section-card:hover {
+  transform: scale(1.00);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* CSS styles for sale.php */
+
+.entry-card {
+  width: calc(100% - 40px); /* Reduced width of entry card */
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #3498db;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.entry-card label {
+  color: #fff;
+  margin-right: 10px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.entry-card input,
+.entry-card select {
+  flex: 3;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 5px;
+}
+
+.entry-card button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background-color: #fff;
+  color: #3498db;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.entry-card button:hover {
+  background-color: #eee;
+}
+
+.alert {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  display: none;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #333;
+  color: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  display: none;
+  z-index: 999;
+}
+
