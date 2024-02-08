@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sale Management Dashboard</title>
   <!-- Link to salestyle.css -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <link rel="stylesheet" href="salestyle.css">
 </head>
 <body>
@@ -66,6 +66,35 @@
         </form>
       </div>
     </div>
+  </div>
+
+  <!-- Receipt Popup -->
+  <div class="receipt-popup" id="receiptPopup">
+    <h2>Receipt</h2>
+    <p><strong>Store Name:</strong> <?php echo $_SESSION['store_name']; ?></p>
+    <p><strong>Location:</strong> <?php echo $_SESSION['location_name']; ?></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Quantity Sold</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody id="receiptBody">
+        <!-- Receipt data will be dynamically inserted here -->
+      </tbody>
+    </table>
+    <p><strong>Total Price:</strong> <span id="totalPrice"></span></p>
+    <p>Contact Info:</p>
+    <ul>
+      <li>Phone: [Insert Phone Number]</li>
+      <li>Email: [Insert Email Address]</li>
+      <li>WhatsApp: [Insert WhatsApp Number]</li>
+    </ul>
+    <p>Remarks: Thank you for shopping with <?php echo $_SESSION['store_name']; ?>, your trusted shoe provider. Come back again!</p>
+    <button onclick="printReceipt()">Print</button>
   </div>
 
   <!-- Include necessary JavaScript -->
@@ -150,6 +179,15 @@
 
       // Fetch staff names for the newly added entry
       fetchStaffNames();
+    }
+
+    // Function to print the receipt popup
+    function printReceipt() {
+      var popup = document.getElementById('receiptPopup');
+      var printWindow = window.open('', '_blank', 'width=600,height=600');
+      printWindow.document.write(popup.innerHTML);
+      printWindow.document.close();
+      printWindow.print();
     }
 
     // Call fetchStaffNames and handleResponseMessages functions on page load
