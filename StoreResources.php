@@ -312,11 +312,16 @@
   <span class="close" onclick="closePopup('priceManagementPopup')">&times;</span>
   <div class="popup-content">
     <h2>Price Management</h2>
-    <div class="product-list"> <!-- Added product list container -->
+    <p>Click the "First Time User" button to set the selling prices for products. Enter the current selling price for each product, and the profit and percentage profit will be calculated automatically.</p>
+    <button onclick="fetchInventoryAndDisplay()">First Time User</button>
+    <div id="productList">
       <!-- Product list will be dynamically populated here -->
     </div>
+    <button onclick="setNewSellingPrice()">Set New Selling Price</button>
   </div>
 </div>
+
+
 
   <script>
     // JavaScript function for opening and closing popups
@@ -343,43 +348,61 @@
       openPopup('staffPopup');
       fetchStaffInfo();
     }
-     function openPriceManagementPopup() {
-  openPopup('priceManagementPopup');
-  fetchInventory();
+
+     // Function to open a popup
+function openPopup(popupId) {
+  var popup = document.getElementById(popupId);
+  if (popup) {
+    popup.style.display = 'block';
+  }
 }
 
+// Function to close a popup
+function closePopup(popupId) {
+  var popup = document.getElementById(popupId);
+  if (popup) {
+    popup.style.display = 'none';
+  }
+}
+
+// Function to open the price management popup
 function openPriceManagementPopup() {
   openPopup('priceManagementPopup');
-  fetchInventory();
 }
 
-function fetchInventory() {
+// Function to fetch and display inventory for first time user
+function fetchInventoryAndDisplay() {
   fetch('fetchproductfinace.php')
     .then(response => response.json())
     .then(data => {
-      const productContainer = document.querySelector('.popup-content .product-list');
-      if (!productContainer) {
-        console.error('Product container not found');
+      const productList = document.getElementById('productList');
+      if (!productList) {
+        console.error('Product list not found');
         return;
       }
-      productContainer.innerHTML = ''; // Clear existing content
+      productList.innerHTML = ''; // Clear existing content
       data.forEach(product => {
-        const buyingPrice = parseFloat(product.unit_price).toFixed(2); // Use the unit price from the fetched data
-        const productCard = `
-          <div class="product-card">
-            <h3>${product.product_name}</h3>
-            <p><strong>Category:</strong> ${product.category}</p>
-            <p><strong>Buying Price per unit:</strong> Ksh ${buyingPrice}</p>
-            <label for="profit">Desired Profit (Ksh):</label>
-            <input type="number" id="profit-${product.product_id}" min="0" step="0.01">
-            <label for="dynamicPricing">Dynamic Pricing:</label>
-            <input type="checkbox" id="dynamicPricing-${product.product_id}" onchange="toggleDynamicPricing(${product.product_id})">
-            <label for="sellingPrice">Selling Price:</label>
-            <input type="number" id="sellingPrice-${product.product_id}" disabled>
-            <button onclick="calculateSellingPrice(${product.product_id}, ${buyingPrice})">Calculate Selling Price</button>
-          </div>
+        const buyingPrice = parseFloat(product.unit_price).toFixed(2);
+        const productId = product.product_id;
+        const productName = product.product_name;
+        const category = product.category;
+
+        const productCard = document.createElement('div');
+        productCard.classList.add('product-card');
+        productCard.dataset.productId = productId;
+        productCard.dataset.buyingPrice = buyingPrice;
+        productCard.innerHTML = `
+          <h3>${productName}</h3>
+          <p><strong>Category:</strong> ${category}</p>
+          <p><strong>Buying Price per unit:</strong> Ksh ${buyingPrice}</p>
+          <label for="sellingPrice-${productId}">Enter Selling Price (Ksh):</label>
+          <input type="number" id="sellingPrice-${productId}" min="0" step="0.01" onchange="calculateProfit(${productId})">
+          <label for="profit-${productId}">Profit (Ksh):</label>
+          <input type="number" id="profit-${productId}" disabled>
+          <label for="percentProfit-${productId}">Percentage Profit (%):</label>
+          <input type="number" id="percentProfit-${productId}" disabled>
         `;
-        productContainer.innerHTML += productCard;
+        productList.appendChild(productCard);
       });
     })
     .catch(error => {
@@ -387,39 +410,23 @@ function fetchInventory() {
     });
 }
 
-
-function calculateSellingPrice(productId, buyingPrice) {
+// Function to calculate profit and percentage profit
+function calculateProfit(productId) {
+  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
   const profitInput = document.getElementById(`profit-${productId}`);
-  const dynamicPricingCheckbox = document.getElementById(`dynamicPricing-${productId}`);
-  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
-  
-  const profit = parseFloat(profitInput.value);
-  
-  if (isNaN(profit) || isNaN(buyingPrice)) {
-    sellingPriceInput.value = '';
-    return;
-  }
+  const percentProfitInput = document.getElementById(`percentProfit-${productId}`);
 
-  if (dynamicPricingCheckbox.checked) {
-    // Calculate dynamic selling price
-    const dynamicSellingPrice = buyingPrice + profit;
-    sellingPriceInput.value = dynamicSellingPrice.toFixed(2);
-  } else {
-    // Set constant selling price
-    sellingPriceInput.value = (buyingPrice + profit).toFixed(2);
-  }
+  const buyingPrice = parseFloat(document.querySelector(`.product-card[data-product-id="${productId}"]`).dataset.buyingPrice);
+  const sellingPrice = parseFloat(sellingPriceInput.value);
+  const profit = sellingPrice - buyingPrice;
+  const percentProfit = (profit / buyingPrice) * 100;
+
+  profitInput.value = isNaN(profit) ? '' : profit.toFixed(2);
+  percentProfitInput.value = isNaN(percentProfit) ? '' : percentProfit.toFixed(2);
 }
 
-function toggleDynamicPricing(productId) {
-  const dynamicPricingCheckbox = document.getElementById(`dynamicPricing-${productId}`);
-  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
-  
-  if (dynamicPricingCheckbox.checked) {
-    sellingPriceInput.disabled = true;
-  } else {
-    sellingPriceInput.disabled = false;
-  }
-}
+// After populating the product list
+fetchInventoryAndDisplay();
 
 
 
