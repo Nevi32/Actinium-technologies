@@ -10,13 +10,24 @@ try {
     $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Retrieve store information from query parameters
-    $storeName = $_GET['storeName'] ?? '';
-    $locationName = $_GET['locationName'] ?? '';
+    // Retrieve store information from session variables
+    $storeName = $_SESSION['store_name'] ?? '';
+    $locationName = $_SESSION['location_name'] ?? '';
 
     if (empty($storeName) || empty($locationName)) {
         // If store name or location is not set, handle accordingly (e.g., show an error message)
         echo "Error: Store name or location not set.";
+        exit();
+    }
+
+    // Get store ID based on store name and location
+    $storeIDQuery = "SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?";
+    $storeIDStmt = $pdo->prepare($storeIDQuery);
+    $storeIDStmt->execute([$storeName, $locationName]);
+    $storeID = $storeIDStmt->fetchColumn();
+
+    if (!$storeID) {
+        echo "Error: Store not found.";
         exit();
     }
 
@@ -31,11 +42,11 @@ try {
         $mainEntryQuery = "SELECT me.main_entry_id, me.product_name, me.category, me.total_quantity, me.quantity_description, me.store_id, MAX(i.record_date) as record_date
                            FROM main_entry me
                            LEFT JOIN inventory i ON me.main_entry_id = i.main_entry_id
-                           WHERE me.store_id = (SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?)
+                           WHERE me.store_id = ?
                            GROUP BY me.main_entry_id, me.product_name, me.category, me.total_quantity, me.quantity_description, me.store_id";
 
         $mainEntryStmt = $pdo->prepare($mainEntryQuery);
-        $mainEntryStmt->execute([$storeName, $locationName]);
+        $mainEntryStmt->execute([$storeID]);
         $mainEntryData = $mainEntryStmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Set session variables for main store data
@@ -50,7 +61,7 @@ try {
                                  LEFT JOIN main_entry me ON i.main_entry_id = me.main_entry_id
                                  WHERE i.store_id = ?";
         $individualEntryStmt = $pdo->prepare($individualEntryQuery);
-        $individualEntryStmt->execute([$mainEntryData[0]['store_id']]);
+        $individualEntryStmt->execute([$storeID]);
         $_SESSION['mainstore_individual_entry_data'] = $individualEntryStmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Check if there are satellite stores associated with the main store

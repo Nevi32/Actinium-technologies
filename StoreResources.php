@@ -105,11 +105,11 @@
       width: 70%; /* Increased width */
     }
 
-     .popup-content {
-  text-align: center;
-  max-height: 70vh; /* Set maximum height for the content area */
-  overflow-y: auto; /* Enable vertical scrolling when content overflows */
-}
+    .popup-content {
+      text-align: center;
+      max-height: 70vh; /* Set maximum height for the content area */
+      overflow-y: auto; /* Enable vertical scrolling when content overflows */
+    }
 
 
     .close {
@@ -147,41 +147,41 @@
     .button-margin {
       margin-top: 20px;
     }
+
     /* Style for the "Record Suppliers" form */
-#supplierForm {
-  max-width: 400px;
-  margin: 0 auto;
-}
+    #supplierForm {
+      max-width: 400px;
+      margin: 0 auto;
+    }
 
-#supplierForm label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
+    #supplierForm label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
 
-#supplierForm input[type="text"],
-#supplierForm input[type="email"] {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
+    #supplierForm input[type="text"],
+    #supplierForm input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
 
-#supplierForm button[type="submit"] {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+    #supplierForm button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-#supplierForm button[type="submit"]:hover {
-  background-color: #45a049;
-}
-
+    #supplierForm button[type="submit"]:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -220,6 +220,7 @@
       <div class="option" onclick="openStaffPopup()">Manage Staff</div>
       <div class="option" onclick="openPopup('suppliersPopup')">Manage Suppliers</div>
       <div class="option" onclick="openPopup('billsPopup')">Manage Bills</div>
+      <div class="option" onclick="openPriceManagementPopup()">Price Management</div>
 
       <!-- Staff Popup -->
       <div class="popup" id="staffPopup">
@@ -242,46 +243,45 @@
         </div>
       </div>
 
-        <!-- Suppliers Popup -->
-<div class="popup" id="suppliersPopup">
-  <span class="close" onclick="closePopup('suppliersPopup')">&times;</span>
-  <div class="popup-content">
-    <h2>Manage Suppliers</h2>
-    <!-- Form for adding a new supplier -->
-    <form id="supplierForm" style="display: block;">
-      <label for="supplierName">Supplier Name:</label>
-      <input type="text" id="supplierName" name="supplierName" required><br><br>
-      <label for="phoneNumber">Phone Number:</label>
-      <input type="text" id="phoneNumber" name="phoneNumber" required><br><br>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email"><br><br>
-      <label for="address">Address:</label>
-      <input type="text" id="address" name="address"><br><br>
-      <button type="submit">Add Supplier</button>
-    </form>
+      <!-- Suppliers Popup -->
+      <div class="popup" id="suppliersPopup">
+        <span class="close" onclick="closePopup('suppliersPopup')">&times;</span>
+        <div class="popup-content">
+          <h2>Manage Suppliers</h2>
+          <!-- Form for adding a new supplier -->
+          <form id="supplierForm" style="display: block;">
+            <label for="supplierName">Supplier Name:</label>
+            <input type="text" id="supplierName" name="supplierName" required><br><br>
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required><br><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"><br><br>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address"><br><br>
+            <button type="submit">Add Supplier</button>
+          </form>
 
-    <!-- List for displaying existing suppliers -->
-    <div id="supplierList" style="display: none;">
-      <table id="suppliersTable">
-        <thead>
-          <tr>
-            <th>Supplier Name</th>
-            <th>Phone Number</th>
-            <th>Email</th>
-            <th>Address</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Table rows will be dynamically populated via JavaScript -->
-        </tbody>
-      </table>
-    </div>
-    <br>
-    <!-- Button to toggle between form and list view -->
-    <button onclick="toggleSupplierView()">View Suppliers</button>
-  </div>
-</div>
-
+          <!-- List for displaying existing suppliers -->
+          <div id="supplierList" style="display: none;">
+            <table id="suppliersTable">
+              <thead>
+                <tr>
+                  <th>Supplier Name</th>
+                  <th>Phone Number</th>
+                  <th>Email</th>
+                  <th>Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Table rows will be dynamically populated via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          <br>
+          <!-- Button to toggle between form and list view -->
+          <button onclick="toggleSupplierView()">View Suppliers</button>
+        </div>
+      </div>
 
       <!-- Bills Popup -->
       <div class="popup" id="billsPopup">
@@ -306,12 +306,22 @@
           <button onclick="downloadBills()">Download Bills</button>
         </div>
       </div>
+
+      <!-- Price Management Popup -->
+      <div class="popup" id="priceManagementPopup">
+        <span class="close" onclick="closePopup('priceManagementPopup')">&times;</span>
+        <div class="popup-content">
+          <h2>Price Management</h2>
+          <div id="productList">
+            <!-- Product list will be dynamically populated here -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     // JavaScript function for opening and closing popups
-      
     function openPopup(popupId) {
       var popup = document.getElementById(popupId);
       if (popup) {
@@ -335,8 +345,86 @@
       openPopup('staffPopup');
       fetchStaffInfo();
     }
+     function openPriceManagementPopup() {
+  openPopup('priceManagementPopup');
+  fetchInventory();
+}
 
-    function fetchStaffInfo() {
+function openPriceManagementPopup() {
+  openPopup('priceManagementPopup');
+  fetchInventory();
+}
+
+function fetchInventory() {
+  fetch('fetchproductfinace.php')
+    .then(response => response.json())
+    .then(data => {
+      const productContainer = document.querySelector('.popup-content .product-list');
+      productContainer.innerHTML = ''; // Clear existing content
+      data.forEach(product => {
+        const buyingPrice = parseFloat(product.price).toFixed(2); // Extracting buying price from PHP data
+        const productCard = `
+          <div class="product-card">
+            <h3>${product.product_name}</h3>
+            <p><strong>Category:</strong> ${product.category}</p>
+            <p><strong>Buying Price per unit:</strong> Ksh ${buyingPrice}</p>
+            <label for="profit">Desired Profit (Ksh):</label>
+            <input type="number" id="profit-${product.product_id}" min="0" step="0.01">
+            <label for="dynamicPricing">Dynamic Pricing:</label>
+            <input type="checkbox" id="dynamicPricing-${product.product_id}" onchange="toggleDynamicPricing(${product.product_id})">
+            <label for="sellingPrice">Selling Price:</label>
+            <input type="number" id="sellingPrice-${product.product_id}" disabled>
+            <button onclick="calculateSellingPrice(${product.product_id})">Calculate Selling Price</button>
+          </div>
+        `;
+        productContainer.innerHTML += productCard;
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching inventory:', error);
+    });
+}
+
+function calculateSellingPrice(productId) {
+  const profitInput = document.getElementById(`profit-${productId}`);
+  const dynamicPricingCheckbox = document.getElementById(`dynamicPricing-${productId}`);
+  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
+  
+  const profit = parseFloat(profitInput.value);
+  const buyingPrice = parseFloat(document.querySelector(`#profit-${productId}`).getAttribute('data-buying-price'));
+  
+  if (isNaN(profit) || isNaN(buyingPrice)) {
+    sellingPriceInput.value = '';
+    return;
+  }
+
+  if (dynamicPricingCheckbox.checked) {
+    // Calculate dynamic selling price
+    const dynamicSellingPrice = buyingPrice + profit;
+    sellingPriceInput.value = dynamicSellingPrice.toFixed(2);
+  } else {
+    // Set constant selling price
+    sellingPriceInput.value = (buyingPrice + profit).toFixed(2);
+  }
+}
+
+function toggleDynamicPricing(productId) {
+  const dynamicPricingCheckbox = document.getElementById(`dynamicPricing-${productId}`);
+  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
+  
+  if (dynamicPricingCheckbox.checked) {
+    sellingPriceInput.disabled = true;
+  } else {
+    sellingPriceInput.disabled = false;
+  }
+}
+
+
+
+// Other JavaScript functions for managing staff, suppliers, bills, etc. go here...
+
+
+function fetchStaffInfo() {
       fetch('fetchstaff.php')
         .then(response => response.json())
         .then(data => {
@@ -476,7 +564,6 @@ document.getElementById('supplierForm').addEventListener('submit', function(even
     console.error('Error recording supplier:', error);
   });
 });
-
 
   </script>
 </body>
