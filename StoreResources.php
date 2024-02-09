@@ -360,9 +360,13 @@ function fetchInventory() {
     .then(response => response.json())
     .then(data => {
       const productContainer = document.querySelector('.popup-content .product-list');
+      if (!productContainer) {
+        console.error('Product container not found');
+        return;
+      }
       productContainer.innerHTML = ''; // Clear existing content
       data.forEach(product => {
-        const buyingPrice = parseFloat(product.price).toFixed(2); // Extracting buying price from PHP data
+        const buyingPrice = parseFloat(product.unit_price).toFixed(2); // Use the unit price from the fetched data
         const productCard = `
           <div class="product-card">
             <h3>${product.product_name}</h3>
@@ -374,7 +378,7 @@ function fetchInventory() {
             <input type="checkbox" id="dynamicPricing-${product.product_id}" onchange="toggleDynamicPricing(${product.product_id})">
             <label for="sellingPrice">Selling Price:</label>
             <input type="number" id="sellingPrice-${product.product_id}" disabled>
-            <button onclick="calculateSellingPrice(${product.product_id})">Calculate Selling Price</button>
+            <button onclick="calculateSellingPrice(${product.product_id}, ${buyingPrice})">Calculate Selling Price</button>
           </div>
         `;
         productContainer.innerHTML += productCard;
@@ -385,13 +389,13 @@ function fetchInventory() {
     });
 }
 
-function calculateSellingPrice(productId) {
+
+function calculateSellingPrice(productId, buyingPrice) {
   const profitInput = document.getElementById(`profit-${productId}`);
   const dynamicPricingCheckbox = document.getElementById(`dynamicPricing-${productId}`);
   const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
   
   const profit = parseFloat(profitInput.value);
-  const buyingPrice = parseFloat(document.querySelector(`#profit-${productId}`).getAttribute('data-buying-price'));
   
   if (isNaN(profit) || isNaN(buyingPrice)) {
     sellingPriceInput.value = '';
