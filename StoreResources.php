@@ -307,18 +307,16 @@
         </div>
       </div>
 
-      <!-- Price Management Popup -->
-      <div class="popup" id="priceManagementPopup">
-        <span class="close" onclick="closePopup('priceManagementPopup')">&times;</span>
-        <div class="popup-content">
-          <h2>Price Management</h2>
-          <div id="productList">
-            <!-- Product list will be dynamically populated here -->
-          </div>
-        </div>
-      </div>
+        <!-- Price Management Popup -->
+<div class="popup" id="priceManagementPopup">
+  <span class="close" onclick="closePopup('priceManagementPopup')">&times;</span>
+  <div class="popup-content">
+    <h2>Price Management</h2>
+    <div class="product-list"> <!-- Added product list container -->
+      <!-- Product list will be dynamically populated here -->
     </div>
   </div>
+</div>
 
   <script>
     // JavaScript function for opening and closing popups

@@ -29,7 +29,7 @@ try {
     $storeId = $store['store_id'];
 
     // Fetch the latest inventory entry for each product
-    $stmt = $pdo->prepare("SELECT m.product_name, m.category, i.quantity, i.price 
+    $stmt = $pdo->prepare("SELECT m.product_name, m.category, i.quantity, i.price, (i.price / i.quantity) AS unit_price
                            FROM main_entry m
                            JOIN (
                                SELECT main_entry_id, MAX(record_date) AS latest_date
