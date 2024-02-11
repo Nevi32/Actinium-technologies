@@ -1,0 +1,101 @@
+/* styles.css */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+#dashboard {
+  display: flex;
+  height: 100%;
+}
+
+#sidebar {
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;
+  height: 100%;
+}
+
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#sidebar i {
+  margin-right: 10px;
+}
+
+#sidebar a:not(:last-child) {
+  margin-bottom: 100px;
+}
+
+#user-info {
+  display: none;
+  color: #fff;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #555;
+  border-radius: 15px;
+}
+
+#content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 220px;
+  overflow-y: scroll;
+}
+
+.welcome-message {
+  margin-bottom: 25px;
+  font-size: 2em; /* Increase font size for a bolder look */
+  font-weight: bold; /* Make the text bold */
+  color: #333; /* Adjust the color to your preference */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card {
+  width: calc(50% - 20px);
+  height: 200px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  background-color: #f0f0f0; /* Change to desired background color */
+}
+
+.card:hover {
+  background-color: #16a085;
+  color: #fff;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.card p {
+  margin: 10px 0;
+  font-size: 1em;
+}
+
+#logoutLink {
+  cursor: pointer;
+}
+
