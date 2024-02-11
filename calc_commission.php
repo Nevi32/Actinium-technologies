@@ -2,7 +2,15 @@
 // Include the database configuration file
 require_once 'config.php';
 
+// Initialize response array
+$response = array();
+
 try {
+    // Check if user ID is provided
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        throw new Exception('User ID is missing.');
+    }
+
     // Create a PDO connection using the provided database configuration
     $dsn = "mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}";
     $pdo = new PDO($dsn, $databaseConfig['user'], $databaseConfig['password']);
@@ -20,6 +28,11 @@ try {
     $sales_stmt->execute();
     $sales = $sales_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Check if any sales were made today
+    if (empty($sales)) {
+        throw new Exception('No sales made by the staff member today.');
+    }
+
     // Calculate total sales amount
     $total_sales = array_sum(array_column($sales, 'total_price'));
 
@@ -35,10 +48,19 @@ try {
         recordCommission($pdo, $user_id, $sale_id, $commission, $today);
     }
 
-    echo "Commission calculation completed successfully for today's sales.";
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
+    // Set success response
+    $response['success'] = true;
+    $response['message'] = 'Commission calculation completed successfully for today\'s sales.';
+
+} catch (Exception $e) {
+    // Set error response
+    $response['success'] = false;
+    $response['message'] = 'Error: ' . $e->getMessage();
 }
+
+// Send response as JSON
+header('Content-Type: application/json');
+echo json_encode($response);
 
 // Close the database connection
 $pdo = null;

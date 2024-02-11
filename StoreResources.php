@@ -79,134 +79,111 @@ if (!isset($_SESSION['user_id'])) {
 <div class="overlay" onclick="closePopup()"></div>
 
 <script>
-    function togglePopup(popupId) {
-        var popup = document.getElementById(popupId);
-        var overlay = document.querySelector('.overlay');
-        if (popup.style.display === 'block') {
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-        } else {
-            popup.style.display = 'block';
-            overlay.style.display = 'block';
-        }
-    }
-
-    function closePopup() {
-        var popups = document.querySelectorAll('.popup');
-        var overlay = document.querySelector('.overlay');
-        popups.forEach(function(popup) {
-            popup.style.display = 'none';
-        });
+function togglePopup(popupId) {
+    var popup = document.getElementById(popupId);
+    var overlay = document.querySelector('.overlay');
+    if (popup.style.display === 'block') {
+        popup.style.display = 'none';
         overlay.style.display = 'none';
-    }
-
-    function toggleUserInfo() {
-        var userInfo = document.getElementById('user-info');
-        userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
-
-     function fetchStaffInfo() {
-    fetch('fetchstaff.php')
-    .then(response => response.json())
-    .then(data => {
-        // Populate staff information into the pop-up card
-        var popupContent = document.getElementById('staff-popup-content');
-        var staffTable = '<table>';
-        staffTable += '<tr><th>Name</th><th>Location</th><th>Commission</th><th>Actions</th></tr>';
-        data.forEach(staff => {
-            staffTable += '<tr>';
-            staffTable += '<td>' + staff.name + '</td>';
-            staffTable += '<td>' + staff.location + '</td>';
-            staffTable += '<td>' + staff.commission + '</td>';
-            staffTable += '<td>';
-            staffTable += '<button onclick="removeStaff(' + staff.user_id + ')" data-user-id="' + staff.user_id + '">Remove Staff</button>';
-            staffTable += '<button onclick="calculateCommission(' + staff.user_id + ')">Calculate Commission</button>';
-            staffTable += '</td>';
-            staffTable += '</tr>';
-        });
-        staffTable += '</table>';
-        popupContent.innerHTML = staffTable;
-
-        // Show the pop-up card
-        var popup = document.getElementById('staff-popup');
-        var overlay = document.querySelector('.overlay');
+    } else {
         popup.style.display = 'block';
         overlay.style.display = 'block';
-    })
-    .catch(error => console.error('Error fetching staff information:', error));
+    }
 }
 
-// JavaScript function to calculate commission
+function closePopup() {
+    var popups = document.querySelectorAll('.popup');
+    var overlay = document.querySelector('.overlay');
+    popups.forEach(function(popup) {
+        popup.style.display = 'none';
+    });
+    overlay.style.display = 'none';
+}
+
+function toggleUserInfo() {
+    var userInfo = document.getElementById('user-info');
+    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+}
+
+function fetchStaffInfo() {
+    fetch('fetchstaff.php')
+        .then(response => response.json())
+        .then(data => {
+            var popupContent = document.getElementById('staff-popup-content');
+            var staffTable = '<table>';
+            staffTable += '<tr><th>Name</th><th>Location</th><th>Commission</th><th>Actions</th></tr>';
+            data.forEach(staff => {
+                staffTable += '<tr>';
+                staffTable += '<td>' + staff.name + '</td>';
+                staffTable += '<td>' + staff.location + '</td>';
+                staffTable += '<td>' + staff.commission + '</td>';
+                staffTable += '<td>';
+                staffTable += '<button onclick="removeStaff(' + staff.user_id + ')" data-user-id="' + staff.user_id + '">Remove Staff</button>';
+                staffTable += '<button onclick="calculateCommission(' + staff.user_id + ')">Calculate Commission</button>';
+                staffTable += '</td>';
+                staffTable += '</tr>';
+            });
+            staffTable += '</table>';
+            popupContent.innerHTML = staffTable;
+
+            var popup = document.getElementById('staff-popup');
+            var overlay = document.querySelector('.overlay');
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        })
+        .catch(error => console.error('Error fetching staff information:', error));
+}
+
 function calculateCommission(userId) {
-    fetch('calculate_commission.php?id=' + userId)
-    .then(response => response.text())
-    .then(data => {
-        // Display commission calculation result in an alert
-        alert(data);
-        // Reload the staff information after calculating commission
-        fetchStaffInfo();
-    })
-    .catch(error => console.error('Error calculating commission:', error));
+    fetch('calc_commission.php?id=' + userId)
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            fetchStaffInfo();
+        })
+        .catch(error => console.error('Error calculating commission:', error));
 }
 
-// JavaScript function to reset commissions
 function resetCommission() {
     if (confirm('Are you sure you want to reset commissions for all staff members?')) {
         fetch('resetcommission.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                // Reload the staff information after resetting commissions
-                fetchStaffInfo();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error resetting commissions:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    fetchStaffInfo();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error resetting commissions:', error));
     }
 }
 
-
-// JavaScript function to remove staff
 function removeStaff(userId) {
     if (confirm('Are you sure you want to remove this staff member?')) {
         fetch('removestaff.php?id=' + userId)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                // Reload the staff information after successful removal
-                fetchStaffInfo();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error removing staff:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    fetchStaffInfo();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error removing staff:', error));
     }
 }
 
+function redirectToPage(page) {
+    window.location.href = page;
+}
 
-    function closePopup() {
-        var popup = document.getElementById('staff-popup');
-        var overlay = document.querySelector('.overlay');
-        popup.style.display = 'none';
-        overlay.style.display = 'none';
-    }
-
-
-    function redirectToPage(page) {
-        // Redirect to the specified page without passing user info in the URL
-        window.location.href = page;
-    }
-
-    document.getElementById('logoutLink').addEventListener('click', function(event) {
-        // Prevent the default behavior of the link
-        event.preventDefault();
-
-        // Redirect the user to the logout.php file for logout
-        window.location.href = 'logout.php';
-    });
+document.getElementById('logoutLink').addEventListener('click', function(event) {
+    event.preventDefault();
+    window.location.href = 'logout.php';
+});
 
 </script>
 </body>
