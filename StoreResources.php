@@ -16,28 +16,14 @@ if (!isset($_SESSION['user_id'])) {
 ?>
 <div id="dashboard">
     <div id="sidebar">
-        <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
-        <div id="user-info">
-            <?php
-            echo "User ID: " . $_SESSION['user_id'] . " <br> Username: " . $_SESSION['username'] . " <br> Role: " . $_SESSION['role'];
-
-            if ($_SESSION['role'] === 'owner' || $_SESSION['comp_staff'] == 1) {
-                echo "<br> Store Name: " . $_SESSION['store_name'] . " <br> Location: " . $_SESSION['location_name'];
-            }
-            ?>
-        </div>
-        <a href="fetch_notifications.php"><i class="fas fa-bell"></i> Notifications</a>
-        <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-        <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-        <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <!-- Sidebar content -->
     </div>
     <div id="content">
         <div class="welcome-message" id="welcome-message">
             <?php echo "Welcome to the " . $_SESSION['store_name'] . " System"; ?>
         </div>
         <div class="row">
-            <div class="card">
+            <div class="card" onclick="fetchStaffInfo();">
                 <h3>Manage Staff</h3>
                 <p>Manage your store's staff members.</p>
             </div>
@@ -58,11 +44,156 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 </div>
+
+<div id="staff-popup" class="popup">
+    <div id="staff-popup-content" class="popup-content">
+        <!-- Staff details table will be populated here -->
+    </div>
+    <div class="popup-buttons">
+        <button onclick="window.location.href = 'registerX.php';">Add Staff</button>
+        <button onclick="resetCommission()">Reset Commissions</button>
+    </div>
+</div>
+
+<div class="overlay" onclick="closePopup()"></div>
+
+<div id="suppliers-popup" class="popup">
+    <div class="popup-content">
+        <!-- Suppliers details here -->
+    </div>
+</div>
+
+<div id="expenses-popup" class="popup">
+    <div class="popup-content">
+        <!-- Expenses details here -->
+    </div>
+</div>
+
+<div id="prices-popup" class="popup">
+    <div class="popup-content">
+        <!-- Prices details here -->
+    </div>
+</div>
+
+<!-- Overlay for pop-up -->
+<div class="overlay" onclick="closePopup()"></div>
+
 <script>
+    function togglePopup(popupId) {
+        var popup = document.getElementById(popupId);
+        var overlay = document.querySelector('.overlay');
+        if (popup.style.display === 'block') {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        } else {
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+    }
+
+    function closePopup() {
+        var popups = document.querySelectorAll('.popup');
+        var overlay = document.querySelector('.overlay');
+        popups.forEach(function(popup) {
+            popup.style.display = 'none';
+        });
+        overlay.style.display = 'none';
+    }
+
     function toggleUserInfo() {
         var userInfo = document.getElementById('user-info');
         userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
     }
+
+     function fetchStaffInfo() {
+    fetch('fetchstaff.php')
+    .then(response => response.json())
+    .then(data => {
+        // Populate staff information into the pop-up card
+        var popupContent = document.getElementById('staff-popup-content');
+        var staffTable = '<table>';
+        staffTable += '<tr><th>Name</th><th>Location</th><th>Commission</th><th>Actions</th></tr>';
+        data.forEach(staff => {
+            staffTable += '<tr>';
+            staffTable += '<td>' + staff.name + '</td>';
+            staffTable += '<td>' + staff.location + '</td>';
+            staffTable += '<td>' + staff.commission + '</td>';
+            staffTable += '<td>';
+            staffTable += '<button onclick="removeStaff(' + staff.user_id + ')" data-user-id="' + staff.user_id + '">Remove Staff</button>';
+            staffTable += '<button onclick="calculateCommission(' + staff.user_id + ')">Calculate Commission</button>';
+            staffTable += '</td>';
+            staffTable += '</tr>';
+        });
+        staffTable += '</table>';
+        popupContent.innerHTML = staffTable;
+
+        // Show the pop-up card
+        var popup = document.getElementById('staff-popup');
+        var overlay = document.querySelector('.overlay');
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching staff information:', error));
+}
+
+// JavaScript function to calculate commission
+function calculateCommission(userId) {
+    fetch('calculate_commission.php?id=' + userId)
+    .then(response => response.text())
+    .then(data => {
+        // Display commission calculation result in an alert
+        alert(data);
+        // Reload the staff information after calculating commission
+        fetchStaffInfo();
+    })
+    .catch(error => console.error('Error calculating commission:', error));
+}
+
+// JavaScript function to reset commissions
+function resetCommission() {
+    if (confirm('Are you sure you want to reset commissions for all staff members?')) {
+        fetch('resetcommission.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Reload the staff information after resetting commissions
+                fetchStaffInfo();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error resetting commissions:', error));
+    }
+}
+
+
+// JavaScript function to remove staff
+function removeStaff(userId) {
+    if (confirm('Are you sure you want to remove this staff member?')) {
+        fetch('removestaff.php?id=' + userId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Reload the staff information after successful removal
+                fetchStaffInfo();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error removing staff:', error));
+    }
+}
+
+
+    function closePopup() {
+        var popup = document.getElementById('staff-popup');
+        var overlay = document.querySelector('.overlay');
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+
 
     function redirectToPage(page) {
         // Redirect to the specified page without passing user info in the URL
@@ -76,6 +207,7 @@ if (!isset($_SESSION['user_id'])) {
         // Redirect the user to the logout.php file for logout
         window.location.href = 'logout.php';
     });
+
 </script>
 </body>
 </html>
