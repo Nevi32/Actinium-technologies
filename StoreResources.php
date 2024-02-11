@@ -324,32 +324,7 @@
 
 
   <script>
-    // JavaScript function for opening and closing popups
-    function openPopup(popupId) {
-      var popup = document.getElementById(popupId);
-      if (popup) {
-        popup.style.display = 'block';
-      }
-    }
-
-    function closePopup(popupId) {
-      var popup = document.getElementById(popupId);
-      if (popup) {
-        popup.style.display = 'none';
-      }
-    }
-
-    function toggleUserInfo() {
-      var userInfo = document.getElementById('user-info');
-      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
-
-    function openStaffPopup() {
-      openPopup('staffPopup');
-      fetchStaffInfo();
-    }
-
-     // Function to open a popup
+// Function to open a popup
 function openPopup(popupId) {
   var popup = document.getElementById(popupId);
   if (popup) {
@@ -365,8 +340,15 @@ function closePopup(popupId) {
   }
 }
 
+// Function to toggle user info display
+function toggleUserInfo() {
+  var userInfo = document.getElementById('user-info');
+  userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+}
+
 // Function to open the price management popup
 function openPriceManagementPopup() {
+  fetchInventoryAndDisplay(); // Fetch and display inventory when the popup is opened
   openPopup('priceManagementPopup');
 }
 
@@ -382,14 +364,14 @@ function fetchInventoryAndDisplay() {
       }
       productList.innerHTML = ''; // Clear existing content
       data.forEach(product => {
-        const buyingPrice = parseFloat(product.unit_price).toFixed(2);
-        const productId = product.product_id;
+        const productId = product.product_id; // Unique product ID
         const productName = product.product_name;
         const category = product.category;
+        const buyingPrice = parseFloat(product.unit_price).toFixed(2);
 
         const productCard = document.createElement('div');
         productCard.classList.add('product-card');
-        productCard.dataset.productId = productId;
+        productCard.dataset.productId = productId; // Set unique product ID as dataset attribute
         productCard.dataset.buyingPrice = buyingPrice;
         productCard.innerHTML = `
           <h3>${productName}</h3>
@@ -410,6 +392,7 @@ function fetchInventoryAndDisplay() {
     });
 }
 
+
 // Function to calculate profit and percentage profit
 function calculateProfit(productId) {
   const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
@@ -425,89 +408,78 @@ function calculateProfit(productId) {
   percentProfitInput.value = isNaN(percentProfit) ? '' : percentProfit.toFixed(2);
 }
 
-// After populating the product list
-fetchInventoryAndDisplay();
-
-
-
-// Other JavaScript functions for managing staff, suppliers, bills, etc. go here...
-
-
+// Function to fetch staff information
 function fetchStaffInfo() {
-      fetch('fetchstaff.php')
-        .then(response => response.json())
-        .then(data => {
-          const staffTable = document.getElementById('staffTable');
-          staffTable.innerHTML = ''; // Clear existing rows
-          data.forEach(staff => {
-           staffTable.innerHTML += `
-            <tr>
-              <th>Staff Name</th>
-              <th>Location</th>
-              <th>Commission Accumulated</th>
-              <th>Action</th>
-            </tr>
-          `; 
-           staffTable.innerHTML += `
-              <tr>
-                <td>${staff.name}</td>
-                <td>${staff.location}</td>
-                <td>${staff.commission}</td>
-                <td>
-                  <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
-                  <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
-                </td>
-              </tr>
-            `;
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching staff info:', error);
-        });
-    }
+  fetch('fetchstaff.php')
+    .then(response => response.json())
+    .then(data => {
+      const staffTable = document.getElementById('staffTable');
+      staffTable.innerHTML = ''; // Clear existing rows
+      data.forEach(staff => {
+        staffTable.innerHTML += `
+          <tr>
+            <td>${staff.name}</td>
+            <td>${staff.location}</td>
+            <td>${staff.commission}</td>
+            <td>
+              <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
+              <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
+            </td>
+          </tr>
+        `;
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching staff info:', error);
+    });
+}
 
-    function removeStaff(userId) {
-      fetch('removestaff.php?id=' + userId)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            fetchStaffInfo(); // Refresh staff list after removal
-          } else {
-            alert(data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error removing staff:', error);
-        });
-    }
+// Function to remove staff
+function removeStaff(userId) {
+  fetch('removestaff.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        fetchStaffInfo(); // Refresh staff list after removal
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error removing staff:', error);
+    });
+}
 
-    function redirectToRegisterPage() {
-      window.location.href = 'registerX.php';
-    }
+// Function to redirect to register page
+function redirectToRegisterPage() {
+  window.location.href = 'registerX.php';
+}
 
-    function calculateCommission(userId) {
-      fetch('calculate_commission.php?id=' + userId)
-        .then(response => response.json())
-        .then(data => {
-          fetchStaffInfo(); // Refresh staff list after commission calculation
-        })
-        .catch(error => {
-          console.error('Error calculating commission:', error);
-        });
-    }
+// Function to calculate commission
+function calculateCommission(userId) {
+  fetch('calculate_commission.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      fetchStaffInfo(); // Refresh staff list after commission calculation
+    })
+    .catch(error => {
+      console.error('Error calculating commission:', error);
+    });
+}
 
-    function resetCommission(userId) {
-      fetch('resetcommission.php?id=' + userId)
-        .then(response => response.json())
-        .then(data => {
-          fetchStaffInfo(); // Refresh staff list after commission reset
-        })
-        .catch(error => {
-          console.error('Error resetting commission:', error);
-        });
-    }
+// Function to reset commission
+function resetCommission(userId) {
+  fetch('resetcommission.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      fetchStaffInfo(); // Refresh staff list after commission reset
+    })
+    .catch(error => {
+      console.error('Error resetting commission:', error);
+    });
+}
 
-     // Function to toggle between form and list view
+// Function to toggle supplier view
 function toggleSupplierView() {
   var form = document.getElementById('supplierForm');
   var list = document.getElementById('supplierList');
@@ -573,6 +545,234 @@ document.getElementById('supplierForm').addEventListener('submit', function(even
     console.error('Error recording supplier:', error);
   });
 });
+
+// Initial function calls
+fetchStaffInfo(); // Fetch staff information initially
+// Function to open a popup
+function openPopup(popupId) {
+  var popup = document.getElementById(popupId);
+  if (popup) {
+    popup.style.display = 'block';
+  }
+}
+
+// Function to close a popup
+function closePopup(popupId) {
+  var popup = document.getElementById(popupId);
+  if (popup) {
+    popup.style.display = 'none';
+  }
+}
+
+// Function to toggle user info display
+function toggleUserInfo() {
+  var userInfo = document.getElementById('user-info');
+  userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+}
+
+// Function to open the price management popup
+function openPriceManagementPopup() {
+  fetchInventoryAndDisplay(); // Fetch and display inventory when the popup is opened
+  openPopup('priceManagementPopup');
+}
+
+// Function to fetch and display inventory for first time user
+function fetchInventoryAndDisplay() {
+  fetch('fetchproductfinace.php')
+    .then(response => response.json())
+    .then(data => {
+      const productList = document.getElementById('productList');
+      if (!productList) {
+        console.error('Product list not found');
+        return;
+      }
+      productList.innerHTML = ''; // Clear existing content
+      data.forEach(product => {
+        const buyingPrice = parseFloat(product.unit_price).toFixed(2);
+        const productId = product.product_id;
+        const productName = product.product_name;
+        const category = product.category;
+
+        const productCard = document.createElement('div');
+        productCard.classList.add('product-card');
+        productCard.dataset.productId = productId; // Set unique product ID as dataset attribute
+        productCard.dataset.buyingPrice = buyingPrice;
+        productCard.innerHTML = `
+          <h3>${productName}</h3>
+          <p><strong>Category:</strong> ${category}</p>
+          <p><strong>Buying Price per unit:</strong> Ksh ${buyingPrice}</p>
+          <label for="sellingPrice-${productId}">Enter Selling Price (Ksh):</label>
+          <input type="number" id="sellingPrice-${productId}" min="0" step="0.01" onchange="calculateProfit(${productId})">
+          <label for="profit-${productId}">Profit (Ksh):</label>
+          <input type="number" id="profit-${productId}" disabled>
+          <label for="percentProfit-${productId}">Percentage Profit (%):</label>
+          <input type="number" id="percentProfit-${productId}" disabled>
+        `;
+        productList.appendChild(productCard);
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching inventory:', error);
+    });
+}
+
+// Function to calculate profit and percentage profit
+function calculateProfit(productId) {
+  const sellingPriceInput = document.getElementById(`sellingPrice-${productId}`);
+  const profitInput = document.getElementById(`profit-${productId}`);
+  const percentProfitInput = document.getElementById(`percentProfit-${productId}`);
+
+  const buyingPrice = parseFloat(document.querySelector(`.product-card[data-product-id="${productId}"]`).dataset.buyingPrice);
+  const sellingPrice = parseFloat(sellingPriceInput.value);
+  const profit = sellingPrice - buyingPrice;
+  const percentProfit = (profit / buyingPrice) * 100;
+
+  profitInput.value = isNaN(profit) ? '' : profit.toFixed(2);
+  percentProfitInput.value = isNaN(percentProfit) ? '' : percentProfit.toFixed(2);
+}
+
+// Function to fetch staff information
+function fetchStaffInfo() {
+  fetch('fetchstaff.php')
+    .then(response => response.json())
+    .then(data => {
+      const staffTable = document.getElementById('staffTable');
+      staffTable.innerHTML = ''; // Clear existing rows
+      data.forEach(staff => {
+        staffTable.innerHTML += `
+          <tr>
+            <td>${staff.name}</td>
+            <td>${staff.location}</td>
+            <td>${staff.commission}</td>
+            <td>
+              <button style="background-color: red; color: white;" onclick="removeStaff(${staff.user_id})">Remove Staff</button>
+              <button style="background-color: blue; color: white;" onclick="calculateCommission(${staff.user_id})">Calculate Commission</button>
+            </td>
+          </tr>
+        `;
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching staff info:', error);
+    });
+}
+
+// Function to remove staff
+function removeStaff(userId) {
+  fetch('removestaff.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        fetchStaffInfo(); // Refresh staff list after removal
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error removing staff:', error);
+    });
+}
+
+// Function to redirect to register page
+function redirectToRegisterPage() {
+  window.location.href = 'registerX.php';
+}
+
+// Function to calculate commission
+function calculateCommission(userId) {
+  fetch('calculate_commission.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      fetchStaffInfo(); // Refresh staff list after commission calculation
+    })
+    .catch(error => {
+      console.error('Error calculating commission:', error);
+    });
+}
+
+// Function to reset commission
+function resetCommission(userId) {
+  fetch('resetcommission.php?id=' + userId)
+    .then(response => response.json())
+    .then(data => {
+      fetchStaffInfo(); // Refresh staff list after commission reset
+    })
+    .catch(error => {
+      console.error('Error resetting commission:', error);
+    });
+}
+
+// Function to toggle supplier view
+function toggleSupplierView() {
+  var form = document.getElementById('supplierForm');
+  var list = document.getElementById('supplierList');
+
+  if (form.style.display === 'block') {
+    form.style.display = 'none';
+    list.style.display = 'block';
+    fetchSuppliers();
+  } else {
+    form.style.display = 'block';
+    list.style.display = 'none';
+  }
+}
+
+// Function to fetch and display suppliers
+function fetchSuppliers() {
+  fetch('fetchsuppliersinfo.php')
+    .then(response => response.json())
+    .then(data => {
+      const suppliersTable = document.getElementById('suppliersTable');
+      suppliersTable.innerHTML = ''; // Clear existing rows
+      data.forEach(supplier => {
+        suppliersTable.innerHTML += `
+          <tr>
+            <td>${supplier.supplier_name}</td>
+            <td>${supplier.phone_number}</td>
+            <td>${supplier.email}</td>
+            <td>${supplier.address}</td>
+          </tr>
+        `;
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching suppliers:', error);
+    });
+}
+
+// Function to add a new supplier
+document.getElementById('supplierForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  var formData = new FormData(this);
+
+  fetch('recordsuppliers.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Handle success or display error message
+    if (data.success) {
+      // Clear form fields
+      this.reset();
+      // If in list view, refresh the list
+      if (document.getElementById('supplierList').style.display === 'block') {
+        fetchSuppliers();
+      }
+    } else {
+      alert(data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error recording supplier:', error);
+  });
+});
+
+// Initial function calls
+fetchStaffInfo(); // Fetch staff information initially
+
+
 
   </script>
 </body>
