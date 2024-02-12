@@ -27,15 +27,15 @@ if (!isset($_SESSION['user_id'])) {
                 <h3>Manage Staff</h3>
                 <p>Manage your store's staff members.</p>
             </div>
-            <div class="card">
+            <div class="card" onclick="togglePopup('suppliers-popup');">
                 <h3>Manage Suppliers</h3>
                 <p>Manage your store's suppliers and vendors.</p>
             </div>
         </div>
         <div class="row">
-            <div class="card">
-                <h3>Expenses</h3>
-                <p>Track and manage your store's expenses.</p>
+            <div class="card" onclick="togglePopup('expenses-popup');">
+                <h3>Record Expenses</h3>
+                <p>Record your store's expenses.</p>
             </div>
             <div class="card">
                 <h3>Prices</h3>
@@ -59,21 +59,62 @@ if (!isset($_SESSION['user_id'])) {
 
 <div id="suppliers-popup" class="popup">
     <div class="popup-content">
-        <!-- Suppliers details here -->
+        <h2>Add Supplier</h2>
+        <form id="addSupplierForm">
+            <label for="supplierName">Supplier Name:</label>
+            <input type="text" id="supplierName" name="supplierName" required><br>
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
+            <label for="address">Address:</label>
+            <textarea id="address" name="address" required></textarea><br>
+            <button type="submit">Add Supplier</button>
+        </form>
+        <button onclick="fetchSuppliersInfo()">View Suppliers</button>
+        <div id="suppliers-list"></div>
     </div>
 </div>
 
 <div id="expenses-popup" class="popup">
     <div class="popup-content">
-        <!-- Expenses details here -->
+        <h2>Record Expenses</h2>
+        <form id="expensesForm">
+            <div id="expensesList">
+                <!-- Expenses will be dynamically added here -->
+            </div>
+            <button type="button" onclick="addExpenseField()">Add Expense</button>
+            <button type="submit">Record Expenses</button>
+        </form>
     </div>
 </div>
 
+<!-- Add this within the <body> tag -->
+
+<!-- Prices Popup -->
 <div id="prices-popup" class="popup">
     <div class="popup-content">
-        <!-- Prices details here -->
+        <h2>Price Management</h2>
+        <form id="priceForm">
+            <label for="productName">Product Name:</label>
+            <input type="text" id="productName" name="productName" readonly><br>
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" readonly><br>
+            <label for="buyingPrice">Buying Price (per unit):</label>
+            <input type="number" id="buyingPrice" name="buyingPrice" step="0.01" readonly><br>
+            <label for="sellingPrice">Selling Price:</label>
+            <input type="number" id="sellingPrice" name="sellingPrice" step="0.01" required><br>
+            <label for="profit">Profit:</label>
+            <input type="number" id="profit" name="profit" step="0.01" readonly><br>
+            <label for="percentageProfit">Percentage Profit:</label>
+            <input type="number" id="percentageProfit" name="percentageProfit" step="0.01" readonly><br>
+            <button type="button" onclick="calculateProfit()">Calculate Profit</button>
+            <button type="button" onclick="changeSellingPrice()">Change Selling Price</button>
+            <button type="submit">Set Prices</button>
+        </form>
     </div>
 </div>
+
 
 <!-- Overlay for pop-up -->
 <div class="overlay" onclick="closePopup()"></div>
@@ -98,11 +139,6 @@ function closePopup() {
         popup.style.display = 'none';
     });
     overlay.style.display = 'none';
-}
-
-function toggleUserInfo() {
-    var userInfo = document.getElementById('user-info');
-    userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
 }
 
 function fetchStaffInfo() {
@@ -176,9 +212,128 @@ function removeStaff(userId) {
     }
 }
 
-function redirectToPage(page) {
-    window.location.href = page;
+function fetchSuppliersInfo() {
+    fetch('fetchsuppliersinfo.php')
+        .then(response => response.json())
+        .then(data => {
+            var suppliersList = document.getElementById('suppliers-list');
+            var listHTML = '<h2>Suppliers List</h2>';
+            listHTML += '<ul>';
+            data.forEach(supplier => {
+                listHTML += '<li>' + supplier.supplier_name + '</li>';
+            });
+            listHTML += '</ul>';
+            suppliersList.innerHTML = listHTML;
+            togglePopup('suppliers-popup');
+        })
+        .catch(error => console.error('Error fetching suppliers information:', error));
 }
+
+document.getElementById('addSupplierForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    fetch('recordsuppliers.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            fetchSuppliersInfo(); // Reload the suppliers list
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error adding supplier:', error));
+});
+
+function addExpenseField() {
+    var expensesList = document.getElementById('expensesList');
+    var expenseField = document.createElement('div');
+    expenseField.innerHTML = '<label for="expenseType">Expense Type:</label>' +
+                             '<input type="text" id="expenseType" name="expenseType[]" required>' +
+                             '<label for="amount">Amount:</label>' +
+                             '<input type="number" id="amount" name="amount[]" step="0.01" required>' +
+                             '<button type="button" onclick="removeExpenseField(this)">Remove</button>';
+    expensesList.appendChild(expenseField);
+}
+
+function removeExpenseField(button) {
+    button.parentNode.remove();
+}
+
+document.getElementById('expensesForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    fetch('recordexpenses.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            // Optionally, you can close the popup or clear the form here
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error recording expenses:', error));
+});
+// Fetch product finance information and populate the form fields
+function fetchProductFinance(productName, category, buyingPrice) {
+    document.getElementById('productName').value = productName;
+    document.getElementById('category').value = category;
+    document.getElementById('buyingPrice').value = buyingPrice;
+}
+
+// Calculate profit and percentage profit based on selling price
+function calculateProfit() {
+    var sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
+    var buyingPrice = parseFloat(document.getElementById('buyingPrice').value);
+    var profit = sellingPrice - buyingPrice;
+    var percentageProfit = (profit / buyingPrice) * 100;
+
+    document.getElementById('profit').value = profit.toFixed(2);
+    document.getElementById('percentageProfit').value = percentageProfit.toFixed(2);
+}
+
+// Action when "Change Selling Price" button is clicked
+function changeSellingPrice() {
+    // Implement desired action here
+}
+
+// Action when form is submitted
+document.getElementById('priceForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    fetch('recordprices.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            // Optionally, you can close the popup or clear the form here
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error setting prices:', error));
+});
+
+// Example usage: fetch product finance information
+fetch('fetchproductfinace.php')
+    .then(response => response.json())
+    .then(data => {
+        // Assuming only one product's data is returned
+        var productData = data[0];
+        fetchProductFinance(productData.product_name, productData.category, productData.unit_price);
+    })
+    .catch(error => console.error('Error fetching product finance information:', error));
+
 
 document.getElementById('logoutLink').addEventListener('click', function(event) {
     event.preventDefault();

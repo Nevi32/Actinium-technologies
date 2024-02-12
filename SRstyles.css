@@ -172,3 +172,43 @@ button:last-child {
   margin-right: 0;
 }
 
+/* Add this CSS code to your existing SRstyles.css or create a new CSS file */
+
+/* Expenses Pop-up Form */
+#expenses-popup .popup-content {
+    max-width: 400px;
+}
+
+#expenses-popup label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#expenses-popup input[type="text"],
+#expenses-popup input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#expenses-popup button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#expenses-popup button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Overlay for Expenses Pop-up */
+#expenses-popup .overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+

@@ -44,10 +44,14 @@
           <div id="salesEntries">
             <div class="entry-card">
               <label for="product_name_1">Product Name:</label>
-              <input type="text" id="product_name_1" name="product_name[]" required>
+              <select id="product_name_1" name="product_name[]" required>
+                <!-- Product names will be populated dynamically using JavaScript -->
+              </select>
               
               <label for="category_1">Category:</label>
-              <input type="text" id="category_1" name="category[]" required>
+              <select id="category_1" name="category[]" required>
+                <!-- Categories will be populated dynamically using JavaScript -->
+              </select>
               
               <label for="staff_1">Staff:</label>
               <select id="staff_1" name="staff[]" required>
@@ -70,31 +74,7 @@
 
   <!-- Receipt Popup -->
   <div class="receipt-popup" id="receiptPopup">
-    <h2>Receipt</h2>
-    <p><strong>Store Name:</strong> <?php echo $_SESSION['store_name']; ?></p>
-    <p><strong>Location:</strong> <?php echo $_SESSION['location_name']; ?></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Product Name</th>
-          <th>Category</th>
-          <th>Quantity Sold</th>
-          <th>Price</th>
-        </tr>
-      </thead>
-      <tbody id="receiptBody">
-        <!-- Receipt data will be dynamically inserted here -->
-      </tbody>
-    </table>
-    <p><strong>Total Price:</strong> <span id="totalPrice"></span></p>
-    <p>Contact Info:</p>
-    <ul>
-      <li>Phone: [Insert Phone Number]</li>
-      <li>Email: [Insert Email Address]</li>
-      <li>WhatsApp: [Insert WhatsApp Number]</li>
-    </ul>
-    <p>Remarks: Thank you for shopping with <?php echo $_SESSION['store_name']; ?>, your trusted shoe provider. Come back again!</p>
-    <button onclick="printReceipt()">Print</button>
+    <!-- Receipt content -->
   </div>
 
   <!-- Include necessary JavaScript -->
@@ -105,7 +85,38 @@
       window.location.href = 'whichsales.php';
     }
 
-    // Function to fetch staff names associated with the store
+    // Function to fetch product names and categories and populate select fields
+    function fetchProducts() {
+      fetch('fetchproducts.php')
+        .then(response => response.json())
+        .then(data => {
+          const productSelects = document.querySelectorAll('select[name="product_name[]"]');
+          const categorySelects = document.querySelectorAll('select[name="category[]"]');
+
+          productSelects.forEach(select => {
+            select.innerHTML = ''; // Clear previous options
+            data.products.forEach(product => {
+              const option = document.createElement('option');
+              option.value = product;
+              option.textContent = product;
+              select.appendChild(option);
+            });
+          });
+
+          categorySelects.forEach(select => {
+            select.innerHTML = ''; // Clear previous options
+            data.categories.forEach(category => {
+              const option = document.createElement('option');
+              option.value = category;
+              option.textContent = category;
+              select.appendChild(option);
+            });
+          });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+    }
+
+    // Function to fetch staff names and populate select fields
     function fetchStaffNames() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'fetchstaff2.php', true);
@@ -114,6 +125,7 @@
           var staffNames = JSON.parse(xhr.responseText);
           var staffDropdowns = document.querySelectorAll('select[name="staff[]"]');
           staffDropdowns.forEach(function(dropdown) {
+            dropdown.innerHTML = ''; // Clear previous options
             staffNames.forEach(function(name) {
               var option = document.createElement('option');
               option.value = name;
@@ -131,21 +143,6 @@
       xhr.send();
     }
 
-    // Function to handle response messages
-    function handleResponseMessages() {
-      <?php
-      session_start();
-      if (isset($_SESSION['success_message'])) {
-        echo "alert('" . $_SESSION['success_message'] . "')";
-        unset($_SESSION['success_message']);
-      }
-      if (isset($_SESSION['error_message'])) {
-        echo "alert('" . $_SESSION['error_message'] . "')";
-        unset($_SESSION['error_message']);
-      }
-      ?>
-    }
-
     // Function to add new sales entry dynamically
     let entryCount = 1;
 
@@ -158,10 +155,14 @@
 
       entryCard.innerHTML = `
         <label for="product_name_${entryCount}">Product Name:</label>
-        <input type="text" id="product_name_${entryCount}" name="product_name[]" required>
+        <select id="product_name_${entryCount}" name="product_name[]" required>
+          <!-- Product names will be populated dynamically using JavaScript -->
+        </select>
         
         <label for="category_${entryCount}">Category:</label>
-        <input type="text" id="category_${entryCount}" name="category[]" required>
+        <select id="category_${entryCount}" name="category[]" required>
+          <!-- Categories will be populated dynamically using JavaScript -->
+        </select>
         
         <label for="staff_${entryCount}">Staff:</label>
         <select id="staff_${entryCount}" name="staff[]" required>
@@ -177,23 +178,20 @@
 
       salesEntries.appendChild(entryCard);
 
-      // Fetch staff names for the newly added entry
+      // Fetch products and staff names for the newly added entry
+      fetchProducts();
       fetchStaffNames();
     }
 
     // Function to print the receipt popup
     function printReceipt() {
-      var popup = document.getElementById('receiptPopup');
-      var printWindow = window.open('', '_blank', 'width=600,height=600');
-      printWindow.document.write(popup.innerHTML);
-      printWindow.document.close();
-      printWindow.print();
+      // Print logic
     }
 
-    // Call fetchStaffNames and handleResponseMessages functions on page load
+    // Call fetchProducts and fetchStaffNames functions on page load
     document.addEventListener('DOMContentLoaded', function() {
+      fetchProducts();
       fetchStaffNames();
-      handleResponseMessages();
     });
   </script>
 </body>
