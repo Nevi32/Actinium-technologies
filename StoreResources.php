@@ -37,7 +37,7 @@ if (!isset($_SESSION['user_id'])) {
                 <h3>Record Expenses</h3>
                 <p>Record your store's expenses.</p>
             </div>
-            <div class="card">
+            <div class="card" onclick="fetchProductFinance();">
                 <h3>Prices</h3>
                 <p>Manage prices of products in your store.</p>
             </div>
@@ -89,32 +89,29 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 </div>
 
-<!-- Add this within the <body> tag -->
-
 <!-- Prices Popup -->
 <div id="prices-popup" class="popup">
     <div class="popup-content">
         <h2>Price Management</h2>
-        <form id="priceForm">
-            <label for="productName">Product Name:</label>
-            <input type="text" id="productName" name="productName" readonly><br>
-            <label for="category">Category:</label>
-            <input type="text" id="category" name="category" readonly><br>
-            <label for="buyingPrice">Buying Price (per unit):</label>
-            <input type="number" id="buyingPrice" name="buyingPrice" step="0.01" readonly><br>
-            <label for="sellingPrice">Selling Price:</label>
-            <input type="number" id="sellingPrice" name="sellingPrice" step="0.01" required><br>
-            <label for="profit">Profit:</label>
-            <input type="number" id="profit" name="profit" step="0.01" readonly><br>
-            <label for="percentageProfit">Percentage Profit:</label>
-            <input type="number" id="percentageProfit" name="percentageProfit" step="0.01" readonly><br>
-            <button type="button" onclick="calculateProfit()">Calculate Profit</button>
-            <button type="button" onclick="changeSellingPrice()">Change Selling Price</button>
-            <button type="submit">Set Prices</button>
-        </form>
+        <table id="productPricesTable">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Buying Price (per unit)</th>
+                    <th>Selling Price</th>
+                    <th>Profit</th>
+                    <th>Percentage Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Product rows will be dynamically added here -->
+            </tbody>
+        </table>
+        <button type="button" onclick="calculateAllProfits()">Calculate Profits</button>
+        <button type="button" onclick="setAllPrices()">Set Prices</button>
     </div>
 </div>
-
 
 <!-- Overlay for pop-up -->
 <div class="overlay" onclick="closePopup()"></div>
@@ -281,33 +278,56 @@ document.getElementById('expensesForm').addEventListener('submit', function(even
     })
     .catch(error => console.error('Error recording expenses:', error));
 });
+
 // Fetch product finance information and populate the form fields
-function fetchProductFinance(productName, category, buyingPrice) {
-    document.getElementById('productName').value = productName;
-    document.getElementById('category').value = category;
-    document.getElementById('buyingPrice').value = buyingPrice;
+function fetchProductFinance() {
+    fetch('fetchproductfinace.php')
+        .then(response => response.json())
+        .then(data => {
+            var productPricesTable = document.getElementById('productPricesTable');
+            var tbody = productPricesTable.getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Clear existing rows
+            
+            data.forEach(product => {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + product.product_name + '</td>' +
+                                '<td>' + product.category + '</td>' +
+                                '<td>' + product.unit_price + '</td>' +
+                                '<td><input type="number" class="sellingPrice" step="0.01" required></td>' +
+                                '<td><input type="number" class="profit" readonly></td>' +
+                                '<td><input type="number" class="percentageProfit" readonly></td>';
+                tbody.appendChild(row);
+            });
+            
+            togglePopup('prices-popup');
+        })
+        .catch(error => console.error('Error fetching product finance information:', error));
 }
 
-// Calculate profit and percentage profit based on selling price
-function calculateProfit() {
-    var sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
-    var buyingPrice = parseFloat(document.getElementById('buyingPrice').value);
-    var profit = sellingPrice - buyingPrice;
-    var percentageProfit = (profit / buyingPrice) * 100;
+// Calculate profit and percentage profit for all products
+function calculateAllProfits() {
+    var rows = document.querySelectorAll('#productPricesTable tbody tr');
+    rows.forEach(row => {
+        var sellingPrice = parseFloat(row.querySelector('.sellingPrice').value);
+        var buyingPrice = parseFloat(row.cells[2].textContent); // Buying price from the table cell
+        var profit = sellingPrice - buyingPrice;
+        var percentageProfit = (profit / buyingPrice) * 100;
 
-    document.getElementById('profit').value = profit.toFixed(2);
-    document.getElementById('percentageProfit').value = percentageProfit.toFixed(2);
+        row.querySelector('.profit').value = profit.toFixed(2);
+        row.querySelector('.percentageProfit').value = percentageProfit.toFixed(2);
+    });
 }
 
-// Action when "Change Selling Price" button is clicked
-function changeSellingPrice() {
-    // Implement desired action here
-}
+// Set prices for all products
+function setAllPrices() {
+    var formData = new FormData();
+    var rows = document.querySelectorAll('#productPricesTable tbody tr');
+    rows.forEach(row => {
+        var productName = row.cells[0].textContent;
+        var sellingPrice = row.querySelector('.sellingPrice').value;
+        formData.append(productName + '_sellingPrice', sellingPrice);
+    });
 
-// Action when form is submitted
-document.getElementById('priceForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var formData = new FormData(this);
     fetch('recordprices.php', {
         method: 'POST',
         body: formData
@@ -316,24 +336,13 @@ document.getElementById('priceForm').addEventListener('submit', function(event) 
     .then(data => {
         if (data.status === 'success') {
             alert(data.message);
-            // Optionally, you can close the popup or clear the form here
+            closePopup();
         } else {
             alert(data.message);
         }
     })
     .catch(error => console.error('Error setting prices:', error));
-});
-
-// Example usage: fetch product finance information
-fetch('fetchproductfinace.php')
-    .then(response => response.json())
-    .then(data => {
-        // Assuming only one product's data is returned
-        var productData = data[0];
-        fetchProductFinance(productData.product_name, productData.category, productData.unit_price);
-    })
-    .catch(error => console.error('Error fetching product finance information:', error));
-
+}
 
 document.getElementById('logoutLink').addEventListener('click', function(event) {
     event.preventDefault();
