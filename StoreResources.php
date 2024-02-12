@@ -93,6 +93,10 @@ if (!isset($_SESSION['user_id'])) {
 <div id="prices-popup" class="popup">
     <div class="popup-content">
         <h2>Price Management</h2>
+        <div>
+            <label for="dynamicPrices">Dynamic Prices:</label>
+            <input type="checkbox" id="dynamicPrices" onchange="toggleDynamicPrices()">
+        </div>
         <table id="productPricesTable">
             <thead>
                 <tr>
@@ -136,6 +140,18 @@ function closePopup() {
         popup.style.display = 'none';
     });
     overlay.style.display = 'none';
+}
+
+function toggleDynamicPrices() {
+    var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
+    var sellingPriceCells = document.querySelectorAll('.sellingPrice');
+    sellingPriceCells.forEach(function(cell) {
+        if (dynamicPricesCheckbox.checked) {
+            cell.setAttribute('type', 'number');
+        } else {
+            cell.setAttribute('type', 'text');
+        }
+    });
 }
 
 function fetchStaffInfo() {
@@ -279,7 +295,7 @@ document.getElementById('expensesForm').addEventListener('submit', function(even
     .catch(error => console.error('Error recording expenses:', error));
 });
 
-// Fetch product finance information and populate the form fields
+
 function fetchProductFinance() {
     fetch('fetchproductfinace.php')
         .then(response => response.json())
@@ -304,7 +320,6 @@ function fetchProductFinance() {
         .catch(error => console.error('Error fetching product finance information:', error));
 }
 
-// Calculate profit and percentage profit for all products
 function calculateAllProfits() {
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
     rows.forEach(row => {
@@ -318,7 +333,6 @@ function calculateAllProfits() {
     });
 }
 
-// Set prices for all products
 function setAllPrices() {
     var formData = new FormData();
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
@@ -348,7 +362,6 @@ document.getElementById('logoutLink').addEventListener('click', function(event) 
     event.preventDefault();
     window.location.href = 'logout.php';
 });
-
 </script>
 </body>
 </html>
