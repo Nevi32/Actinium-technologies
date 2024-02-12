@@ -89,7 +89,6 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 </div>
 
-<!-- Prices Popup -->
 <div id="prices-popup" class="popup">
     <div class="popup-content">
         <h2>Price Management</h2>
@@ -142,17 +141,7 @@ function closePopup() {
     overlay.style.display = 'none';
 }
 
-function toggleDynamicPrices() {
-    var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
-    var sellingPriceCells = document.querySelectorAll('.sellingPrice');
-    sellingPriceCells.forEach(function(cell) {
-        if (dynamicPricesCheckbox.checked) {
-            cell.setAttribute('type', 'number');
-        } else {
-            cell.setAttribute('type', 'text');
-        }
-    });
-}
+
 
 function fetchStaffInfo() {
     fetch('fetchstaff.php')
@@ -323,23 +312,53 @@ function fetchProductFinance() {
 function calculateAllProfits() {
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
     rows.forEach(row => {
-        var sellingPrice = parseFloat(row.querySelector('.sellingPrice').value);
+        var sellingPrices = row.querySelectorAll('.sellingPrice');
         var buyingPrice = parseFloat(row.cells[2].textContent); // Buying price from the table cell
-        var profit = sellingPrice - buyingPrice;
-        var percentageProfit = (profit / buyingPrice) * 100;
+        var totalProfit = 0;
+        var totalPercentageProfit = 0;
 
-        row.querySelector('.profit').value = profit.toFixed(2);
-        row.querySelector('.percentageProfit').value = percentageProfit.toFixed(2);
+        sellingPrices.forEach(sellingPriceInput => {
+            var sellingPrice = parseFloat(sellingPriceInput.value);
+            var profit = sellingPrice - buyingPrice;
+            var percentageProfit = (profit / buyingPrice) * 100;
+
+            totalProfit += profit;
+            totalPercentageProfit += percentageProfit;
+        });
+
+        row.querySelector('.profit').value = totalProfit.toFixed(2);
+        row.querySelector('.percentageProfit').value = (totalPercentageProfit / sellingPrices.length).toFixed(2);
+    });
+}
+
+function toggleDynamicPrices() {
+    var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
+    var sellingPriceCells = document.querySelectorAll('.sellingPrice');
+    sellingPriceCells.forEach(function(cell) {
+        if (dynamicPricesCheckbox.checked) {
+            cell.setAttribute('type', 'number');
+        } else {
+            cell.setAttribute('type', 'text');
+        }
     });
 }
 
 function setAllPrices() {
     var formData = new FormData();
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
+    var dynamicPricesChecked = document.getElementById('dynamicPrices').checked;
+    
     rows.forEach(row => {
         var productName = row.cells[0].textContent;
-        var sellingPrice = row.querySelector('.sellingPrice').value;
-        formData.append(productName + '_sellingPrice', sellingPrice);
+        var sellingPrices = row.querySelectorAll('.sellingPrice');
+
+        sellingPrices.forEach((sellingPriceInput, index) => {
+            var sellingPrice = sellingPriceInput.value;
+            formData.append(productName + '_sellingPrice_' + index, sellingPrice);
+        });
+        
+        // Add the dynamic pricing flag to the form data
+        formData.append(productName + '_dynamicPrices', dynamicPricesChecked ? 'true' : 'false');
     });
 
     fetch('recordprices.php', {
