@@ -1,6 +1,18 @@
 <?php
+// Include database configuration
 include('config.php');
-include('pbo.php');
+
+// Create a PDO connection using the provided configuration
+try {
+    $dsn = "mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}";
+    $db = new PDO($dsn, $databaseConfig['user'], $databaseConfig['password']);
+    // Set PDO to throw exceptions on error
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    // Handle connection errors
+    echo "Connection failed: " . $e->getMessage();
+    exit();
+}
 
 // Check if the request is a POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $productPrices[$productName] = [
                     'sellingPrices' => [],
                     'dynamicPricing' => false, // Default to false
+                    'category' => $formData[$productName . '_category'], // Retrieve category
+                    'buyingPrice' => $formData[$productName . '_buyingPrice'] // Retrieve buying price
                 ];
             }
 
@@ -43,36 +57,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Process the product prices array and update the prices in the database
     foreach ($productPrices as $productName => $priceData) {
-        // Check if the product name and category are set
-        if (!isset($priceData['productName'], $priceData['category'])) {
-            // Handle the case where product name or category is not set
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Product name or category not provided']);
-            exit();
-        }
-
-        // Fetch product information from the database based on product name and category
-        $productQuery = "SELECT product_id FROM products WHERE product_name = :productName AND category = :category";
-        $productParams = [':productName' => $priceData['productName'], ':category' => $priceData['category']];
-        $productResult = $db->query($productQuery, $productParams);
-
-        if (!$productResult) {
-            // Handle the case where the product does not exist
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Product not found in the database']);
-            exit();
-        }
-
-        $productRow = $productResult->fetch(PDO::FETCH_ASSOC);
-        $productId = $productRow['product_id'];
-
         // Check if dynamic pricing is enabled
         if ($priceData['dynamicPricing']) {
-            // Update multiple selling prices, profits, and percentage profits for the product
-            updateDynamicPrices($productId, $priceData['sellingPrices']);
+            // Fetch product information from the database based on product name and category
+            $productQuery = "SELECT price_id FROM prices WHERE product_name = :productName AND category = :category";
+            $productParams = [':productName' => $productName, ':category' => $priceData['category']];
+            $productResult = $db->prepare($productQuery);
+            $productResult->execute($productParams);
+
+            $productRow = $productResult->fetch(PDO::FETCH_ASSOC);
+
+            if (!$productRow) {
+                // Handle the case where the product does not exist
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Product not found in the database']);
+                exit();
+            }
+
+            $priceId = $productRow['price_id'];
+
+            // Update dynamic selling prices, profits, and percentage profits for the product
+            // Here you need to implement the logic to update the dynamic prices in the database
+            foreach ($priceData['sellingPrices'] as $sellingPrice) {
+                // Perform necessary calculations and database updates
+                // For example:
+                // $dynamicSellingPrice = calculateDynamicSellingPrice($sellingPrice);
+                // $dynamicProfit = calculateDynamicProfit($dynamicSellingPrice, $priceData['buyingPrice']);
+                // $dynamicPercentageProfit = calculatePercentageProfit($dynamicProfit, $priceData['buyingPrice']);
+                // updateDynamicPrices($priceId, $dynamicSellingPrice, $dynamicProfit, $dynamicPercentageProfit);
+                $dynamicPricing = 1; // Set dynamic pricing status to 1
+                $insertQuery = "INSERT INTO prices (dynamic_selling_price, dynamic_profit, dynamic_percentage_profit, product_name, category, dynamic_pricing) VALUES (?, ?, ?, ?, ?, ?)";
+                $insertStatement = $db->prepare($insertQuery);
+                $buyingPrice = $priceData['buyingPrice']; // Retrieve buying price
+                $profit = $sellingPrice - $buyingPrice;
+                $percentageProfit = ($profit / $buyingPrice) * 100;
+                $insertStatement->execute([$sellingPrice, $profit, $percentageProfit, $productName, $priceData['category'], $dynamicPricing]);
+            }
         } else {
             // Update a single selling price, profit, and percentage profit for the product
-            updateSinglePrice($productId, $priceData['sellingPrices'][0]);
+            // You need to implement updateSinglePrice function
+            // updateSinglePrice($productId, $priceData['sellingPrices'][0]);
+            // In this case, we'll simply log the new selling prices for each product
+            $insertQuery = "INSERT INTO prices (selling_price, buying_price, profit, percentage_profit, product_name, category, dynamic_pricing) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $insertStatement = $db->prepare($insertQuery);
+
+            foreach ($priceData['sellingPrices'] as $sellingPrice) {
+                $buyingPrice = $priceData['buyingPrice']; // Retrieve buying price
+                $profit = $sellingPrice - $buyingPrice;
+                $percentageProfit = ($profit / $buyingPrice) * 100;
+                $dynamicPricing = 0; // Dynamic pricing not enabled
+                $insertStatement->execute([$sellingPrice, $buyingPrice, $profit, $percentageProfit, $productName, $priceData['category'], $dynamicPricing]);
+            }
         }
     }
 

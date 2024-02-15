@@ -350,15 +350,24 @@ function setAllPrices() {
     
     rows.forEach(row => {
         var productName = row.cells[0].textContent;
+        var category = row.cells[1].textContent;
+        var buyingPrice = parseFloat(row.cells[2].textContent);
         var sellingPrices = row.querySelectorAll('.sellingPrice');
 
-        sellingPrices.forEach((sellingPriceInput, index) => {
-            var sellingPrice = sellingPriceInput.value;
-            formData.append(productName + '_sellingPrice_' + index, sellingPrice);
-        });
-        
-        // Add the dynamic pricing flag to the form data
-        formData.append(productName + '_dynamicPrices', dynamicPricesChecked ? 'true' : 'false');
+        // Check if at least one selling price is filled
+        var hasSellingPrice = Array.from(sellingPrices).some(input => input.value.trim() !== '');
+
+        if (hasSellingPrice) {
+            sellingPrices.forEach((sellingPriceInput, index) => {
+                var sellingPrice = sellingPriceInput.value;
+                formData.append(productName + '_sellingPrice_' + index, sellingPrice);
+            });
+            
+            // Add other necessary product details to the form data
+            formData.append(productName + '_category', category);
+            formData.append(productName + '_buyingPrice', buyingPrice);
+            formData.append(productName + '_dynamicPrices', dynamicPricesChecked ? 'true' : 'false');
+        }
     });
 
     fetch('recordprices.php', {
@@ -376,6 +385,7 @@ function setAllPrices() {
     })
     .catch(error => console.error('Error setting prices:', error));
 }
+
 
 document.getElementById('logoutLink').addEventListener('click', function(event) {
     event.preventDefault();
