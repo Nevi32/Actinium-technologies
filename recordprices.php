@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if dynamic pricing is enabled
         if ($priceData['dynamicPricing']) {
             // Fetch product information from the database based on product name and category
-            $productQuery = "SELECT price_id FROM prices WHERE product_name = :productName AND category = :category";
+            $productQuery = "SELECT price_id FROM prices WHERE product_name = :productName AND category = :category ORDER BY set_date DESC LIMIT 1";
             $productParams = [':productName' => $productName, ':category' => $priceData['category']];
             $productResult = $db->prepare($productQuery);
             $productResult->execute($productParams);
