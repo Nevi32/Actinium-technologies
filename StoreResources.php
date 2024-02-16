@@ -347,7 +347,7 @@ function setAllPrices() {
     var formData = new FormData();
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
     var dynamicPricesChecked = document.getElementById('dynamicPrices').checked;
-    
+
     rows.forEach(row => {
         var productName = row.cells[0].textContent;
         var category = row.cells[1].textContent;
@@ -360,13 +360,12 @@ function setAllPrices() {
         if (hasSellingPrice) {
             sellingPrices.forEach((sellingPriceInput, index) => {
                 var sellingPrice = sellingPriceInput.value;
-                formData.append(productName + '_sellingPrice_' + index, sellingPrice);
+                var dynamicPrices = dynamicPricesChecked ? 'true' : 'false';
+                formData.append(productName + '_' + index + '_sellingPrice', sellingPrice);
+                formData.append(productName + '_' + index + '_category', category);
+                formData.append(productName + '_' + index + '_buyingPrice', buyingPrice);
+                formData.append(productName + '_' + index + '_dynamicPrices', dynamicPrices);
             });
-            
-            // Add other necessary product details to the form data
-            formData.append(productName + '_category', category);
-            formData.append(productName + '_buyingPrice', buyingPrice);
-            formData.append(productName + '_dynamicPrices', dynamicPricesChecked ? 'true' : 'false');
         }
     });
 
