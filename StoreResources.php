@@ -96,23 +96,36 @@ if (!isset($_SESSION['user_id'])) {
             <label for="dynamicPrices">Dynamic Prices:</label>
             <input type="checkbox" id="dynamicPrices" onchange="toggleDynamicPrices()">
         </div>
-        <table id="productPricesTable">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Category</th>
-                    <th>Buying Price (per unit)</th>
-                    <th>Selling Price</th>
-                    <th>Profit</th>
-                    <th>Percentage Profit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Product rows will be dynamically added here -->
-            </tbody>
-        </table>
-        <button type="button" onclick="calculateAllProfits()">Calculate Profits</button>
-        <button type="button" onclick="setAllPrices()">Set Prices</button>
+         <table id="productPricesTable">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Buying Price (per unit)</th>
+            <th>Selling Price</th>
+            <th>Profit</th>
+            <th>Percentage Profit</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Product rows will be dynamically added here -->
+        <tr>
+            <td>Product A</td>
+            <td>Category A</td>
+            <td>10.00</td>
+            <td><input type="number" name="sellingPrice_ProductA_0" step="0.01" required></td>
+            <td><input type="number" class="profit" readonly></td>
+            <td><input type="number" class="percentageProfit" readonly></td>
+            <!-- Hidden fields for product info -->
+            <input type="hidden" name="productName[]" value="Product A">
+            <input type="hidden" name="category[]" value="Category A">
+            <input type="hidden" name="buyingPrice[]" value="10.00">
+        </tr>
+        <!-- Add more rows for other products -->
+    </tbody>
+</table>
+      <button type="button" onclick="calculateAllProfits()">Calculate Profits</button>
+       <button type="button" onclick="setAllPrices()">Set Prices</button>
     </div>
 </div>
 
@@ -346,7 +359,6 @@ function toggleDynamicPrices() {
 function setAllPrices() {
     var formData = new FormData();
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
-    var dynamicPricesChecked = document.getElementById('dynamicPrices').checked;
 
     rows.forEach(row => {
         var productName = row.cells[0].textContent;
@@ -360,11 +372,12 @@ function setAllPrices() {
         if (hasSellingPrice) {
             sellingPrices.forEach((sellingPriceInput, index) => {
                 var sellingPrice = sellingPriceInput.value;
-                var dynamicPrices = dynamicPricesChecked ? 'true' : 'false';
-                formData.append(productName + '_' + index + '_sellingPrice', sellingPrice);
-                formData.append(productName + '_' + index + '_category', category);
-                formData.append(productName + '_' + index + '_buyingPrice', buyingPrice);
-                formData.append(productName + '_' + index + '_dynamicPrices', dynamicPrices);
+                var dynamicPrices = document.getElementById('dynamicPrices').checked ? 'true' : 'false';
+                formData.append('productName[]', productName);
+                formData.append('category[]', category);
+                formData.append('buyingPrice[]', buyingPrice);
+                formData.append('sellingPrice_' + productName + '_' + index, sellingPrice);
+                formData.append('dynamicPrices_' + productName + '_' + index, dynamicPrices);
             });
         }
     });
