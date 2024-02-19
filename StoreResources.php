@@ -346,45 +346,45 @@ function calculateAllProfits() {
 
 function toggleDynamicPrices() {
     var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
-    var sellingPriceCells = document.querySelectorAll('.sellingPrice');
-    sellingPriceCells.forEach(function(cell) {
-        if (dynamicPricesCheckbox.checked) {
-            cell.setAttribute('type', 'number');
-        } else {
-            cell.setAttribute('type', 'text');
-        }
-    });
+    var pricesForm = document.getElementById('pricesForm'); // Assuming your form has an id 'pricesForm'
+    
+    // If dynamic prices checkbox is checked, change form action to recorddynamicprices.php
+    if (dynamicPricesCheckbox.checked) {
+        pricesForm.action = 'recorddynamicprices.php';
+    } else {
+        // If dynamic prices checkbox is not checked, change form action to recordprices.php
+        pricesForm.action = 'recordprices.php';
+    }
 }
 
 function setAllPrices() {
-    var formData = new FormData();
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
+    var data = []; // Array to store product data
 
     rows.forEach(row => {
         var productName = row.cells[0].textContent;
         var category = row.cells[1].textContent;
         var buyingPrice = parseFloat(row.cells[2].textContent);
-        var sellingPrices = row.querySelectorAll('.sellingPrice');
+        var sellingPriceInput = row.querySelector('.sellingPrice');
+        var sellingPrice = parseFloat(sellingPriceInput.value);
+        var dynamicPrices = document.getElementById('dynamicPrices').checked;
 
-        // Check if at least one selling price is filled
-        var hasSellingPrice = Array.from(sellingPrices).some(input => input.value.trim() !== '');
-
-        if (hasSellingPrice) {
-            sellingPrices.forEach((sellingPriceInput, index) => {
-                var sellingPrice = sellingPriceInput.value;
-                var dynamicPrices = document.getElementById('dynamicPrices').checked ? 'true' : 'false';
-                formData.append('productName[]', productName);
-                formData.append('category[]', category);
-                formData.append('buyingPrice[]', buyingPrice);
-                formData.append('sellingPrice_' + productName + '_' + index, sellingPrice);
-                formData.append('dynamicPrices_' + productName + '_' + index, dynamicPrices);
-            });
-        }
+        data.push({
+            productName: productName,
+            category: category,
+            buyingPrice: buyingPrice,
+            sellingPrice: sellingPrice,
+            dynamicPrices: dynamicPrices
+        });
     });
 
+    // Send data to server
     fetch('recordprices.php', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
