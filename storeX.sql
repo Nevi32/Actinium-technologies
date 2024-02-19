@@ -118,6 +118,14 @@ CREATE TABLE dynamicprices (
     FOREIGN KEY (price_id) REFERENCES prices(price_id)
 );
 
+CREATE TABLE expenses (
+    expense_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    expense_type VARCHAR(100) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    store_id INT,
+    FOREIGN KEY (store_id) REFERENCES stores(store_id)
+);
 
 
 DELIMITER //
