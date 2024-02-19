@@ -344,19 +344,6 @@ function calculateAllProfits() {
     });
 }
 
-function toggleDynamicPrices() {
-    var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
-    var pricesForm = document.getElementById('pricesForm'); // Assuming your form has an id 'pricesForm'
-    
-    // If dynamic prices checkbox is checked, change form action to recorddynamicprices.php
-    if (dynamicPricesCheckbox.checked) {
-        pricesForm.action = 'recorddynamicprices.php';
-    } else {
-        // If dynamic prices checkbox is not checked, change form action to recordprices.php
-        pricesForm.action = 'recordprices.php';
-    }
-}
-
 function setAllPrices() {
     var rows = document.querySelectorAll('#productPricesTable tbody tr');
     var data = []; // Array to store product data
@@ -367,16 +354,29 @@ function setAllPrices() {
         var buyingPrice = parseFloat(row.cells[2].textContent);
         var sellingPriceInput = row.querySelector('.sellingPrice');
         var sellingPrice = parseFloat(sellingPriceInput.value);
-        var dynamicPrices = document.getElementById('dynamicPrices').checked;
+        var profitInput = row.querySelector('.profit');
+        var profit = parseFloat(profitInput.value);
+        var percentageProfitInput = row.querySelector('.percentageProfit');
+        var percentageProfit = parseFloat(percentageProfitInput.value);
+        var dynamicPricesCheckbox = document.getElementById('dynamicPrices');
+        var dynamicPrices = dynamicPricesCheckbox.checked ? 1 : 0; // 1 if checked, 0 if not
 
-        data.push({
-            productName: productName,
-            category: category,
-            buyingPrice: buyingPrice,
-            sellingPrice: sellingPrice,
-            dynamicPrices: dynamicPrices
-        });
+        // Check if selling price, profit, and percentage profit are valid numbers
+        if (!isNaN(sellingPrice) && !isNaN(profit) && !isNaN(percentageProfit)) {
+            data.push({
+                productName: productName,
+                category: category,
+                buyingPrice: buyingPrice,
+                sellingPrice: sellingPrice,
+                profit: profit,
+                percentageProfit: percentageProfit,
+                dynamicPrices: dynamicPrices
+            });
+        }
     });
+
+    // Log the data to the console
+    console.log('Data to be sent to server:', data);
 
     // Send data to server
     fetch('recordprices.php', {
