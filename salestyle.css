@@ -194,6 +194,11 @@ body, html {
   display: none;
 }
 
+}
+/* Existing CSS styles for sale.php */
+
+/* CSS styles for popups */
+
 .popup {
   position: fixed;
   top: 50%;
@@ -205,5 +210,23 @@ body, html {
   border-radius: 5px;
   display: none;
   z-index: 999;
+}
+
+.popup-content {
+  text-align: center;
+}
+
+.popup button {
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #fff;
+  color: #3498db;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.popup button:hover {
+  background-color: #eee;
 }
 
