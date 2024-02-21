@@ -16,7 +16,21 @@ if (!isset($_SESSION['user_id'])) {
 ?>
 <div id="dashboard">
     <div id="sidebar">
-        <!-- Sidebar content -->
+          <a href="#" id="user-icon" onclick="toggleUserInfo();"><i class="fas fa-user"></i> User</a>
+      <div id="user-info">
+        <?php
+        echo "User ID: " . $_SESSION['user_id'] . " <br> Username: " . $_SESSION['username'] . " <br> Role: " . $_SESSION['role'];
+
+        if ($_SESSION['role'] === 'owner' || $_SESSION['comp_staff'] == 1) {
+          echo "<br> Store Name: " . $_SESSION['store_name'] . " <br> Location: " . $_SESSION['location_name'];
+        }
+        ?>
+      </div>
+      <a href="fetch_notifications.php"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
+      <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+      <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div id="content">
         <div class="welcome-message" id="welcome-message">
