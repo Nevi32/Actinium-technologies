@@ -168,31 +168,9 @@
     }
 
 
-// Function to calculate total prices for all entries
-function calculateTotalPrice() {
-  // Get all entry cards
-  const entryCards = document.querySelectorAll('.entry-card');
 
-  entryCards.forEach(entryCard => {
-    // Get the selected selling price for this entry
-    const sellingPriceElement = entryCard.querySelector('.selling-price');
-    const sellingPrice = sellingPriceElement ? parseFloat(sellingPriceElement.textContent) : 0;
 
-    // Get the quantity entered for this entry
-    const quantityElement = entryCard.querySelector('.quantity-sold');
-    const quantity = quantityElement ? parseFloat(quantityElement.value) : 0;
-
-    // Calculate the total price for this entry
-    const totalPrice = sellingPrice * quantity;
-
-    // Insert the total price into the total_price field on this entry's form
-    const totalPriceElement = entryCard.querySelector('.total-price');
-    if (totalPriceElement) {
-      totalPriceElement.value = totalPrice.toFixed(2);
-    }   });
-}
-
- // Function to display price popup when quantity field is populated
+// Function to display price popup when quantity field is populated
 function displayPricePopup(input) {
   if (input.value.trim() !== '') {
     const productName = input.parentElement.querySelector('select[name="product_name[]"]').value;
@@ -202,8 +180,6 @@ function displayPricePopup(input) {
   } else {
     document.getElementById('selectPricePopup').style.display = 'none';
   }
-  // Calculate total price for all entries whenever quantity changes
-  calculateTotalPrice();
 }
 
 // Function to add new sales entry dynamically
@@ -236,8 +212,12 @@ function addSalesEntry() {
     <input type="number" id="quantity_sold_${entryCount}" name="quantity_sold[]" required class="quantity-sold" onchange="displayPricePopup(this)">
 
     <label for="total_price_${entryCount}">Total Price:</label>
-    <input type="number" id="total_price_${entryCount}" name="total_price[]" required class="total-price" readonly>
-  `;   salesEntries.appendChild(entryCard);  // Fetch products and staff names for the newly added entry
+    <input type="number" id="total_price_${entryCount}" name="total_price[]" required class="total-price" readonly data-selling-price="0">
+  `;
+
+  salesEntries.appendChild(entryCard);
+
+  // Fetch products and staff names for the newly added entry
   fetchProducts();
   fetchStaffNames();
 }
@@ -247,10 +227,9 @@ document.addEventListener('DOMContentLoaded', function() {
   calculateTotalPrice();
 });
 
-
 // Function to fetch prices
 function fetchPrices(productName, category) {
-  fetch('fetchprices.php')
+  return fetch('fetchprices.php')
     .then(response => response.json())
     .then(data => {
       console.log(data); // Log the data to see its structure
@@ -280,12 +259,18 @@ function fetchPrices(productName, category) {
         } else {
           console.error('No dynamic prices available for the selected product and category.');
         }
+
+        // Call calculateTotalPrice function after prices are fetched
+        calculateTotalPrice();
       } else {
         console.error('Main price not found for the selected product and category.');
       }
     })
     .catch(error => {
-      console.error('Error fetching prices:', error);    }); }
+      console.error('Error fetching prices:', error);
+    });
+}
+
 
 
 // Function to select a price and close the popup
@@ -295,6 +280,59 @@ function selectPrice(price) {
 
   // Close the popup
   document.getElementById('selectPricePopup').style.display = 'none';
+}
+
+function calculateTotalPrice() {
+  // Get all entry cards
+  const entryCards = document.querySelectorAll('.entry-card');
+
+  entryCards.forEach(entryCard => {
+    // Get the selected selling price for this entry
+    const productNameElement = entryCard.querySelector('select[name="product_name[]"]');
+    const categoryElement = entryCard.querySelector('select[name="category[]"]');
+    const quantityElement = entryCard.querySelector('.quantity-sold');
+
+    // Check if all required elements are present
+    if (productNameElement && categoryElement && quantityElement) {
+      const productName = productNameElement.value;
+      const category = categoryElement.value;
+      const quantity = parseFloat(quantityElement.value);
+
+      fetchPrices(productName, category)
+        .then(prices => {
+          const sellingPrice = getSelectedSellingPrice(prices);
+
+          // Calculate the total price for this entry
+          const totalPrice = sellingPrice * quantity;
+
+          // Insert the total price into the total_price field on this entry's form
+          const totalPriceElement = entryCard.querySelector('.total-price');
+          if (totalPriceElement) {
+            totalPriceElement.value = totalPrice.toFixed(2);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching prices:', error);
+        });
+    } else {
+      console.error('Required elements not found in entry card:', entryCard);
+    }
+  });
+}
+
+// Function to get the selected selling price from the fetched prices
+function getSelectedSellingPrice(prices) {
+  // Check if there are dynamic prices
+  if (prices.dynamicPrices && prices.dynamicPrices.length > 0) {
+    // Find the selected dynamic price
+    const selectedDynamicPrice = prices.dynamicPrices.find(price => price.selected);
+    if (selectedDynamicPrice) {
+      return parseFloat(selectedDynamicPrice.selling_price);
+    }
+  }
+
+  // If no dynamic price is selected, use the main price
+  return parseFloat(prices.mainPrice.selling_price);
 }
 // Function to display dynamic prices when the dynamic prices button is clicked
 function showDynamicPrices(dynamicPrices) {
