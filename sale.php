@@ -3,34 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sale Management Dashboard</title>
-  <!-- Link to salestyle.css -->
+  <title>Sales Management Dashboard</title>
+  <!-- Link to font-awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-  <link rel="stylesheet" href="salestyle.css">
-  <style>
-    /* Popup */
-    .popup {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
-      z-index: 9999; /* Ensure the popup appears above other elements */
-    }
-
-    .popup-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: white;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
-    }
-  </style>
+  <link rel="stylesheet" href="salestyle.css"> <!-- Adjusted CSS file -->
 </head>
 <body>
   <div id="sales-page">
@@ -42,14 +18,11 @@
         session_start();
         if (isset($_SESSION['user_id'])) {
           echo "User ID: " . $_SESSION['user_id'] . "<br>Username: " . $_SESSION['username'] . "<br>Role: " . $_SESSION['role'];
-          if ($_SESSION['role'] === 'owner' || $_SESSION['comp_staff'] == 1) {
-            echo "<br>Store Name: " . $_SESSION['store_name'] . "<br>Location: " . $_SESSION['location_name'];
-          }
         }
         ?>
-      </div>  <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
-      <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-      <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
+      </div>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="add_product.html"><i class="fas fa-plus"></i> Add Product</a>
       <a href="home.php"><i class="fas fa-home"></i> Dashboard</a>
       <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
@@ -57,302 +30,216 @@
     <div id="content">
       <!-- Navigation bar -->
       <div class="navbar">
-        <a href="#" onclick="viewSales()">View Sales</a> <!-- Click here to view sales -->
+        <a href="#" onclick="viewSales()">View Sales</a> <!-- View Sales button -->
       </div>
 
-      <!-- Modified Input Form Card to allow multiple sales entries -->
+      <!-- Sales Form Card -->
       <div id="sales-form" class="section-card">
         <h3>Record Sales</h3>
-        <form action="process_sale.php" method="POST" id="salesForm">
+        <form id="salesForm">
           <div id="salesEntries">
             <div class="entry-card">
               <label for="product_name_1">Product Name:</label>
-              <select id="product_name_1" name="product_name[]" required>
-                <!-- Product names will be populated dynamically using JavaScript -->
-              </select>
+              <select id="product_name_1" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_1').value)" required></select>
 
               <label for="category_1">Category:</label>
-              <select id="category_1" name="category[]" required>
-                <!-- Categories will be populated dynamically using JavaScript -->
-              </select>
+              <select id="category_1" name="category[]" onchange="fetchPrices(document.getElementById('product_name_1').value, this.value)" required></select>
 
               <label for="staff_1">Staff:</label>
-              <select id="staff_1" name="staff[]" required>
-                <!-- Staff names will be populated dynamically using JavaScript -->
-              </select>
+              <select id="staff_1" name="staff[]" required></select>
 
               <label for="quantity_sold_1">Quantity Sold:</label>
-              <input type="number" id="quantity_sold_1" name="quantity_sold[]" required onchange="displayPricePopup(this)">
+              <input type="number" id="quantity_sold_1" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_1').value, document.getElementById('category_1').value)" required>
 
               <label for="total_price_1">Total Price:</label>
               <input type="number" id="total_price_1" name="total_price[]" required>
             </div>
           </div>
           <button type="button" onclick="addSalesEntry()">Add Another Entry</button>
-          <button type="submit">Record Sales</button>
+          <button type="button" onclick="recordSales()">Record Sales</button>
         </form>
       </div>
-    </div>
-  </div>   <!-- Select Price Popup -->
-  <div class="popup" id="selectPricePopup">
-    <div class="popup-content">
-      <h2>Select Price</h2>
-      <div id="priceSelection"></div>
+
+      <!-- Popup for Receipt -->
+      <div id="receiptPopup" class="popup">
+        <div id="receiptContent"></div>
+        <button onclick="closeReceipt()">Close</button>
+      </div>
+
+      <!-- Popup for Prices -->
+      <div id="pricesPopup" class="popup">
+        <div id="pricesContent"></div>
+        <button onclick="closePricesPopup()">Close</button>
+      </div>
     </div>
   </div>
 
   <!-- Include necessary JavaScript -->
   <script>
-    // Include necessary JavaScript
     // Function to redirect to view sales page
     function viewSales() {
-      window.location.href = 'whichsales.php';
+        // Redirect to whichsales.php
+        window.location.href = 'whichsales.php';
     }
 
-    // Function to fetch product names and categories and populate select fields
-    function fetchProducts() {
+    // Function to add new sales entry dynamically
+    let salesEntryCount = 1;
+
+    function addSalesEntry() {
+      salesEntryCount++;
+      const salesEntries = document.getElementById('salesEntries');
+
+      const entryCard = document.createElement('div');
+      entryCard.classList.add('entry-card');
+
+      entryCard.innerHTML = `
+        <label for="product_name_${salesEntryCount}">Product Name:</label>
+        <select id="product_name_${salesEntryCount}" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_${salesEntryCount}').value)" required></select>
+
+        <label for="category_${salesEntryCount}">Category:</label>
+        <select id="category_${salesEntryCount}" name="category[]" onchange="fetchPrices(document.getElementById('product_name_${salesEntryCount}').value, this.value)" required></select>
+
+        <label for="staff_${salesEntryCount}">Staff:</label>
+        <select id="staff_${salesEntryCount}" name="staff[]" required></select>
+
+        <label for="quantity_sold_${salesEntryCount}">Quantity Sold:</label>
+        <input type="number" id="quantity_sold_${salesEntryCount}" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_${salesEntryCount}').value, document.getElementById('category_${salesEntryCount}').value)" required>
+
+        <label for="total_price_${salesEntryCount}">Total Price:</label>
+        <input type="number" id="total_price_${salesEntryCount}" name="total_price[]" required>
+      `;
+
+      salesEntries.appendChild(entryCard);
+      fetchProducts(`product_name_${salesEntryCount}`, `category_${salesEntryCount}`);
+      fetchStaff(`staff_${salesEntryCount}`);
+    }
+
+    // Fetch products, categories, and staff for the first entry when the page loads
+    fetchProducts('product_name_1', 'category_1');
+    fetchStaff('staff_1');
+
+    // Function to record sales
+    function recordSales() {
+      // AJAX request to process_sales.php
+      var formData = new FormData(document.getElementById('salesForm'));
+
+      // AJAX request
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'process_sales.php', true);
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          // showAlert(xhr.responseText, 'success'); // Pass response text to showAlert function
+          console.log(xhr.responseText); // Log response to console
+          
+          // Display receipt popup with content from response
+          displayReceiptPopup(xhr.responseText);
+        } else {
+          // showAlert('Failed to record sales. Please try again.', 'error');
+          console.log('Failed to record sales. Please try again.'); // Log error message to console
+        }
+      };
+      xhr.send(formData);
+    }
+
+    // Function to display receipt popup with content
+    function displayReceiptPopup(receiptContent) {
+      const receiptPopup = document.getElementById('receiptPopup');
+      const receiptContentDiv = document.getElementById('receiptContent');
+      receiptContentDiv.innerHTML = receiptContent;
+      receiptPopup.style.display = 'block';
+    }
+
+    // Function to close receipt popup
+    function closeReceipt() {
+      const receiptPopup = document.getElementById('receiptPopup');
+      receiptPopup.style.display = 'none';
+    }
+
+    // Function to fetch products and populate select options
+    function fetchProducts(productSelectId, categorySelectId) {
       fetch('fetchproducts.php')
         .then(response => response.json())
         .then(data => {
-          const productSelects = document.querySelectorAll('select[name="product_name[]"]');
-          const categorySelects = document.querySelectorAll('select[name="category[]"]');
+          const productSelect = document.getElementById(productSelectId);
+          const categorySelect = document.getElementById(categorySelectId);
 
-          productSelects.forEach(select => {
-            select.innerHTML = ''; // Clear previous options
-            data.products.forEach(product => {
-              const option = document.createElement('option');
-              option.value = product;
-              option.textContent = product;
-              select.appendChild(option);
-            });
+          data.products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product;
+            option.textContent = product;
+            productSelect.appendChild(option);
           });
 
-          categorySelects.forEach(select => {
-            select.innerHTML = ''; // Clear previous options
-            data.categories.forEach(category => {
-              const option = document.createElement('option');
-              option.value = category;
-              option.textContent = category;
-              select.appendChild(option);
-            });
+          data.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
           });
         })
-        .catch(error => {
-          console.error('Error fetching products:', error);
-          console.error('Response:', data);
-        });
-    }   // Function to fetch staff names and populate select fields
-    function fetchStaffNames() {   var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'fetchstaff2.php', true);
-      xhr.onload = function() {
-        if (xhr.status >= 200 && xhr.status < 400) {
-          var staffNames = JSON.parse(xhr.responseText);
-          var staffDropdowns = document.querySelectorAll('select[name="staff[]"]');
-          staffDropdowns.forEach(function(dropdown) {
-            dropdown.innerHTML = ''; // Clear previous options
-            staffNames.forEach(function(name) {
-              var option = document.createElement('option');
-              option.value = name;
-              option.textContent = name;
-              dropdown.appendChild(option);
-            });
-          });
-        } else {
-          console.error('Failed to fetch staff names');
-        }
-      };
-      xhr.onerror = function() {
-        console.error('Connection error');
-      };
-      xhr.send();
+        .catch(error => console.log('Error fetching products:', error));
     }
 
+    // Function to fetch staff names and populate select options
+    function fetchStaff(staffSelectId) {
+      fetch('fetchstaff2.php')
+        .then(response => response.json())
+        .then(data => {
+          const staffSelect = document.getElementById(staffSelectId);
 
+          data.forEach(staff => {
+            const option = document.createElement('option');
+            option.value = staff;
+            option.textContent = staff;
+            staffSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.log('Error fetching staff:', error));
+    }
 
+    // Function to fetch prices based on product name and category
+    function fetchPrices(productName, category) {
+      fetch('fetchprices.php')
+        .then(response => response.json())
+        .then(data => {
+          displayPricesPopup(data, productName, category);
+        })
+        .catch(error => console.error('Error fetching prices:', error));
+    }
 
-// Function to display price popup when quantity field is populated
-function displayPricePopup(input) {
-  if (input.value.trim() !== '') {
-    const productName = input.parentElement.querySelector('select[name="product_name[]"]').value;
-    const category = input.parentElement.querySelector('select[name="category[]"]').value;
-    fetchPrices(productName, category);
-    document.getElementById('selectPricePopup').style.display = 'block';
-  } else {
-    document.getElementById('selectPricePopup').style.display = 'none';
-  }
-}
-
-// Function to add new sales entry dynamically
-let entryCount = 1;
-
-function addSalesEntry() {
-  entryCount++;
-  const salesEntries = document.getElementById('salesEntries');
-
-  const entryCard = document.createElement('div');
-  entryCard.classList.add('entry-card');
-
-  entryCard.innerHTML = `
-    <label for="product_name_${entryCount}">Product Name:</label>
-    <select id="product_name_${entryCount}" name="product_name[]" required>
-      <!-- Product names will be populated dynamically using JavaScript -->
-    </select>
-
-    <label for="category_${entryCount}">Category:</label>
-    <select id="category_${entryCount}" name="category[]" required>
-      <!-- Categories will be populated dynamically using JavaScript -->
-    </select>
-
-    <label for="staff_${entryCount}">Staff:</label>
-    <select id="staff_${entryCount}" name="staff[]" required>
-      <!-- Staff names will be populated dynamically using JavaScript -->
-    </select>
-
-    <label for="quantity_sold_${entryCount}">Quantity Sold:</label>
-    <input type="number" id="quantity_sold_${entryCount}" name="quantity_sold[]" required class="quantity-sold" onchange="displayPricePopup(this)">
-
-    <label for="total_price_${entryCount}">Total Price:</label>
-    <input type="number" id="total_price_${entryCount}" name="total_price[]" required class="total-price" readonly data-selling-price="0">
-  `;
-
-  salesEntries.appendChild(entryCard);
-
-  // Fetch products and staff names for the newly added entry
-  fetchProducts();
-  fetchStaffNames();
-}
-
-// Call calculateTotalPrice function when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-  calculateTotalPrice();
-});
-
-// Function to fetch prices
-function fetchPrices(productName, category) {
-  return fetch('fetchprices.php')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data); // Log the data to see its structure
-
-      // Find main price for the selected product
+    // Function to display prices popup with content
+    function displayPricesPopup(data, productName, category) {
+      const pricesPopup = document.getElementById('pricesPopup');
+      const pricesContentDiv = document.getElementById('pricesContent');
+      let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
       const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
-
       if (mainPrice) {
-        // Retrieve dynamic prices for the selected product using price_id
-        const dynamicPrices = data.dynamicprices[mainPrice.price_id];
-
-        // Populate the price selection popup with main and dynamic prices
-        const priceSelection = document.getElementById('priceSelection');
-        priceSelection.innerHTML = `
-          <p>Select the selling price for ${productName} in ${category}</p>
-          <p>Main Price: <span id="mainPrice">${mainPrice.selling_price}</span></p>
-          <button onclick="selectPrice(${mainPrice.selling_price})">Main Price</button>
-        `;
-
-        if (dynamicPrices && dynamicPrices.length > 0) {
-          // Append dynamic price buttons
-          dynamicPrices.forEach(dynamicPrice => {
-            priceSelection.innerHTML += `
-              <button onclick="selectPrice(${dynamicPrice.selling_price})">Dynamic Price (${dynamicPrice.selling_price})</button>
-            `;
-          });
-        } else {
-          console.error('No dynamic prices available for the selected product and category.');
-        }
-
-        // Call calculateTotalPrice function after prices are fetched
-        calculateTotalPrice();
-      } else {
-        console.error('Main price not found for the selected product and category.');
+        priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}')">${mainPrice.selling_price}</span></p>`;
       }
-    })
-    .catch(error => {
-      console.error('Error fetching prices:', error);
-    });
-}
-
-
-
-// Function to select a price and close the popup
-function selectPrice(price) {
-  // Set the selected price in the quantity input field
-  document.getElementById('total_price_1').value = price;
-
-  // Close the popup
-  document.getElementById('selectPricePopup').style.display = 'none';
-}
-
-function calculateTotalPrice() {
-  // Get all entry cards
-  const entryCards = document.querySelectorAll('.entry-card');
-
-  entryCards.forEach(entryCard => {
-    // Get the selected selling price for this entry
-    const productNameElement = entryCard.querySelector('select[name="product_name[]"]');
-    const categoryElement = entryCard.querySelector('select[name="category[]"]');
-    const quantityElement = entryCard.querySelector('.quantity-sold');
-
-    // Check if all required elements are present
-    if (productNameElement && categoryElement && quantityElement) {
-      const productName = productNameElement.value;
-      const category = categoryElement.value;
-      const quantity = parseFloat(quantityElement.value);
-
-      fetchPrices(productName, category)
-        .then(prices => {
-          const sellingPrice = getSelectedSellingPrice(prices);
-
-          // Calculate the total price for this entry
-          const totalPrice = sellingPrice * quantity;
-
-          // Insert the total price into the total_price field on this entry's form
-          const totalPriceElement = entryCard.querySelector('.total-price');
-          if (totalPriceElement) {
-            totalPriceElement.value = totalPrice.toFixed(2);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching prices:', error);
+      if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
+        priceContent += '<p>Dynamic Prices:</p><ul>';
+        data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
+          priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}')">${dynamicPrice.selling_price}</span></li>`;
         });
-    } else {
-      console.error('Required elements not found in entry card:', entryCard);
+        priceContent += '</ul>';
+      }
+      pricesContentDiv.innerHTML = priceContent;
+      pricesPopup.style.display = 'block';
     }
-  });
-}
 
-// Function to get the selected selling price from the fetched prices
-function getSelectedSellingPrice(prices) {
-  // Check if there are dynamic prices
-  if (prices.dynamicPrices && prices.dynamicPrices.length > 0) {
-    // Find the selected dynamic price
-    const selectedDynamicPrice = prices.dynamicPrices.find(price => price.selected);
-    if (selectedDynamicPrice) {
-      return parseFloat(selectedDynamicPrice.selling_price);
+    // Function to close prices popup
+    function closePricesPopup() {
+      const pricesPopup = document.getElementById('pricesPopup');
+      pricesPopup.style.display = 'none';
     }
-  }
 
-  // If no dynamic price is selected, use the main price
-  return parseFloat(prices.mainPrice.selling_price);
-}
-// Function to display dynamic prices when the dynamic prices button is clicked
-function showDynamicPrices(dynamicPrices) {
-  const priceSelection = document.getElementById('priceSelection');
-  priceSelection.innerHTML += '<h3>Dynamic Prices:</h3>';
-  dynamicPrices.forEach(price => {
-    priceSelection.innerHTML += `
-      <p>${price.category}: <span>${price.price}</span></p>
-      <button onclick="calculateTotalPrice()">Select</button>
-    `;
-  });
-}
-
-
-
-    // Call fetchProducts and fetchStaffNames functions on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      fetchProducts();
-      fetchStaffNames();
-    });
+    // Function to calculate total price
+    function calculateTotalPrice(price) {
+      const quantitySold = document.getElementById('quantity_sold_1').value;
+      document.getElementById('total_price_1').value = quantitySold * price;
+      closePricesPopup();
+    }
   </script>
 </body>
 </html>
+

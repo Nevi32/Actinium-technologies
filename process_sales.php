@@ -100,8 +100,7 @@ $receiptContent = generateReceipt($salesData);
 // Save receipt content to session for printing
 $_SESSION['receipt_content'] = $receiptContent;
 
-// Redirect back to sales page with success message and to display receipt
-header("Location: sale.php?show_receipt=1");
-exit();
+// Send the receipt content as the response
+echo $receiptContent;
 ?>
 
