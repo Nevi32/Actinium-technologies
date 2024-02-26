@@ -144,7 +144,7 @@ window.onload = function() {
       xhr.send(formData);
     }
 
-   // Function to display receipt popup with content
+     // Function to display receipt popup with content
 function displayReceiptPopup(receiptContent) {
   const receiptPopup = document.getElementById('receiptPopup');
   const receiptContentDiv = document.getElementById('receiptContent');
@@ -178,6 +178,18 @@ function displayReceiptPopup(receiptContent) {
   // Calculate and display total amount
   calculateTotal();
 }
+// Function to calculate and display total amount
+function calculateTotal() {
+  let total = 0;
+  const totalFields = document.querySelectorAll('[id^=total_price_]'); // Select all total price fields
+  
+  totalFields.forEach(field => {
+    total += parseFloat(field.value || 0); // Add the value of each total price field
+  });
+
+  const totalAmountElement = document.getElementById('totalAmount');
+  totalAmountElement.textContent = total.toFixed(2); // Display total amount with 2 decimal places
+}
 
 // Function to print the receipt
 function printReceipt() {
@@ -193,20 +205,6 @@ function printReceipt() {
   
   // Restore the original receipt popup display
   receiptPopup.style.display = 'block';
-}
-
-
-// Function to calculate and display total amount
-function calculateTotal() {
-  let total = 0;
-  const totalFields = document.querySelectorAll('[id^=total_price_]'); // Select all total price fields
-  
-  totalFields.forEach(field => {
-    total += parseFloat(field.value || 0); // Add the value of each total price field
-  });
-
-  const totalAmountElement = document.getElementById('totalAmount');
-  totalAmountElement.textContent = total.toFixed(2); // Display total amount with 2 decimal places
 }
 
 
