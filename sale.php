@@ -144,13 +144,71 @@ window.onload = function() {
       xhr.send(formData);
     }
 
-    // Function to display receipt popup with content
-    function displayReceiptPopup(receiptContent) {
-      const receiptPopup = document.getElementById('receiptPopup');
-      const receiptContentDiv = document.getElementById('receiptContent');
-      receiptContentDiv.innerHTML = receiptContent;
-      receiptPopup.style.display = 'block';
-    }
+   // Function to display receipt popup with content
+function displayReceiptPopup(receiptContent) {
+  const receiptPopup = document.getElementById('receiptPopup');
+  const receiptContentDiv = document.getElementById('receiptContent');
+  
+  // Get store name and location from PHP session data
+  const storeName = "<?php echo isset($_SESSION['store_name']) ? $_SESSION['store_name'] : ''; ?>";
+  const location = "<?php echo $location ?? ''; ?>"; // Assuming $location holds the location information
+  
+  // Construct the receipt content with store name and location
+  receiptContentDiv.innerHTML = `
+    <div>
+      <h2>Receipt</h2>
+      <p>Store Name: ${storeName}</p>
+      <p>Location: ${location}</p>
+      ${receiptContent}
+    </div>
+    <div id="contactInfo">
+      <h3>Contact Information</h3>
+      <p>WhatsApp: +123456789</p>
+      <p>Phone: 123-456-789</p>
+    </div>
+    <div id="totalInfo">
+      <h3>Total</h3>
+      <p id="totalAmount">Calculating...</p>
+    </div>
+    <button onclick="printReceipt()">Print</button>
+  `;
+  
+  receiptPopup.style.display = 'block';
+  
+  // Calculate and display total amount
+  calculateTotal();
+}
+
+// Function to print the receipt
+function printReceipt() {
+  const receiptPopup = document.getElementById('receiptPopup');
+  const printContents = receiptPopup.innerHTML;
+  const originalContents = document.body.innerHTML;
+  
+  document.body.innerHTML = printContents;
+  
+  window.print();
+  
+  document.body.innerHTML = originalContents;
+  
+  // Restore the original receipt popup display
+  receiptPopup.style.display = 'block';
+}
+
+
+// Function to calculate and display total amount
+function calculateTotal() {
+  let total = 0;
+  const totalFields = document.querySelectorAll('[id^=total_price_]'); // Select all total price fields
+  
+  totalFields.forEach(field => {
+    total += parseFloat(field.value || 0); // Add the value of each total price field
+  });
+
+  const totalAmountElement = document.getElementById('totalAmount');
+  totalAmountElement.textContent = total.toFixed(2); // Display total amount with 2 decimal places
+}
+
 
     // Function to close receipt popup
     function closeReceipt() {
