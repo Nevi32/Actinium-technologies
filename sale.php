@@ -33,32 +33,33 @@
         <a href="#" onclick="viewSales()">View Sales</a> <!-- View Sales button -->
       </div>
 
-      <!-- Sales Form Card -->
-      <div id="sales-form" class="section-card">
-        <h3>Record Sales</h3>
-        <form id="salesForm">
-          <div id="salesEntries">
-            <div class="entry-card">
-              <label for="product_name_1">Product Name:</label>
-              <select id="product_name_1" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_1').value)" required></select>
+        <!-- Sales Form Card -->
+<div id="sales-form" class="section-card">
+    <h3>Record Sales</h3>
+    <form id="salesForm">
+        <div id="salesEntries">
+            <div class="entry-card" id="entry_1">
+                <label for="product_name_1">Product Name:</label>
+                <select id="product_name_1" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_1').value, 1)" required></select>
 
-              <label for="category_1">Category:</label>
-              <select id="category_1" name="category[]" onchange="fetchPrices(document.getElementById('product_name_1').value, this.value)" required></select>
+                <label for="category_1">Category:</label>
+                <select id="category_1" name="category[]" onchange="fetchPrices(document.getElementById('product_name_1').value, this.value, 1)" required></select>
 
-              <label for="staff_1">Staff:</label>
-              <select id="staff_1" name="staff[]" required></select>
+                <label for="staff_1">Staff:</label>
+                <select id="staff_1" name="staff[]" required></select>
 
-              <label for="quantity_sold_1">Quantity Sold:</label>
-              <input type="number" id="quantity_sold_1" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_1').value, document.getElementById('category_1').value)" required>
+                <label for="quantity_sold_1">Quantity Sold:</label>
+                <input type="number" id="quantity_sold_1" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_1').value, document.getElementById('category_1').value, 1)" required>
 
-              <label for="total_price_1">Total Price:</label>
-              <input type="number" id="total_price_1" name="total_price[]" required>
+                <label for="total_price_1">Total Price:</label>
+                <input type="number" id="total_price_1" name="total_price[]" required>
             </div>
-          </div>
-          <button type="button" onclick="addSalesEntry()">Add Another Entry</button>
-          <button type="button" onclick="recordSales()">Record Sales</button>
-        </form>
-      </div>
+        </div>
+        <button type="button" onclick="addSalesEntry()">Add Another Entry</button>
+        <button type="button" onclick="recordSales()">Record Sales</button>
+    </form>
+</div>
+
 
       <!-- Popup for Receipt -->
       <div id="receiptPopup" class="popup">
@@ -199,35 +200,6 @@ window.onload = function() {
         .catch(error => console.log('Error fetching staff:', error));
     }
 
-      // Function to fetch prices based on product name, category, and entry count
-function fetchPrices(productName, category, entryCount) {
-  fetch('fetchprices.php')
-    .then(response => response.json())
-    .then(data => {
-      displayPricesPopup(data, productName, category, entryCount);
-    })
-    .catch(error => console.error('Error fetching prices:', error));
-}
-
-// Function to display prices popup with content for a specific entry
-function displayPricesPopup(data, productName, category, entryCount) {
-  const pricesPopup = document.getElementById('pricesPopup');
-  const pricesContentDiv = document.getElementById('pricesContent');
-  let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
-  const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
-  if (mainPrice) {
-    priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}', ${entryCount})">${mainPrice.selling_price}</span></p>`;
-  }
-  if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
-    priceContent += '<p>Dynamic Prices:</p><ul>';
-    data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
-      priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}', ${entryCount})">${dynamicPrice.selling_price}</span></li>`;
-    });
-    priceContent += '</ul>';
-  }
-  pricesContentDiv.innerHTML = priceContent;
-  pricesPopup.style.display = 'block';
-}
 // Function to fetch prices based on product name, category, and entry count
 function fetchPrices(productName, category, entryCount) {
   fetch('fetchprices.php')
@@ -238,26 +210,25 @@ function fetchPrices(productName, category, entryCount) {
     .catch(error => console.error('Error fetching prices:', error));
 }
 
-// Function to display prices popup with content for a specific entry
-function displayPricesPopup(data, productName, category, entryCount) {
-  const pricesPopup = document.getElementById('pricesPopup');
-  const pricesContentDiv = document.getElementById('pricesContent');
-  let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
-  const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
-  if (mainPrice) {
-    priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}', ${entryCount})">${mainPrice.selling_price}</span></p>`;
-  }
-  if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
-    priceContent += '<p>Dynamic Prices:</p><ul>';
-    data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
-      priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}', ${entryCount})">${dynamicPrice.selling_price}</span></li>`;
-    });
-    priceContent += '</ul>';
-  }
-  pricesContentDiv.innerHTML = priceContent;
-  pricesPopup.style.display = 'block';
-}
-
+ // Function to display prices popup with content for a specific entry
+    function displayPricesPopup(data, productName, category, entryCount) {
+        const pricesPopup = document.getElementById('pricesPopup');
+        const pricesContentDiv = document.getElementById('pricesContent');
+        let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
+        const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
+        if (mainPrice) {
+            priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}', ${entryCount})">${mainPrice.selling_price}</span></p>`;
+        }
+        if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
+            priceContent += '<p>Dynamic Prices:</p><ul>';
+            data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
+                priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}', ${entryCount})">${dynamicPrice.selling_price}</span></li>`;
+            });
+            priceContent += '</ul>';
+        }
+        pricesContentDiv.innerHTML = priceContent;
+        pricesPopup.style.display = 'block';
+    }
 
     // Function to close prices popup
     function closePricesPopup() {
