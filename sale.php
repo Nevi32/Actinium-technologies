@@ -83,41 +83,43 @@
     }
 
     // Function to add new sales entry dynamically
-    let salesEntryCount = 1;
+let salesEntryCount = 1;
 
-    function addSalesEntry() {
-      salesEntryCount++;
-      const salesEntries = document.getElementById('salesEntries');
+function addSalesEntry() {
+  const entryCount = ++salesEntryCount;
+  const salesEntries = document.getElementById('salesEntries');
 
-      const entryCard = document.createElement('div');
-      entryCard.classList.add('entry-card');
+  const entryCard = document.createElement('div');
+  entryCard.classList.add('entry-card');
 
-      entryCard.innerHTML = `
-        <label for="product_name_${salesEntryCount}">Product Name:</label>
-        <select id="product_name_${salesEntryCount}" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_${salesEntryCount}').value)" required></select>
+  entryCard.innerHTML = `
+    <label for="product_name_${entryCount}">Product Name:</label>
+    <select id="product_name_${entryCount}" name="product_name[]" onchange="fetchPrices(this.value, document.getElementById('category_${entryCount}').value, ${entryCount})" required></select>
 
-        <label for="category_${salesEntryCount}">Category:</label>
-        <select id="category_${salesEntryCount}" name="category[]" onchange="fetchPrices(document.getElementById('product_name_${salesEntryCount}').value, this.value)" required></select>
+    <label for="category_${entryCount}">Category:</label>
+    <select id="category_${entryCount}" name="category[]" onchange="fetchPrices(document.getElementById('product_name_${entryCount}').value, this.value, ${entryCount})" required></select>
 
-        <label for="staff_${salesEntryCount}">Staff:</label>
-        <select id="staff_${salesEntryCount}" name="staff[]" required></select>
+    <label for="staff_${entryCount}">Staff:</label>
+    <select id="staff_${entryCount}" name="staff[]" required></select>
 
-        <label for="quantity_sold_${salesEntryCount}">Quantity Sold:</label>
-        <input type="number" id="quantity_sold_${salesEntryCount}" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_${salesEntryCount}').value, document.getElementById('category_${salesEntryCount}').value)" required>
+    <label for="quantity_sold_${entryCount}">Quantity Sold:</label>
+    <input type="number" id="quantity_sold_${entryCount}" name="quantity_sold[]" onchange="fetchPrices(document.getElementById('product_name_${entryCount}').value, document.getElementById('category_${entryCount}').value, ${entryCount})" required>
 
-        <label for="total_price_${salesEntryCount}">Total Price:</label>
-        <input type="number" id="total_price_${salesEntryCount}" name="total_price[]" required>
-      `;
+    <label for="total_price_${entryCount}">Total Price:</label>
+    <input type="number" id="total_price_${entryCount}" name="total_price[]" required>
+  `;
 
-      salesEntries.appendChild(entryCard);
-      fetchProducts(`product_name_${salesEntryCount}`, `category_${salesEntryCount}`);
-      fetchStaff(`staff_${salesEntryCount}`);
-    }
+  salesEntries.appendChild(entryCard);
+  fetchProducts(`product_name_${entryCount}`, `category_${entryCount}`);
+  fetchStaff(`staff_${entryCount}`);
+}
 
-    // Fetch products, categories, and staff for the first entry when the page loads
+   // Fetch products, categories, and staff for the first entry when the page loads
+window.onload = function() {
     fetchProducts('product_name_1', 'category_1');
     fetchStaff('staff_1');
-
+    calculateTotalPrice('initial_value', 1); // You might need to replace 'initial_value' with the default value for the first entry
+};
     // Function to record sales
     function recordSales() {
       // AJAX request to process_sales.php
@@ -197,35 +199,65 @@
         .catch(error => console.log('Error fetching staff:', error));
     }
 
-    // Function to fetch prices based on product name and category
-    function fetchPrices(productName, category) {
-      fetch('fetchprices.php')
-        .then(response => response.json())
-        .then(data => {
-          displayPricesPopup(data, productName, category);
-        })
-        .catch(error => console.error('Error fetching prices:', error));
-    }
+      // Function to fetch prices based on product name, category, and entry count
+function fetchPrices(productName, category, entryCount) {
+  fetch('fetchprices.php')
+    .then(response => response.json())
+    .then(data => {
+      displayPricesPopup(data, productName, category, entryCount);
+    })
+    .catch(error => console.error('Error fetching prices:', error));
+}
 
-    // Function to display prices popup with content
-    function displayPricesPopup(data, productName, category) {
-      const pricesPopup = document.getElementById('pricesPopup');
-      const pricesContentDiv = document.getElementById('pricesContent');
-      let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
-      const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
-      if (mainPrice) {
-        priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}')">${mainPrice.selling_price}</span></p>`;
-      }
-      if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
-        priceContent += '<p>Dynamic Prices:</p><ul>';
-        data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
-          priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}')">${dynamicPrice.selling_price}</span></li>`;
-        });
-        priceContent += '</ul>';
-      }
-      pricesContentDiv.innerHTML = priceContent;
-      pricesPopup.style.display = 'block';
-    }
+// Function to display prices popup with content for a specific entry
+function displayPricesPopup(data, productName, category, entryCount) {
+  const pricesPopup = document.getElementById('pricesPopup');
+  const pricesContentDiv = document.getElementById('pricesContent');
+  let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
+  const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
+  if (mainPrice) {
+    priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}', ${entryCount})">${mainPrice.selling_price}</span></p>`;
+  }
+  if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
+    priceContent += '<p>Dynamic Prices:</p><ul>';
+    data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
+      priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}', ${entryCount})">${dynamicPrice.selling_price}</span></li>`;
+    });
+    priceContent += '</ul>';
+  }
+  pricesContentDiv.innerHTML = priceContent;
+  pricesPopup.style.display = 'block';
+}
+// Function to fetch prices based on product name, category, and entry count
+function fetchPrices(productName, category, entryCount) {
+  fetch('fetchprices.php')
+    .then(response => response.json())
+    .then(data => {
+      displayPricesPopup(data, productName, category, entryCount);
+    })
+    .catch(error => console.error('Error fetching prices:', error));
+}
+
+// Function to display prices popup with content for a specific entry
+function displayPricesPopup(data, productName, category, entryCount) {
+  const pricesPopup = document.getElementById('pricesPopup');
+  const pricesContentDiv = document.getElementById('pricesContent');
+  let priceContent = `<h2>Select the selling price for ${productName} and ${category}</h2>`;
+  const mainPrice = data.mainprices.find(price => price.product_name === productName && price.category === category);
+  if (mainPrice) {
+    priceContent += `<p>Main Price: <span onclick="calculateTotalPrice('${mainPrice.selling_price}', ${entryCount})">${mainPrice.selling_price}</span></p>`;
+  }
+  if (data.dynamicprices.hasOwnProperty(mainPrice.price_id)) {
+    priceContent += '<p>Dynamic Prices:</p><ul>';
+    data.dynamicprices[mainPrice.price_id].forEach(dynamicPrice => {
+      priceContent += `<li><span onclick="calculateTotalPrice('${dynamicPrice.selling_price}', ${entryCount})">${dynamicPrice.selling_price}</span></li>`;
+    });
+    priceContent += '</ul>';
+  }
+  pricesContentDiv.innerHTML = priceContent;
+  pricesPopup.style.display = 'block';
+}
+
 
     // Function to close prices popup
     function closePricesPopup() {
@@ -233,12 +265,20 @@
       pricesPopup.style.display = 'none';
     }
 
-    // Function to calculate total price
-    function calculateTotalPrice(price) {
-      const quantitySold = document.getElementById('quantity_sold_1').value;
-      document.getElementById('total_price_1').value = quantitySold * price;
-      closePricesPopup();
-    }
+    // Function to calculate total price for a specific entry
+function calculateTotalPrice(price, entryCount) {
+  const quantitySold = document.getElementById(`quantity_sold_${entryCount}`).value;
+  const totalPriceField = document.getElementById(`total_price_${entryCount}`);
+  
+  // Check if the total price field exists
+  if (totalPriceField) {
+    totalPriceField.value = quantitySold * price;
+    closePricesPopup();
+  } else {
+    console.error(`Total price field for entry ${entryCount} does not exist.`);
+  }
+}
+
   </script>
 </body>
 </html>
