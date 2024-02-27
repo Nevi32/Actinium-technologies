@@ -121,28 +121,34 @@ window.onload = function() {
     fetchStaff('staff_1');
     calculateTotalPrice('initial_value', 1); // You might need to replace 'initial_value' with the default value for the first entry
 };
-    // Function to record sales
-    function recordSales() {
-      // AJAX request to process_sales.php
-      var formData = new FormData(document.getElementById('salesForm'));
 
-      // AJAX request
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'process_sales.php', true);
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          // showAlert(xhr.responseText, 'success'); // Pass response text to showAlert function
-          console.log(xhr.responseText); // Log response to console
-          
-          // Display receipt popup with content from response
-          displayReceiptPopup(xhr.responseText);
-        } else {
-          // showAlert('Failed to record sales. Please try again.', 'error');
-          console.log('Failed to record sales. Please try again.'); // Log error message to console
-        }
-      };
-      xhr.send(formData);
+// Function to record sales
+function recordSales() {
+  // Get the selected staff name from the form
+  var staff = document.getElementById('staff_1').value; // Assuming there's only one staff field
+  
+  // Append the selected staff name to the form data
+  var formData = new FormData(document.getElementById('salesForm'));
+  formData.append('staff', staff);
+
+  // AJAX request to process_sales.php
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'process_sales.php', true);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      // showAlert(xhr.responseText, 'success'); // Pass response text to showAlert function
+      console.log(xhr.responseText); // Log response to console
+      
+      // Display receipt popup with content from response
+      displayReceiptPopup(xhr.responseText);
+    } else {
+      // showAlert('Failed to record sales. Please try again.', 'error');
+      console.log('Failed to record sales. Please try again.'); // Log error message to console
     }
+  };
+  xhr.send(formData);
+}
+
 
      // Function to display receipt popup with content
 function displayReceiptPopup(receiptContent) {

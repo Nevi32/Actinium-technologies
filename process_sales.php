@@ -61,7 +61,6 @@ $pdo = connectToDatabase($databaseConfig);
 session_start();
 $storeName = $_SESSION['store_name'];
 $locationName = $_SESSION['location_name'];
-$staffName = $_SESSION['username'];
 
 // Get store ID
 $storeId = getStoreId($pdo, $storeName, $locationName);
@@ -72,6 +71,7 @@ foreach ($_POST['product_name'] as $key => $productName) {
     $category = $_POST['category'][$key];
     $quantitySold = $_POST['quantity_sold'][$key];
     $totalPrice = $_POST['total_price'][$key];
+    $staffName = $_POST['staff'];
 
     // Get main entry ID
     $mainEntryId = getMainEntryId($pdo, $productName, $category, $storeId);
