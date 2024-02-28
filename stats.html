@@ -59,26 +59,27 @@
   </div>
 
   <!-- Popup for inventory stats -->
-  <div id="inventory-popup" class="popup">
-    <div class="popup-content">
-      <span class="popup-close" onclick="closePopup('inventory-popup')">&times;</span>
-      <h2>Inventory Stats</h2>
-      <div class="period-options">
-        <p>Choose time period:</p>
-        <ul>
-          <li><a href="#" onclick="fetchInventoryStats('daily')">Daily</a></li>
-          <li><a href="#" onclick="fetchInventoryStats('weekly')">Weekly</a></li>
-          <li><a href="#" onclick="fetchInventoryStats('monthly')">Monthly</a></li>
-          <li><a href="#" onclick="fetchInventoryStats('halfannually')">Halfannually</a></li>
-          <li><a href="#" onclick="fetchInventoryStats('annually')">Annually</a></li>
-        </ul>
-      </div>
-      <div id="popup-content-placeholder">
-        <!-- Inventory stats details will be displayed here -->
-      </div>
-      <button class="download-btn">Download</button>
+<div id="inventory-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('inventory-popup')">&times;</span>
+    <h2>Inventory Stats</h2>
+    <div class="period-options">
+      <p>Choose time period:</p>
+      <ul>
+        <li><a href="#" onclick="fetchInventoryStats('daily')">Daily</a></li>
+        <li><a href="#" onclick="fetchInventoryStats('weekly')">Weekly</a></li>
+        <li><a href="#" onclick="fetchInventoryStats('monthly')">Monthly</a></li>
+        <li><a href="#" onclick="fetchInventoryStats('halfannually')">Halfannually</a></li>
+        <li><a href="#" onclick="fetchInventoryStats('annually')">Annually</a></li>
+      </ul>
     </div>
+    <div id="popup-content-placeholder">
+      <!-- Inventory stats details will be displayed here -->
+    </div>
+    <button class="download-btn">Download</button>
   </div>
+</div>
+
 
   <!-- Popup for sales stats -->
 <div id="sales-popup" class="popup">
@@ -248,24 +249,28 @@
     }
 
      // Function to fetch inventory stats
-function fetchInventoryStats(period) {
-  // Call the respective PHP script based on the selected period
-  var phpScript = "fetchInventoryStats.php?period=" + period;
+  function fetchInventoryStats(period) {
+    // Call the respective PHP script based on the selected period
+    var phpScript = "fetchInventoryStats.php";
 
-  // Assuming you're using AJAX to call the PHP script
-  $.ajax({
-    url: phpScript,
-    type: 'GET',
-    success: function(response) {
-      // Handle the response from the PHP script
-      console.log("Inventory stats for " + period + ": " + response);
-    },
-    error: function(xhr, status, error) {
-      // Handle errors
-      console.error("Error fetching inventory stats:", error);
-    }
-  });
-}
+    // Assuming you're using AJAX to call the PHP script
+    $.ajax({
+      url: phpScript,
+      type: 'POST', // Change to POST method
+      data: { period: period }, // Pass the selected period
+      success: function(response) {
+        // Handle the response from the PHP script
+        console.log("Inventory stats for " + period + ": " + response);
+        // Update the inventory stats details placeholder
+        document.getElementById("popup-content-placeholder").innerHTML = response;
+      },
+      error: function(xhr, status, error) {
+        // Handle errors
+        console.error("Error fetching inventory stats:", error);
+      }
+    });
+  }
+   
 
 // Similarly, you can implement the functions for other stat types
 
