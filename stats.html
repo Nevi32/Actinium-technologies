@@ -18,10 +18,6 @@
       <div id="user-info">
         <!-- User info will be displayed here using JavaScript -->
       </div>
-      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
-      <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
-      <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
-      <a href="home.php" onclick="redirectToPage('home.php');"><i class="fas fa-home"></i> Dashboard</a>
       <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
   </div>
@@ -41,6 +37,8 @@
           <div class="ChatItem-chatText">1. Inventory Stats</div>
           <div class="ChatItem-chatText">2. Sales Stats</div>
           <div class="ChatItem-chatText">3. Profit Stats</div>
+          <div class="ChatItem-chatText">4. Staff Performance</div>
+          <div class="ChatItem-chatText">5. True Profit</div>
         </div>
       </div>
       <div class="ChatItem ChatItem--bot">
@@ -60,21 +58,165 @@
     </div>
   </div>
 
-  <!-- Popup for displaying data -->
-  <div id="popup" class="popup">
+  <!-- Popup for inventory stats -->
+  <div id="inventory-popup" class="popup">
     <div class="popup-content">
-      <span class="popup-close" onclick="closePopup('popup')">&times;</span>
-      <h2>Data Details</h2>
+      <span class="popup-close" onclick="closePopup('inventory-popup')">&times;</span>
+      <h2>Inventory Stats</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchInventoryStats('daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchInventoryStats('weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchInventoryStats('monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchInventoryStats('halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchInventoryStats('annually')">Annually</a></li>
+        </ul>
+      </div>
       <div id="popup-content-placeholder">
-        <!-- Data details will be displayed here -->
+        <!-- Inventory stats details will be displayed here -->
       </div>
       <button class="download-btn">Download</button>
     </div>
   </div>
 
+  <!-- Popup for sales stats -->
+<div id="sales-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('sales-popup')">&times;</span>
+    <h2>Sales Stats</h2>
+    <div class="period-options">
+      <p>Choose time period:</p>
+      <ul>
+        <li><a href="#" onclick="fetchSalesStats('daily')">Daily</a></li>
+        <li><a href="#" onclick="fetchSalesStats('weekly')">Weekly</a></li>
+        <li><a href="#" onclick="fetchSalesStats('monthly')">Monthly</a></li>
+        <li><a href="#" onclick="fetchSalesStats('halfannually')">Halfannually</a></li>
+        <li><a href="#" onclick="fetchSalesStats('annually')">Annually</a></li>
+      </ul>
+    </div>
+    <div id="sales-popup-content-placeholder">
+      <!-- Sales stats details will be displayed here -->
+    </div>
+    <button class="download-btn">Download</button>
+  </div>
+</div>
+
+<!-- Popup for profit stats -->
+<div id="profit-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('profit-popup')">&times;</span>
+    <h2>Profit Stats</h2>
+    <div class="period-options">
+      <p>Choose time period:</p>
+      <ul>
+        <li><a href="#" onclick="fetchProfitStats('daily')">Daily</a></li>
+        <li><a href="#" onclick="fetchProfitStats('weekly')">Weekly</a></li>
+        <li><a href="#" onclick="fetchProfitStats('monthly')">Monthly</a></li>
+        <li><a href="#" onclick="fetchProfitStats('halfannually')">Halfannually</a></li>
+        <li><a href="#" onclick="fetchProfitStats('annually')">Annually</a></li>
+      </ul>
+    </div>
+    <div id="profit-popup-content-placeholder">
+      <!-- Profit stats details will be displayed here -->
+    </div>
+    <button class="download-btn">Download</button>
+  </div>
+</div>
+
+<!-- Popup for staff performance -->
+<div id="staff-performance-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('staff-performance-popup')">&times;</span>
+    <h2>Staff Performance</h2>
+    <div class="period-options">
+      <p>Choose time period:</p>
+      <ul>
+        <li><a href="#" onclick="fetchStaffPerformance('daily')">Daily</a></li>
+        <li><a href="#" onclick="fetchStaffPerformance('weekly')">Weekly</a></li>
+        <li><a href="#" onclick="fetchStaffPerformance('monthly')">Monthly</a></li>
+        <li><a href="#" onclick="fetchStaffPerformance('halfannually')">Halfannually</a></li>
+        <li><a href="#" onclick="fetchStaffPerformance('annually')">Annually</a></li>
+      </ul>
+    </div>
+    <div id="staff-performance-popup-content-placeholder">
+      <!-- Staff performance details will be displayed here -->
+    </div>
+    <button class="download-btn">Download</button>
+  </div>
+</div>
+
+<!-- Popup for true profit -->
+<div id="true-profit-popup" class="popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup('true-profit-popup')">&times;</span>
+    <h2>True Profit</h2>
+    <div class="period-options">
+      <p>Choose time period:</p>
+      <ul>
+        <li><a href="#" onclick="fetchTrueProfit('daily')">Daily</a></li>
+        <li><a href="#" onclick="fetchTrueProfit('weekly')">Weekly</a></li>
+        <li><a href="#" onclick="fetchTrueProfit('monthly')">Monthly</a></li>
+        <li><a href="#" onclick="fetchTrueProfit('halfannually')">Halfannually</a></li>
+        <li><a href="#" onclick="fetchTrueProfit('annually')">Annually</a></li>
+      </ul>
+    </div>
+    <div id="true-profit-popup-content-placeholder">
+      <!-- True profit details will be displayed here -->
+    </div>
+    <button class="download-btn">Download</button>
+  </div>
+</div>
+
+
   <!-- jQuery library -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
+    // Function to handle user selection
+    function submitSelection() {
+      var userInput = document.getElementById("user-input").value;
+      sendMessage("You selected: " + userInput);
+
+      if (userInput === '1') {
+        openInventoryPopup();
+      } else if (userInput === '2') {
+        openSalesPopup();
+      } else if (userInput === '3') {
+        openProfitPopup();
+      } else if (userInput === '4') {
+        openStaffPerformancePopup();
+      } else if (userInput === '5') {
+        openTrueProfitPopup();
+      } else {
+        sendMessage("Invalid selection. Please choose 1, 2, 3, 4, or 5.");
+      }
+    }
+
+    // Function to open inventory popup
+    function openInventoryPopup() {
+      openPopup('inventory-popup');
+    }
+
+    // Function to open sales popup
+    function openSalesPopup() {
+      openPopup('sales-popup');
+    }
+
+    // Function to open profit popup
+    function openProfitPopup() {
+      openPopup('profit-popup');
+    }
+
+    // Function to open staff performance popup
+    function openStaffPerformancePopup() {
+      openPopup('staff-performance-popup');
+    }
+
+    // Function to open true profit popup
+    function openTrueProfitPopup() {
+      openPopup('true-profit-popup');
+    }
+
     // Function to send message to chat window
     function sendMessage(message) {
       var chatWindow = document.querySelector(".ChatWindow");
@@ -105,138 +247,47 @@
       popup.style.display = 'none';
     }
 
-    // Function to handle user selection
-    function submitSelection() {
-      var userInput = document.getElementById("user-input").value;
-      sendMessage("You selected: " + userInput);
+     // Function to fetch inventory stats
+function fetchInventoryStats(period) {
+  // Call the respective PHP script based on the selected period
+  var phpScript = "fetchInventoryStats.php?period=" + period;
 
-      if (userInput === '1') {
-        fetchInventoryStats();
-      } else if (userInput === '2') {
-        fetchSalesStats();
-      } else if (userInput === '3') {
-        fetchProfitStats();
-      } else {
-        sendMessage("Invalid selection. Please choose 1, 2, or 3.");
-      }
+  // Assuming you're using AJAX to call the PHP script
+  $.ajax({
+    url: phpScript,
+    type: 'GET',
+    success: function(response) {
+      // Handle the response from the PHP script
+      console.log("Inventory stats for " + period + ": " + response);
+    },
+    error: function(xhr, status, error) {
+      // Handle errors
+      console.error("Error fetching inventory stats:", error);
     }
+  });
+}
 
-    // Function to fetch inventory stats
-    function fetchInventoryStats() {
-      $.ajax({
-        url: 'fetchinventorystats.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-          handleInventoryStatsResponse(response);
-        },
-        error: function(xhr, status, error) {
-          sendMessage("Error fetching inventory stats: " + error);
-        }
-      });
-    }
+// Similarly, you can implement the functions for other stat types
 
-    // Function to handle inventory stats response
-    function handleInventoryStatsResponse(response) {
-      if (response.error) {
-        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
-      } else {
-        var html = "";
-
-        // Main store inventory
-        html += "<p><strong>Main Store Inventory:</strong></p>";
-        html += "<ul>";
-        response.main_store_inventory.forEach(function(product) {
-          html += "<li>" + product.product_name + " - " + product.category + " - Total Quantity: " + product.total_quantity + " - " + product.quantity_description + "</li>";
-        });
-        html += "</ul>";
-
-        // Satellite stores inventory
-        html += "<p><strong>Satellite Stores Inventory:</strong></p>";
-        response.satellite_stores.forEach(function(store) {
-          html += "<p><strong>Store Name:</strong> " + store.location_name + "</p>";
-          html += "<ul>";
-          store.inventory.forEach(function(product) {
-            html += "<li>" + product.product_name + " - " + product.category + " - Total Quantity: " + product.total_quantity + " - " + product.quantity_description + "</li>";
-          });
-          html += "</ul>";
-        });
-
-        document.getElementById("popup-content-placeholder").innerHTML = html;
-        openPopup('popup');
-      }
-    }
 
     // Function to fetch sales stats
     function fetchSalesStats() {
-      $.ajax({
-        url: 'fetchsalesstats.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-          handleSalesStatsResponse(response);
-        },
-        error: function(xhr, status, error) {
-          sendMessage("Error fetching sales stats: " + error);
-        }
-      });
-    }
-
-    // Function to handle sales stats response
-    function handleSalesStatsResponse(response) {
-      if (response.error) {
-        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
-      } else {
-        var html = "";
-
-        // Main store total sales
-        html += "<p><strong>Main Store Total Sales:</strong> " + response.main_store_total_sales + "</p>";
-
-        // Satellite stores total sales
-        html += "<p><strong>Satellite Stores Total Sales:</strong></p>";
-        response.satellite_store_sales.forEach(function(store) {
-          html += "<p><strong>Store Name:</strong> " + store.location_name + " - Total Sales: " + store.total_sales + "</p>";
-        });
-
-        document.getElementById("popup-content-placeholder").innerHTML = html;
-        openPopup('popup');
-      }
+      // Implement this function to fetch sales stats
     }
 
     // Function to fetch profit stats
     function fetchProfitStats() {
-      $.ajax({
-        url: 'fetchprofitstats.php',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-          handleProfitStatsResponse(response);
-        },
-        error: function(xhr, status, error) {
-          sendMessage("Error fetching profit stats: " + error);
-        }
-      });
+      // Implement this function to fetch profit stats
     }
 
-    // Function to handle profit stats response
-    function handleProfitStatsResponse(response) {
-      if (response.error) {
-        document.getElementById("popup-content-placeholder").innerHTML = "<p>Error: " + response.error + "</p>";
-      } else {
-        var html = "";
+    // Function to fetch staff performance stats
+    function fetchStaffPerformanceStats() {
+      // Implement this function to fetch staff performance stats
+    }
 
-        // Main store profit
-        html += "<p><strong>Main Store Profit:</strong> " + response.main_store_profit + "</p>";
-
-        // Satellite stores profit
-        html += "<p><strong>Satellite Stores Profit:</strong></p>";
-        response.satellite_store_profit.forEach(function(store) {
-          html += "<p><strong>Store Name:</strong> " + store.location_name + " - Profit: " + store.profit + "</p>";
-        });
-
-        document.getElementById("popup-content-placeholder").innerHTML = html;
-        openPopup('popup');
-      }
+    // Function to fetch true profit stats
+    function fetchTrueProfitStats() {
+      // Implement this function to fetch true profit stats
     }
   </script>
 </body>

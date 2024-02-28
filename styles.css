@@ -5,35 +5,50 @@ body {
   padding: 0;
   display: flex;
 }
-
-/* Sidebar styles */
 #sidebar {
-  width: 300px;
-  background-color: #343a40;
+  width: 200px;
+  background-color: #333;
   color: #fff;
   padding: 20px;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   position: fixed;
+  height: 100%;
 }
 
-.sidebar-header {
-  margin-bottom: 20px;
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
-.sidebar-navigation {
-  list-style-type: none;
-  padding: 0;
+#sidebar i {
+  margin-right: 10px;
 }
 
-.sidebar-navigation li {
-  margin-bottom: 10px;
+#sidebar a:not(:last-child) {
+  margin-bottom: 100px;
 }
+
+#user-info {
+  display: none;
+  color: #fff;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #555;
+  border-radius: 15px;
+}
+
 
 /* Content styles */
 #content {
   flex-grow: 1;
   padding: 20px;
-  padding-left: 390px; /* Adjusted for sidebar width */
+  padding-left: 240px; /* Adjusted for sidebar width */
   overflow-y: auto; /* Allow content area to scroll */
 }
 
@@ -74,7 +89,6 @@ body {
   order: 2; /* Move bot image to the right side */
 }
 
-
 /* Chat text styles */
 .ChatItem-chatContent {
   flex-grow: 1;
@@ -95,9 +109,9 @@ body {
 .InputBox {
   position: fixed;
   bottom: 20px;
-  left: 380px; /* Adjusted for sidebar width */
+  left: 220px; /* Adjusted for sidebar width */
   right: 20px;
-  width: calc(100% - 450px); /* Adjusted for sidebar width and padding */
+  width: calc(100% - 270px); /* Adjusted for sidebar width and padding */
 }
 
 .chat-input {
