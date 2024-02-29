@@ -59,116 +59,127 @@
   </div>
 
   <!-- Popup for inventory stats -->
-<div id="inventory-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('inventory-popup')">&times;</span>
-    <h2>Inventory Stats</h2>
-    <div class="period-options">
-      <p>Choose time period:</p>
-      <ul>
-        <li><a href="#" onclick="fetchInventoryStats('daily')">Daily</a></li>
-        <li><a href="#" onclick="fetchInventoryStats('weekly')">Weekly</a></li>
-        <li><a href="#" onclick="fetchInventoryStats('monthly')">Monthly</a></li>
-        <li><a href="#" onclick="fetchInventoryStats('halfannually')">Halfannually</a></li>
-        <li><a href="#" onclick="fetchInventoryStats('annually')">Annually</a></li>
-      </ul>
+  <div id="inventory-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('inventory-popup')">&times;</span>
+      <h2>Inventory Stats</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchStats('fetchInventoryStats.php', 'inventory', 'Daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchStats('fetchInventoryStats.php', 'inventory', 'Weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchInventoryStats.php', 'inventory', 'Monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchInventoryStats.php', 'inventory', 'Halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchStats('fetchInventoryStats.php', 'inventory', 'Annually')">Annually</a></li>
+        </ul>
+      </div>
+      <div id="inventory-popup-content-placeholder">
+        <!-- Inventory stats details will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('inventory')">Download</button>
     </div>
-    <div id="popup-content-placeholder">
-      <!-- Inventory stats details will be displayed here -->
-    </div>
-    <button class="download-btn">Download</button>
   </div>
-</div>
-
 
   <!-- Popup for sales stats -->
-<div id="sales-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('sales-popup')">&times;</span>
-    <h2>Sales Stats</h2>
-    <div class="period-options">
-      <p>Choose time period:</p>
-      <ul>
-        <li><a href="#" onclick="fetchSalesStats('daily')">Daily</a></li>
-        <li><a href="#" onclick="fetchSalesStats('weekly')">Weekly</a></li>
-        <li><a href="#" onclick="fetchSalesStats('monthly')">Monthly</a></li>
-        <li><a href="#" onclick="fetchSalesStats('halfannually')">Halfannually</a></li>
-        <li><a href="#" onclick="fetchSalesStats('annually')">Annually</a></li>
-      </ul>
+  <div id="sales-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('sales-popup')">&times;</span>
+      <h2>Sales Stats</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchStats('fetchSalesStats.php', 'sales', 'Daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchStats('fetchSalesStats.php', 'sales', 'Weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchSalesStats.php', 'sales', 'Monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchSalesStats.php', 'sales', 'Halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchStats('fetchSalesStats.php', 'sales', 'Annually')">Annually</a></li>
+        </ul>
+      </div>
+      <div id="sales-popup-content-placeholder">
+        <!-- Sales stats details will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('sales')">Download</button>
     </div>
-    <div id="sales-popup-content-placeholder">
-      <!-- Sales stats details will be displayed here -->
-    </div>
-    <button class="download-btn">Download</button>
   </div>
-</div>
 
-<!-- Popup for profit stats -->
-<div id="profit-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('profit-popup')">&times;</span>
-    <h2>Profit Stats</h2>
-    <div class="period-options">
-      <p>Choose time period:</p>
-      <ul>
-        <li><a href="#" onclick="fetchProfitStats('daily')">Daily</a></li>
-        <li><a href="#" onclick="fetchProfitStats('weekly')">Weekly</a></li>
-        <li><a href="#" onclick="fetchProfitStats('monthly')">Monthly</a></li>
-        <li><a href="#" onclick="fetchProfitStats('halfannually')">Halfannually</a></li>
-        <li><a href="#" onclick="fetchProfitStats('annually')">Annually</a></li>
-      </ul>
+  <!-- Popup for profit stats -->
+  <div id="profit-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('profit-popup')">&times;</span>
+      <h2>Profit Stats</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchStats('fetchProfitStats.php', 'profit', 'Daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchStats('fetchProfitStats.php', 'profit', 'Weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchProfitStats.php', 'profit', 'Monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchProfitStats.php', 'profit', 'Halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchStats('fetchProfitStats.php', 'profit', 'Annually')">Annually</a></li>
+        </ul>
+      </div>
+      <div id="profit-popup-content-placeholder">
+        <!-- Profit stats details will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('profit')">Download</button>
     </div>
-    <div id="profit-popup-content-placeholder">
-      <!-- Profit stats details will be displayed here -->
-    </div>
-    <button class="download-btn">Download</button>
   </div>
-</div>
 
-<!-- Popup for staff performance -->
-<div id="staff-performance-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('staff-performance-popup')">&times;</span>
-    <h2>Staff Performance</h2>
-    <div class="period-options">
-      <p>Choose time period:</p>
-      <ul>
-        <li><a href="#" onclick="fetchStaffPerformance('daily')">Daily</a></li>
-        <li><a href="#" onclick="fetchStaffPerformance('weekly')">Weekly</a></li>
-        <li><a href="#" onclick="fetchStaffPerformance('monthly')">Monthly</a></li>
-        <li><a href="#" onclick="fetchStaffPerformance('halfannually')">Halfannually</a></li>
-        <li><a href="#" onclick="fetchStaffPerformance('annually')">Annually</a></li>
-      </ul>
+  <!-- Popup for staff performance -->
+  <div id="staff-performance-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('staff-performance-popup')">&times;</span>
+      <h2>Staff Performance</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchStats('fetchStaffPerformanceStats.php', 'staff-performance', 'Daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchStats('fetchStaffPerformanceStats.php', 'staff-performance', 'Weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchStaffPerformanceStats.php', 'staff-performance', 'Monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchStaffPerformanceStats.php', 'staff-performance', 'Halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchStats('fetchStaffPerformanceStats.php', 'staff-performance', 'Annually')">Annually</a></li>
+        </ul>
+      </div>
+      <div id="staff-performance-popup-content-placeholder">
+        <!-- Staff performance stats details will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('staff-performance')">Download</button>
     </div>
-    <div id="staff-performance-popup-content-placeholder">
-      <!-- Staff performance details will be displayed here -->
-    </div>
-    <button class="download-btn">Download</button>
   </div>
-</div>
 
-<!-- Popup for true profit -->
-<div id="true-profit-popup" class="popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup('true-profit-popup')">&times;</span>
-    <h2>True Profit</h2>
-    <div class="period-options">
-      <p>Choose time period:</p>
-      <ul>
-        <li><a href="#" onclick="fetchTrueProfit('daily')">Daily</a></li>
-        <li><a href="#" onclick="fetchTrueProfit('weekly')">Weekly</a></li>
-        <li><a href="#" onclick="fetchTrueProfit('monthly')">Monthly</a></li>
-        <li><a href="#" onclick="fetchTrueProfit('halfannually')">Halfannually</a></li>
-        <li><a href="#" onclick="fetchTrueProfit('annually')">Annually</a></li>
-      </ul>
+  <!-- Popup for true profit -->
+  <div id="true-profit-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('true-profit-popup')">&times;</span>
+      <h2>True Profit</h2>
+      <div class="period-options">
+        <p>Choose time period:</p>
+        <ul>
+          <li><a href="#" onclick="fetchStats('fetchTrueProfitStats.php', 'true-profit', 'Daily')">Daily</a></li>
+          <li><a href="#" onclick="fetchStats('fetchTrueProfitStats.php', 'true-profit', 'Weekly')">Weekly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchTrueProfitStats.php', 'true-profit', 'Monthly')">Monthly</a></li>
+          <li><a href="#" onclick="fetchStats('fetchTrueProfitStats.php', 'true-profit', 'Halfannually')">Halfannually</a></li>
+          <li><a href="#" onclick="fetchStats('fetchTrueProfitStats.php', 'true-profit', 'Annually')">Annually</a></li>
+        </ul>
+      </div>
+      <div id="true-profit-popup-content-placeholder">
+        <!-- True profit stats details will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('true-profit')">Download</button>
     </div>
-    <div id="true-profit-popup-content-placeholder">
-      <!-- True profit details will be displayed here -->
-    </div>
-    <button class="download-btn">Download</button>
   </div>
-</div>
 
+  <!-- Report Popup -->
+  <div id="report-popup" class="popup">
+    <div class="popup-content">
+      <span class="popup-close" onclick="closePopup('report-popup')">&times;</span>
+      <h2>Report</h2>
+      <div id="report-content-placeholder">
+        <!-- Responses from any popup and PHP will be displayed here -->
+      </div>
+      <button class="download-btn" onclick="downloadReport('all')">Download</button>
+      <button class="print-btn" onclick="printReport()">Print</button>
+    </div>
+  </div>
 
   <!-- jQuery library -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -248,51 +259,46 @@
       popup.style.display = 'none';
     }
 
-     // Function to fetch inventory stats
-  function fetchInventoryStats(period) {
-    // Call the respective PHP script based on the selected period
-    var phpScript = "fetchInventoryStats.php";
+    // Function to fetch stats (inventory, sales, profit, staff performance, true profit)
+    function fetchStats(phpScript, popupType, period) {
+      // Assuming you're using AJAX to call the PHP script
+      $.ajax({
+        url: phpScript,
+        type: 'POST', // Change to POST method if needed
+        data: { period: period },
+        success: function(response) {
+          // Handle the response from the PHP script
+          console.log(popupType + " stats for " + period + ": " + response);
+          // Update the respective popup's content placeholder
+          document.getElementById(popupType + "-popup-content-placeholder").innerHTML = response;
 
-    // Assuming you're using AJAX to call the PHP script
-    $.ajax({
-      url: phpScript,
-      type: 'POST', // Change to POST method
-      data: { period: period }, // Pass the selected period
-      success: function(response) {
-        // Handle the response from the PHP script
-        console.log("Inventory stats for " + period + ": " + response);
-        // Update the inventory stats details placeholder
-        document.getElementById("popup-content-placeholder").innerHTML = response;
-      },
-      error: function(xhr, status, error) {
-        // Handle errors
-        console.error("Error fetching inventory stats:", error);
-      }
-    });
-  }
-   
-
-// Similarly, you can implement the functions for other stat types
-
-
-    // Function to fetch sales stats
-    function fetchSalesStats() {
-      // Implement this function to fetch sales stats
+          // Add the response to the report
+          addToReport(popupType + " stats for " + period + ": " + response);
+        },
+        error: function(xhr, status, error) {
+          // Handle errors
+          console.error("Error fetching " + popupType + " stats:", error);
+        }
+      });
     }
 
-    // Function to fetch profit stats
-    function fetchProfitStats() {
-      // Implement this function to fetch profit stats
+    // Function to add response to the report
+    function addToReport(response) {
+      var reportContent = document.getElementById("report-content-placeholder");
+      var reportItem = document.createElement("div");
+      reportItem.innerHTML = response;
+      reportContent.appendChild(reportItem);
     }
 
-    // Function to fetch staff performance stats
-    function fetchStaffPerformanceStats() {
-      // Implement this function to fetch staff performance stats
+    // Function to download report
+    function downloadReport(type) {
+      // Implement download functionality based on the type
+      // For example, you can send the report content to a PHP script to generate a downloadable file
     }
 
-    // Function to fetch true profit stats
-    function fetchTrueProfitStats() {
-      // Implement this function to fetch true profit stats
+    // Function to print report
+    function printReport() {
+      window.print();
     }
   </script>
 </body>

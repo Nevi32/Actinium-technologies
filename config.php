@@ -1,7 +1,7 @@
 <?php
 $databaseConfig = [
     'host' => 'localhost',
-    'dbname' => 'Alvo',
+    'dbname' => 'StoreY11',
     'user' => 'nevill',
     'password' => '7683Nev!//'
 ];

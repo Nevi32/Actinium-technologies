@@ -1,80 +1,100 @@
 <?php
-require_once 'config.php';
+session_start(); // Start the session
 
-// Check if the request method is POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the period passed from the client side
-    $period = $_POST['period'];
+require_once 'config.php'; // Include the database configuration
 
-    try {
-        // Create a PDO connection
-        $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// Check if the user is logged in and has a store name in the session
+if (!isset($_SESSION['store_name'])) {
+    // If the store name is not set, return an error response
+    echo json_encode(array('error' => 'User not logged in or store name not set in session'));
+    exit();
+}
 
-        // Check the period and construct the query accordingly
-        switch ($period) {
-            case 'daily':
-                // Query to fetch the total value of inventory currently for the main store
-                $query = "SELECT SUM(i.quantity * i.price) AS total_value 
-                          FROM main_entry me 
-                          INNER JOIN inventory i ON me.main_entry_id = i.main_entry_id 
-                          WHERE DATE(me.record_date) = CURDATE() AND me.store_id = (SELECT store_id FROM stores WHERE store_name = :store_name)";
-                break;
-            case 'weekly':
-                // Query to fetch the total value of inventory for the past 7 days for the main store
-                $query = "SELECT SUM(i.quantity * i.price) AS total_value 
-                          FROM main_entry me 
-                          INNER JOIN inventory i ON me.main_entry_id = i.main_entry_id 
-                          WHERE me.record_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND me.store_id = (SELECT store_id FROM stores WHERE store_name = :store_name)";
-                break;
-            case 'monthly':
-                // Query to fetch the total value of inventory for the past month for the main store
-                $query = "SELECT SUM(i.quantity * i.price) AS total_value 
-                          FROM main_entry me 
-                          INNER JOIN inventory i ON me.main_entry_id = i.main_entry_id 
-                          WHERE MONTH(me.record_date) = MONTH(CURDATE()) AND YEAR(me.record_date) = YEAR(CURDATE()) AND me.store_id = (SELECT store_id FROM stores WHERE store_name = :store_name)";
-                break;
-            case 'halfannually':
-                // Query to fetch the total value of inventory for the past 6 months for the main store
-                $query = "SELECT SUM(i.quantity * i.price) AS total_value 
-                          FROM main_entry me 
-                          INNER JOIN inventory i ON me.main_entry_id = i.main_entry_id 
-                          WHERE me.record_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) AND me.store_id = (SELECT store_id FROM stores WHERE store_name = :store_name)";
-                break;
-            case 'annually':
-                // Query to fetch the total value of inventory for the past 12 months for the main store
-                $query = "SELECT SUM(i.quantity * i.price) AS total_value 
-                          FROM main_entry me 
-                          INNER JOIN inventory i ON me.main_entry_id = i.main_entry_id 
-                          WHERE me.record_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND me.store_id = (SELECT store_id FROM stores WHERE store_name = :store_name)";
-                break;
-            default:
-                // Invalid period
-                echo json_encode(["error" => "Invalid period selected"]);
-                exit();
-        }
+// Get the store name from the session
+$storeName = $_SESSION['store_name'];
 
-        // Prepare and execute the query
-        $stmt = $pdo->prepare($query);
-        $stmt->execute(['store_name' => $_SESSION['store_name']]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+// Get the period from the POST request
+$period = $_POST['period'];
 
-        if ($result) {
-            // Return the total value of inventory
-            echo json_encode(["total_value" => $result['total_value']]);
-        } else {
-            // No inventory data found
-            echo json_encode(["error" => "No inventory data found"]);
-        }
-    } catch (PDOException $e) {
-        // Log the error
-        error_log("Database Error: " . $e->getMessage(), 0);
-        // Return an error response
-        echo json_encode(["error" => "An error occurred while fetching inventory stats. Please try again later."]);
+// Echo the period fetched from the client side
+echo "Period fetched from client side: $period";
+
+// Initialize an array to store the inventory report
+$inventoryReport = array();
+
+// Connect to the database
+try {
+    $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Fetch inventory data for the main store
+    $stmtMain = $pdo->prepare("SELECT product_name, category, total_quantity, quantity_description FROM main_entry WHERE store_id IN (SELECT store_id FROM stores WHERE store_name = ? AND location_type = 'main_store')");
+    $stmtMain->execute([$storeName]);
+    $mainStoreInventory = $stmtMain->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add main store inventory to the report
+    $inventoryReport[$storeName]['main_store'] = $mainStoreInventory;
+
+    // Fetch inventory data for satellite stores if any
+    $stmtSatellite = $pdo->prepare("SELECT store_id, location_name FROM stores WHERE store_name = ? AND location_type = 'satellite'");
+    $stmtSatellite->execute([$storeName]);
+    $satelliteStores = $stmtSatellite->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($satelliteStores as $satelliteStore) {
+        $satelliteLocation = $satelliteStore['location_name'];
+
+        $stmtSatelliteInventory = $pdo->prepare("SELECT product_name, category, total_quantity, quantity_description FROM main_entry WHERE store_id IN (SELECT store_id FROM stores WHERE location_name = ?)");
+        $stmtSatelliteInventory->execute([$satelliteLocation]);
+        $satelliteInventory = $stmtSatelliteInventory->fetchAll(PDO::FETCH_ASSOC);
+
+        // Add satellite store inventory to the report
+        $inventoryReport[$storeName][$satelliteLocation] = $satelliteInventory;
     }
-} else {
-    // Method not allowed
-    http_response_code(405);
+
+    // Set the date filter based on the period
+    $dateFilter = "";
+    if ($period === "daily") {
+        $dateFilter = "AND DATE(record_date) = CURDATE()";
+    } elseif ($period === "weekly") {
+        $dateFilter = "AND record_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+    } elseif ($period === "monthly") {
+        $dateFilter = "AND record_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+    }
+
+    // Fetch new entries from the inventory table based on the period
+    $stmtNewEntries = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, inventory.quantity, main_entry.quantity_description, inventory.record_date, stores.location_name FROM inventory JOIN main_entry ON inventory.main_entry_id = main_entry.main_entry_id JOIN stores ON main_entry.store_id = stores.store_id WHERE main_entry.store_id IN (SELECT store_id FROM stores WHERE store_name = ?) $dateFilter");
+    $stmtNewEntries->execute([$storeName]);
+    $newEntries = $stmtNewEntries->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add new entries to the report
+    $inventoryReport['new_entries'] = $newEntries;
+
+    // Fetch pending orders
+    $stmtPendingOrders = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, inventory_orders.quantity, main_entry.quantity_description, inventory_orders.destination_store_id FROM inventory_orders JOIN main_entry ON inventory_orders.main_entry_id = main_entry.main_entry_id WHERE inventory_orders.main_store_id IN (SELECT store_id FROM stores WHERE store_name = ?) AND inventory_orders.cleared = 0");
+    $stmtPendingOrders->execute([$storeName]);
+    $pendingOrders = $stmtPendingOrders->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add pending orders to the report
+    $inventoryReport['pending_orders'] = $pendingOrders;
+
+    // Prepare the response
+    $response = array(
+        'success' => true,
+        'message' => "{$storeName} {$period} inventory report",
+        'data' => $inventoryReport
+    );
+
+    // Encode the response as JSON and return it
+    echo json_encode($response, JSON_PRETTY_PRINT);
+} catch (PDOException $e) {
+    // Handle database errors
+    $response = array(
+        'success' => false,
+        'error' => 'Database error: ' . $e->getMessage()
+    );
+
+    // Encode the error response as JSON and return it
+    echo json_encode($response);
 }
 ?>
 
