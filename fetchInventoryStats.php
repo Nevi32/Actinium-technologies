@@ -16,9 +16,6 @@ $storeName = $_SESSION['store_name'];
 // Get the period from the POST request
 $period = $_POST['period'];
 
-// Echo the period fetched from the client side
-echo "Period fetched from client side: $period";
-
 // Initialize an array to store the inventory report
 $inventoryReport = array();
 
@@ -76,16 +73,21 @@ try {
 
     // Add pending orders to the report
     $inventoryReport['pending_orders'] = $pendingOrders;
-
     // Prepare the response
-    $response = array(
-        'success' => true,
-        'message' => "{$storeName} {$period} inventory report",
-        'data' => $inventoryReport
-    );
+$response = array(
+    'success' => true,
+    'message' => "{$storeName} {$period} inventory report",
+    'data' => array(
+        $storeName => $inventoryReport[$storeName],
+        'new_entries' => $newEntries,
+        'pending_orders' => $pendingOrders
+    )
+);
 
-    // Encode the response as JSON and return it
-    echo json_encode($response, JSON_PRETTY_PRINT);
+// Encode the response as JSON and return it
+echo json_encode($response, JSON_PRETTY_PRINT);
+
+
 } catch (PDOException $e) {
     // Handle database errors
     $response = array(

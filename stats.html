@@ -184,7 +184,7 @@
   <!-- jQuery library -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    // Function to handle user selection
+   // Function to handle user selection
     function submitSelection() {
       var userInput = document.getElementById("user-input").value;
       sendMessage("You selected: " + userInput);
@@ -202,6 +202,12 @@
       } else {
         sendMessage("Invalid selection. Please choose 1, 2, 3, 4, or 5.");
       }
+    }
+
+    // Function to open popup
+    function openPopup(popupId) {
+      var popup = document.getElementById(popupId);
+      popup.style.display = 'block';
     }
 
     // Function to open inventory popup
@@ -247,12 +253,6 @@
       chatWindow.appendChild(chatItem);
     }
 
-    // Function to open popup
-    function openPopup(popupId) {
-      var popup = document.getElementById(popupId);
-      popup.style.display = 'block';
-    }
-
     // Function to close popup
     function closePopup(popupId) {
       var popup = document.getElementById(popupId);
@@ -261,22 +261,15 @@
 
     // Function to fetch stats (inventory, sales, profit, staff performance, true profit)
     function fetchStats(phpScript, popupType, period) {
-      // Assuming you're using AJAX to call the PHP script
       $.ajax({
         url: phpScript,
-        type: 'POST', // Change to POST method if needed
+        type: 'POST',
         data: { period: period },
         success: function(response) {
-          // Handle the response from the PHP script
-          console.log(popupType + " stats for " + period + ": " + response);
-          // Update the respective popup's content placeholder
           document.getElementById(popupType + "-popup-content-placeholder").innerHTML = response;
-
-          // Add the response to the report
           addToReport(popupType + " stats for " + period + ": " + response);
         },
         error: function(xhr, status, error) {
-          // Handle errors
           console.error("Error fetching " + popupType + " stats:", error);
         }
       });
@@ -293,13 +286,13 @@
     // Function to download report
     function downloadReport(type) {
       // Implement download functionality based on the type
-      // For example, you can send the report content to a PHP script to generate a downloadable file
     }
 
     // Function to print report
     function printReport() {
       window.print();
     }
+
   </script>
 </body>
 </html>
