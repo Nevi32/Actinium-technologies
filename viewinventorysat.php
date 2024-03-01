@@ -13,183 +13,192 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body,
-        html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
+     /* General styles */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
 
-        #dashboard {
-            display: flex;
-            height: 100vh; /* Use viewport height to make sure the layout covers the entire screen */
-        }
+/* Dashboard styles */
+#dashboard {
+    display: flex;
+    min-height: 100vh;
+}
 
-        #sidebar {
-            width: 150px;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            position: fixed; /* Fix the sidebar position */
-            height: 100%;
-        }
+/* Sidebar styles */
+#sidebar {
+    width: 150px;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: fixed;
+    height: 100%;
+}
 
-        #content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
-        }
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
 
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
+#sidebar i {
+    margin-right: 10px;
+}
 
-        #sidebar i {
-            margin-right: 10px;
-        }
+#sidebar a:not(:last-child) {
+    margin-bottom: 20px;
+}
 
-        #sidebar a:not(:last-child) {
-            margin-bottom: 100px;
-        }
+#welcome-message {
+    margin-bottom: 20px;
+}
 
-        #user-info {
-            display: none;
-            color: #fff;
-            margin-top: 5px;
-            padding: 10px;
-            background-color: #555;
-            border-radius: 15px;
-        }
+#user-info {
+    display: none;
+    color: #fff;
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #555;
+    border-radius: 15px;
+}
 
-        #content {
-            flex: 1;
-            padding: 20px;
-        }
+/* Content styles */
+#content {
+    flex: 1;
+    padding: 20px;
+}
 
-        #main-entry-table-container {
-            margin-top: 20px;
-        }
+#main-entry-table-container {
+    margin-top: 20px;
+}
 
-        #main-entry-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+#main-entry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-        #main-entry-table th,
-        #main-entry-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+#main-entry-table th,
+#main-entry-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-        #main-entry-table th {
-            background-color: #3498db;
-            color: #fff;
-        }
+#main-entry-table th {
+    background-color: #3498db;
+    color: #fff;
+}
 
-        #main-entry-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+#main-entry-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-        .more-info-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+.more-info-button,
+.download-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 2px 2px;
+    cursor: pointer;
+}
 
-        .download-button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+.download-button {
+    background-color: #3498db;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-height: 70%;
-            overflow-y: auto;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-height: 70%;
+    overflow-y: auto;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .modal-header {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-        }
+.modal-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+}
 
-        .modal-body {
-            padding: 2px 16px;
-        }
+.modal-body {
+    padding: 2px 16px;
+}
 
-        #search-bar {
-            margin-top: 20px;
-        }
+/* Search bar styles */
+#search-bar {
+    margin-top: 20px;
+}
 
-        #search-bar label {
-            margin-right: 10px;
-        }
+#search-bar label {
+    margin-right: 10px;
+}
 
-        #search-bar input {
-            margin-right: 10px;
-        }
+#search-bar input {
+    margin-right: 10px;
+}
 
-        #search-bar button {
-            cursor: pointer;
-        }
+#search-bar button {
+    cursor: pointer;
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+    /* Adjust sidebar width for smaller screens */
+    #sidebar {
+        width: 120px;
+    }
+
+    /* Adjust margin-left of content area for smaller screens */
+    #content {
+        margin-left: 120px;
+    }
+}
+
+
     </style>
 </head>
 

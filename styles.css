@@ -5,6 +5,7 @@ body {
   padding: 0;
   display: flex;
 }
+
 #sidebar {
   width: 200px;
   background-color: #333;
@@ -42,7 +43,6 @@ body {
   background-color: #555;
   border-radius: 15px;
 }
-
 
 /* Content styles */
 #content {
@@ -174,5 +174,24 @@ body {
   margin-top: 10px;
   cursor: pointer;
   border-radius: 5px;
+}
+
+/* Media query for responsiveness */
+@media screen and (max-width: 768px) {
+  /* Adjust sidebar width for smaller screens */
+  #sidebar {
+    width: 120px;
+  }
+
+  /* Adjust padding-left of content area for smaller screens */
+  #content {
+    padding-left: 140px;
+  }
+
+  /* Adjust left position of input box for smaller screens */
+  .InputBox {
+    left: 140px;
+    width: calc(100% - 170px); /* Adjusted for sidebar width and padding */
+  }
 }
 

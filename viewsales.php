@@ -13,153 +13,174 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
+    body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
 
-        #sidebar {
-            width: 150px;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            position: fixed; /* Fix the sidebar position */
-            height: 100%;
-        }
+#sidebar {
+    width: 20%; /* Adjusted to percentage for responsiveness */
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: fixed;
+    height: 100%;
+}
 
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
 
-        #sidebar i {
-            margin-right: 10px;
-        }
+#sidebar i {
+    margin-right: 10px;
+}
 
-        #sidebar a:not(:last-child) {
-            margin-bottom: 100px;
-        }
+#sidebar a:not(:last-child) {
+    margin-bottom: 20px; /* Adjusted for better spacing */
+}
 
-        #content {
-            padding: 20px;
-            margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
-        }
+#content {
+    padding: 20px;
+    margin-left: 20%; /* Adjusted to match sidebar width */
+}
 
-        #main-entry-table-container {
-            margin-top: 20px;
-        }
+#main-entry-table-container {
+    margin-top: 20px;
+}
 
-        #main-entry-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+#main-entry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-        #main-entry-table th,
-        #main-entry-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+#main-entry-table th,
+#main-entry-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-        #main-entry-table th {
-            background-color: #3498db;
-            color: #fff;
-        }
+#main-entry-table th {
+    background-color: #3498db;
+    color: #fff;
+}
 
-        #main-entry-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+#main-entry-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-        .more-info-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+.more-info-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 2px 2px;
+    cursor: pointer;
+}
 
-        /* Modal CSS */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
+/* Modal CSS */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .modal-header {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-        }
+.modal-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+}
 
-        .modal-body {
-            padding: 2px 16px;
-        }
+.modal-body {
+    padding: 2px 16px;
+}
 
-        .modal-footer {
-            padding: 2px 16px;
-            background-color: #f2f2f2;
-        }
+.modal-footer {
+    padding: 2px 16px;
+    background-color: #f2f2f2;
+}
 
-        .download-button {
-            background-color: #008CBA;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+.download-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 2px 2px;
+    cursor: pointer;
+}
 
-        .download-button:hover {
-            background-color: #005e80;
-        }
+.download-button:hover {
+    background-color: #005e80;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    #sidebar {
+        width: 30%;
+    }
+    #content {
+        margin-left: 30%;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    #sidebar {
+        width: 40%;
+    }
+    #content {
+        margin-left: 40%;
+    }
+}
+
+
 
     </style>
 </head>

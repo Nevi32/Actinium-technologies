@@ -13,164 +13,167 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-       /* CSS styles go here */
-        body,
-        html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
+     /* General styles */
+body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
 
-        #dashboard {
-            display: flex;
-            height: 100vh;
-        }
+/* Sidebar styles */
+#dashboard {
+    display: flex;
+    height: 100vh;
+}
 
-        #sidebar {
-            width: 150px;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            position: fixed;
-            height: 100%;
-        }
+#sidebar {
+    width: 150px;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: fixed;
+    height: 100%;
+}
 
-        #content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 200px;
-        }
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
 
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
+#sidebar i {
+    margin-right: 10px;
+}
 
-        #sidebar i {
-            margin-right: 10px;
-        }
+/* Adjust sidebar links margin */
+#sidebar a:not(:last-child) {
+    margin-bottom: 100px;
+}
 
-          #sidebar a:not(:last-child) {
-            margin-bottom: 100px;
-        }
+/* Content area styles */
+#content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 200px; /* Adjust content area margin to accommodate the fixed sidebar */
+}
 
-        /* Style for modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .modal-header {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-        }
+.modal-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+}
 
-        .modal-body {
-            padding: 2px 16px;
-        }
+.modal-body {
+    padding: 2px 16px;
+}
 
-        .modal-footer {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-            text-align: center;
-        }
+.modal-footer {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+    text-align: center;
+}
 
-        /* Style for download button */
-        .download-button {
-            background-color: #008CBA;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+/* Download button styles */
+.download-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+}
 
-        /* Style for sales table */
-        #sales-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+/* Sales table styles */
+#sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        #sales-table th,
-        #sales-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+#sales-table th,
+#sales-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-        #sales-table th {
-            background-color: #3498db;
-            color: #fff;
-        }
+#sales-table th {
+    background-color: #3498db;
+    color: #fff;
+}
 
-        #sales-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+#sales-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-        /* Style for satellite buttons */
-        .satellite-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+/* Satellite button styles */
+.satellite-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+}
 
-        /* Hide satellite buttons initially */
-        .satellite-button-container {
-            display: none;
-        }
+/* Hide satellite buttons initially */
+.satellite-button-container {
+    display: none;
+}
+
 
     </style>
 </head>

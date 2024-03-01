@@ -148,10 +148,54 @@ body, html {
   cursor: pointer;
 }
 
-/* ... (additional styles if needed) ... */
+/* Media queries for responsiveness */
+
+@media (max-width: 800px) {
+  #sidebar {
+    width: 150px;
+    padding: 15px;
+  }
+
+  #content {
+    margin-left: 180px;
+  }
+
+  .card, .stock-satellite-stores {
+    width: calc(50% - 15px);
+  }
+}
+
+@media (max-width: 600px) {
+  #sidebar {
+    width: 100px;
+    padding: 10px;
+  }
+
+  #content {
+    margin-left: 130px;
+  }
+
+  .card, .stock-satellite-stores {
+    width: calc(100% - 10px);
+  }
+}
+
+@media (max-width: 400px) {
+  #sidebar {
+    display: none;
+  }
+
+  #content {
+    margin: 20px;
+  }
+
+  .card, .stock-satellite-stores {
+    width: calc(100% - 20px);
+  }
+}
+</style>
 
 
-  </style>
 </head>
 <body>
   <?php

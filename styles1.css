@@ -21,7 +21,8 @@ html, body {
 }
 
 .wrapper {
-  width: 380px;
+  width: 90%; /* Adjust width as needed */
+  max-width: 380px; /* Maximum width for larger screens */
   background: #fff;
   border-radius: 15px;
   box-shadow: 0px 15px 20px rgba(0,0,0,0.1);
@@ -189,5 +190,12 @@ form .signup-link a:hover {
 
 .popup-message .close-btn:hover {
   color: #fff;
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 600px) {
+  .wrapper {
+    width: 90%; /* Adjust width as needed */
+  }
 }
 

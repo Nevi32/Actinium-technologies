@@ -1,15 +1,17 @@
-/* styles.css */
+/* General styles */
 body, html {
   height: 100%;
   margin: 0;
   font-family: 'Arial', sans-serif;
 }
 
+/* Dashboard styles */
 #dashboard {
   display: flex;
   height: 100%;
 }
 
+/* Sidebar styles */
 #sidebar {
   width: 200px;
   background-color: #333;
@@ -48,6 +50,7 @@ body, html {
   border-radius: 15px;
 }
 
+/* Content styles */
 #content {
   flex: 1;
   padding: 20px;
@@ -57,9 +60,9 @@ body, html {
 
 .welcome-message {
   margin-bottom: 25px;
-  font-size: 2em; /* Increase font size for a bolder look */
-  font-weight: bold; /* Make the text bold */
-  color: #333; /* Adjust the color to your preference */
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
 }
 
 .row {
@@ -77,7 +80,7 @@ body, html {
   text-align: center;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out;
-  background-color: #f0f0f0; /* Change to desired background color */
+  background-color: #f0f0f0;
 }
 
 .card:hover {
@@ -99,13 +102,7 @@ body, html {
   cursor: pointer;
 }
 
-/* styles.css */
-/* Your existing CSS styles here */
-
-/* styles.css */
-
-/* Your existing CSS styles here */
-
+/* Popup styles */
 .popup {
   display: none;
   position: fixed;
@@ -172,43 +169,16 @@ button:last-child {
   margin-right: 0;
 }
 
-/* Add this CSS code to your existing SRstyles.css or create a new CSS file */
-
-/* Expenses Pop-up Form */
-#expenses-popup .popup-content {
-    max-width: 400px;
-}
-
-#expenses-popup label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-#expenses-popup input[type="text"],
-#expenses-popup input[type="number"] {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-#expenses-popup button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#expenses-popup button[type="submit"]:hover {
-    background-color: #45a049;
-}
-
-/* Overlay for Expenses Pop-up */
-#expenses-popup .overlay {
-    background-color: rgba(0, 0, 0, 0.5);
+/* Media query for responsiveness */
+@media screen and (max-width: 768px) {
+  /* Adjust sidebar width for smaller screens */
+  #sidebar {
+    width: 120px;
+  }
+  
+  /* Adjust margin-left of content area for smaller screens */
+  #content {
+    margin-left: 140px;
+  }
 }
 

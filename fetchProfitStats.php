@@ -7,27 +7,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve period from client side
     $period = $_POST['period'];
 
-    // Define period interval based on the period selected
+    // Define period interval and start date based on the period selected
     switch ($period) {
         case 'Daily':
             $interval = '1 DAY';
+            $startDate = date('Y-m-d 00:00:00'); // Start of today
             break;
         case 'Weekly':
             $interval = '7 DAY';
+            $startDate = date('Y-m-d 00:00:00', strtotime('-7 days')); // 7 days ago
             break;
         case 'Monthly':
             $interval = '30 DAY';
+            $startDate = date('Y-m-d 00:00:00', strtotime('-1 month')); // 1 month ago
             break;
         case 'Halfannually':
             $interval = '6 MONTH';
+            $startDate = date('Y-m-d 00:00:00', strtotime('-6 months')); // 6 months ago
             break;
         case 'Annually':
             $interval = '1 YEAR';
+            $startDate = date('Y-m-d 00:00:00', strtotime('-1 year')); // 1 year ago
             break;
         default:
             // Invalid period
+            $response = array(
+                'success' => false,
+                'error' => 'Invalid period.'
+            );
+            // Return error response
             header("HTTP/1.1 400 Bad Request");
-            echo json_encode(array('error' => 'Invalid period.'));
+            echo json_encode($response);
             exit();
     }
 
@@ -36,12 +46,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        // Get current date from the database
+        $currentDateStmt = $pdo->query("SELECT CURRENT_DATE()");
+        $currentDate = $currentDateStmt->fetchColumn();
+
+        // Initialize an array to store total profits for each store
+        $totalProfits = array();
+
         // Start session
         session_start();
 
         // Check if user is logged in and get store information from session
         if (!isset($_SESSION['store_name'])) {
             // Redirect to login page if user is not logged in
+            $response = array(
+                'success' => false,
+                'error' => 'Session expired. Please log in again.'
+            );
+            // Return error response
             header("Location: login.html?message=Session%20expired.%20Please%20log%20in%20again.&type=error");
             exit();
         }
@@ -49,16 +71,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Fetch store name from session
         $storeName = $_SESSION['store_name'];
 
-        // Query stores table to check if there are satellite stores
+        // Query stores table to check if the store is a main store or satellite store
         $storeStmt = $pdo->prepare("SELECT * FROM stores WHERE store_name = :store_name");
         $storeStmt->execute([':store_name' => $storeName]);
         $storeData = $storeStmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check if store has satellite stores
-        if ($storeData && $storeData['location_type'] === 'main_store') {
+        if (!$storeData) {
+            // Store not found
+            $response = array(
+                'success' => false,
+                'error' => 'Store not found.'
+            );
+            // Return error response
+            header("HTTP/1.1 404 Not Found");
+            echo json_encode($response);
+            exit();
+        }
+
+        // Check if the store is a main store or satellite store
+        if ($storeData['location_type'] === 'main_store') {
             // If main store, fetch satellite store IDs and locations
-            $satelliteStoresStmt = $pdo->prepare("SELECT store_id, location_name FROM stores WHERE main_store_id = :main_store_id");
-            $satelliteStoresStmt->execute([':main_store_id' => $storeData['store_id']]);
+            $satelliteStoresStmt = $pdo->prepare("SELECT store_id, location_name FROM stores WHERE location_type = 'satellite'");
+            $satelliteStoresStmt->execute();
             $satelliteStoresData = $satelliteStoresStmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             // If satellite store, set satellite store ID and location
@@ -70,13 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
-        // Get current date from the database
-        $currentDateStmt = $pdo->query("SELECT CURRENT_DATE()");
-        $currentDate = $currentDateStmt->fetchColumn();
-
-        // Initialize total profit
-        $totalProfit = 0;
-
         // Iterate over each satellite store
         foreach ($satelliteStoresData as $satelliteStore) {
             // Fetch sales data for the period
@@ -86,6 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':current_date' => $currentDate
             ]);
             $salesData = $salesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Initialize total profit for the current store
+            $totalProfit = 0;
 
             // Iterate over each sale
             foreach ($salesData as $sale) {
@@ -103,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $category = $productData['category'];
 
                     // Query prices table to get selling price and profit
-                    $priceStmt = $pdo->prepare("SELECT price_id, selling_price, profit FROM prices WHERE product_name = :product_name AND category = :category");
+                    $priceStmt = $pdo->prepare("SELECT profit FROM prices WHERE product_name = :product_name AND category = :category");
                     $priceStmt->execute([
                         ':product_name' => $productName,
                         ':category' => $category
@@ -111,8 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $priceData = $priceStmt->fetch(PDO::FETCH_ASSOC);
 
                     if ($priceData) {
-                        $priceId = $priceData['price_id'];
-                        $sellingPrice = $priceData['selling_price'];
                         $profit = $priceData['profit'];
 
                         // Calculate profit for this sale
@@ -120,46 +148,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         // Add sale profit to total profit
                         $totalProfit += $saleProfit;
-
-                        // Query dynamicprices table for alternative prices (if any)
-                        $dynamicPriceStmt = $pdo->prepare("SELECT selling_price, profit FROM dynamicprices WHERE price_id = :price_id");
-                        $dynamicPriceStmt->execute([':price_id' => $priceId]);
-                        $dynamicPriceData = $dynamicPriceStmt->fetch(PDO::FETCH_ASSOC);
-
-                        if ($dynamicPriceData) {
-                            $dynamicSellingPrice = $dynamicPriceData['selling_price'];
-                            $dynamicProfit = $dynamicPriceData['profit'];
-
-                            // Calculate profit for this sale using dynamic price
-                            $dynamicSaleProfit = $quantitySold * $dynamicProfit;
-
-                            // Add dynamic sale profit to total profit
-                            $totalProfit += $dynamicSaleProfit;
-                        }
                     }
                 }
             }
+
+            // Add total profit for the current store to the array
+            $totalProfits[$satelliteStore['location_name']] = $totalProfit;
         }
+
+        // Sort total profits array by value (descending order)
+        arsort($totalProfits);
 
         // Construct the report data
         $reportData = array(
+            'period' => $period,
+            'current_date' => $currentDate,
+            'start_date' => $startDate,
             'store_name' => $storeName,
-            'total_profit' => $totalProfit
+            'total_profits' => $totalProfits
         );
 
-        // Return report data in JSON format
-        header('Content-Type: application/json');
+        // Encode the response as JSON and return it
         echo json_encode($reportData);
     } catch (PDOException $e) {
         // Log error and return error message
         error_log("Database Error: " . $e->getMessage(), 0);
-        header("HTTP/1.1 500 Internal Server Error");
-        echo json_encode(array('error' => 'An error occurred while fetching profit statistics. Please try again later.'));
+        $response = array(
+            'success' => false,
+            'error' => 'An error occurred while fetching profit statistics. Please try again later.'
+        );
+        // Encode the error response as JSON and return it
+        echo json_encode($response);
     }
 } else {
     // Return error if request method is not POST
-    header("HTTP/1.1 400 Bad Request");
-    echo json_encode(array('error' => 'Invalid request method.'));
+    $response = array(
+        'success' => false,
+        'error' => 'Invalid request method.'
+    );
+    // Encode the error response as JSON and return it
+    echo json_encode($response);
 }
 ?>
 

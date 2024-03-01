@@ -13,166 +13,169 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
+      body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
 
-        #dashboard {
-            display: flex;
-            height: 100vh;
-        }
+#dashboard {
+    display: flex;
+    min-height: 100vh; /* Using min-height to ensure the dashboard fills the viewport height */
+}
 
-        #sidebar {
-            width: 150px;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            position: fixed;
-            height: 100%;
-        }
+#sidebar {
+    width: 150px;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: fixed;
+    height: 100%;
+}
 
-        #content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 200px;
-        }
+#content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 150px; /* Adjusted margin for smaller screens */
+}
 
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
+#sidebar a {
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
 
-        #sidebar i {
-            margin-right: 10px;
-        }
+#sidebar i {
+    margin-right: 10px;
+}
 
-        #sidebar a:not(:last-child) {
-            margin-bottom: 100px;
-        }
+#sidebar a:not(:last-child) {
+    margin-bottom: 20px; /* Increased margin for better separation */
+}
 
-        #user-info {
-            display: none;
-            color: #fff;
-            margin-top: 5px;
-            padding: 10px;
-            background-color: #555;
-            border-radius: 15px;
-        }
+#welcome-message {
+    margin-bottom: 20px; /* Added margin for better separation */
+}
 
-        #content {
-            flex: 1;
-            padding: 20px;
-        }
+#user-info {
+    display: none;
+    color: #fff;
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #555;
+    border-radius: 15px;
+}
 
-        #main-entry-table-container {
-            margin-top: 20px;
-        }
+#content {
+    flex: 1;
+    padding: 20px;
+}
 
-        #satellite-buttons-container {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-        }
+#main-entry-table-container {
+    margin-top: 20px;
+}
 
-        #main-entry-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+#satellite-buttons-container {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
 
-        #main-entry-table th,
-        #main-entry-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+#main-entry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-        #main-entry-table th {
-            background-color: #3498db;
-            color: #fff;
-        }
+#main-entry-table th,
+#main-entry-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-        #main-entry-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+#main-entry-table th {
+    background-color: #3498db;
+    color: #fff;
+}
 
-        .more-info-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 12px;
-            margin: 2px 2px;
-            cursor: pointer;
-        }
+#main-entry-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
+.more-info-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 2px 2px;
+    cursor: pointer;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .modal-header {
-            padding: 2px 16px;
-            background-color: #5cb85c;
-            color: white;
-        }
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .modal-body {
-            padding: 2px 16px;
-        }
+.modal-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+}
 
-        .modal-content {
+.modal-body {
+    padding: 2px 16px;
+}
+
+.modal-content {
     /* Adjust max-height for scrolling */
     max-height: 400px;
     /* Enable scrolling */
     overflow-y: auto;
 }
 
-/* Style for download button */
 .download-button {
     background-color: #008CBA;
     color: white;
@@ -185,21 +188,24 @@ session_start();
     margin-top: 10px;
     cursor: pointer;
 }
-        #search-bar {
-            margin-top: 20px;
-        }
 
-        #search-bar label {
-            margin-right: 10px;
-        }
+#search-bar {
+    margin-top: 20px;
+}
 
-        #search-bar input {
-            margin-right: 10px;
-        }
+#search-bar label {
+    margin-right: 10px;
+}
 
-        #search-bar button {
-            cursor: pointer;
-        }
+#search-bar input {
+    margin-right: 10px;
+}
+
+#search-bar button {
+    cursor: pointer;
+}
+
+
         
     </style>
 </head>

@@ -17,115 +17,163 @@ if (!isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory Management</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-  <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-    }
+   <style>
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
 
-    /* Sidebar Styles */
-    #sidebar {
-      width: 200px;
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      position: fixed;
-      height: 100%;
-    }
+/* Sidebar Styles */
+#sidebar {
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;
+  height: 100%;
+}
 
-    #sidebar a {
-      color: #fff;
-      text-decoration: none;
-      margin-bottom: 15px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-    }
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
 
-    #sidebar i {
-      margin-right: 10px;
-    }
-    
-    #sidebar a:not(:last-child) {
+#sidebar i {
+  margin-right: 10px;
+}
+
+#sidebar a:not(:last-child) {
   margin-bottom: 100px;
 }
 
-    #user-info {
-      display: none;
-      color: #fff;
-      margin-top: 5px;
-      padding: 10px;
-      background-color: #555;
-      border-radius: 15px;
-    }
+#user-info {
+  display: none;
+  color: #fff;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #555;
+  border-radius: 15px;
+}
 
-    /* Navigation Bar Styles */
-    .navbar {
-      background-color: #fff;
-      padding: 10px 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      top: 0;
-      left: 240px; /* Adjusted to match sidebar width */
-      right: 0;
-    }
+/* Navigation Bar Styles */
+.navbar {
+  background-color: #fff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 240px; /* Adjusted to match sidebar width */
+  right: 0;
+}
 
-    .navbar-container {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
+.navbar-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 
-    .nav-button {
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 8px 15px;
-      margin-left: 10px;
-      cursor: pointer;
-    }
+.nav-button {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  margin-left: 10px;
+  cursor: pointer;
+}
 
-    .nav-button:first-child {
-      margin-left: 0;
-    }
+.nav-button:first-child {
+  margin-left: 0;
+}
 
-    .nav-button:hover {
-      background-color: #2980b9;
-    }
+.nav-button:hover {
+  background-color: #2980b9;
+}
 
-    /* Content Styles */
-    #content {
-      margin-left: 260px; /* Adjusted to match sidebar width */
-      padding-top: 60px; /* Adjusted to provide space from navbar */
-    }
+/* Content Styles */
+#content {
+  padding-top: 60px; /* Adjusted to provide space from navbar */
+}
 
-    /* Additional Styles */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+/* Additional Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
 
-    th {
-      background-color: #f2f2f2;
-    }
+th {
+  background-color: #f2f2f2;
+}
 
-    /* Additional style for the cleared button */
-    .cleared-button {
-      background-color: #4CAF50; /* Green */
-    }
+/* Additional style for the cleared button */
+.cleared-button {
+  background-color: #4CAF50; /* Green */
+}
 
-  </style>
+/* Media queries for responsiveness */
+
+@media (max-width: 800px) {
+  #sidebar {
+    width: 150px;
+    padding: 15px;
+  }
+
+  .navbar {
+    left: 180px;
+  }
+
+  #content {
+    margin-left: 200px; /* Adjusted to match sidebar width */
+  }
+}
+
+@media (max-width: 600px) {
+  #sidebar {
+    width: 100px;
+    padding: 10px;
+  }
+
+  .navbar {
+    left: 130px;
+  }
+
+  #content {
+    margin-left: 150px; /* Adjusted to match sidebar width */
+  }
+}
+
+@media (max-width: 400px) {
+  #sidebar {
+    display: none;
+  }
+
+  .navbar {
+    left: 0;
+    justify-content: center;
+  }
+
+  #content {
+    margin: 20px;
+  }
+}
+</style>
+
+
+
 </head>
 <body>
   <!-- Sidebar -->
