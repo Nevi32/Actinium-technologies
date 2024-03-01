@@ -319,7 +319,7 @@ function downloadReport(type) {
   document.body.removeChild(element);
 }
 
-// Function to format inventory report
+   // Function to format inventory report
 function formatInventoryReport(storeName) {
   // Retrieve inventory details
   var inventoryContent = document.getElementById("inventory-popup-content-placeholder").innerText;
@@ -342,6 +342,7 @@ function formatInventoryReport(storeName) {
     formattedReport += locationProducts + '\n\n';
   });
 
+  return formattedReport; // Return the formatted report content
 }
 
 // Function to format sales report
@@ -367,8 +368,8 @@ function formatSalesReport(storeName) {
     formattedReport += locationSalesData + '\n\n';
   });
 
+  return formattedReport; // Return the formatted report content
 }
-
 
 // Function to format profit report
 function formatProfitReport() {
@@ -383,7 +384,7 @@ function formatProfitReport() {
   // Format the report
   var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "Profit:\n" + profitContent;
 
-  return formattedReport;
+  return formattedReport; // Return the formatted report content
 }
 
 // Function to format staff performance report
@@ -409,6 +410,7 @@ function formatStaffPerformanceReport(storeName) {
     formattedReport += "**Location:** " + entry.location_name + "\n\n";
   });
 
+  return formattedReport; // Return the formatted report content
 }
 
 // Function to format true profit report
@@ -424,7 +426,7 @@ function formatTrueProfitReport() {
   // Format the report
   var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "True Profit:\n" + trueProfitContent;
 
-  return formattedReport;
+  return formattedReport; // Return the formatted report content
 }
 
 
