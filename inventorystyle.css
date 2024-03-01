@@ -213,37 +213,4 @@ body, html {
     z-index: 999;
 }
 
-/* Media queries for responsiveness */
-
-@media (max-width: 800px) {
-    #sidebar {
-        width: 180px;
-        padding: 15px;
-    }
-
-    #content {
-        margin-left: 200px; /* Adjusted for sidebar width */
-    }
-}
-
-@media (max-width: 600px) {
-    #sidebar {
-        width: 120px;
-        padding: 10px;
-    }
-
-    #content {
-        margin-left: 150px; /* Adjusted for sidebar width */
-    }
-}
-
-@media (max-width: 400px) {
-    #sidebar {
-        display: none;
-    }
-
-    #content {
-        margin: 20px;
-    }
-}
 

@@ -11,6 +11,8 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Sales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+     <!-- In the head section of your HTML files -->
+   <link rel="stylesheet" type="text/css" href="main.css">
 
     <style>
     body, html {
@@ -160,27 +162,6 @@ session_start();
 .download-button:hover {
     background-color: #005e80;
 }
-
-/* Responsive adjustments */
-@media screen and (max-width: 768px) {
-    #sidebar {
-        width: 30%;
-    }
-    #content {
-        margin-left: 30%;
-    }
-}
-
-@media screen and (max-width: 576px) {
-    #sidebar {
-        width: 40%;
-    }
-    #content {
-        margin-left: 40%;
-    }
-}
-
-
 
     </style>
 </head>

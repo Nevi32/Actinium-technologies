@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Resources Management</title>
     <link rel="stylesheet" href="SRstyles.css">
+    <!-- In the head section of your HTML files -->
+   <link rel="stylesheet" type="text/css" href="main.css">
+
 </head>
 <body>
 <?php

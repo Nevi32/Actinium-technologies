@@ -169,16 +169,4 @@ button:last-child {
   margin-right: 0;
 }
 
-/* Media query for responsiveness */
-@media screen and (max-width: 768px) {
-  /* Adjust sidebar width for smaller screens */
-  #sidebar {
-    width: 120px;
-  }
-  
-  /* Adjust margin-left of content area for smaller screens */
-  #content {
-    margin-left: 140px;
-  }
-}
 

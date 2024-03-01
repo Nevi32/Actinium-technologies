@@ -17,6 +17,9 @@ if (!isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory Management</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <!-- In the head section of your HTML files -->
+  <link rel="stylesheet" type="text/css" href="main.css">
+
    <style>
 body, html {
   height: 100%;
@@ -124,52 +127,6 @@ th {
   background-color: #4CAF50; /* Green */
 }
 
-/* Media queries for responsiveness */
-
-@media (max-width: 800px) {
-  #sidebar {
-    width: 150px;
-    padding: 15px;
-  }
-
-  .navbar {
-    left: 180px;
-  }
-
-  #content {
-    margin-left: 200px; /* Adjusted to match sidebar width */
-  }
-}
-
-@media (max-width: 600px) {
-  #sidebar {
-    width: 100px;
-    padding: 10px;
-  }
-
-  .navbar {
-    left: 130px;
-  }
-
-  #content {
-    margin-left: 150px; /* Adjusted to match sidebar width */
-  }
-}
-
-@media (max-width: 400px) {
-  #sidebar {
-    display: none;
-  }
-
-  .navbar {
-    left: 0;
-    justify-content: center;
-  }
-
-  #content {
-    margin: 20px;
-  }
-}
 </style>
 
 
