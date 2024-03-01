@@ -284,9 +284,149 @@
     }
 
     // Function to download report
-    function downloadReport(type) {
-      // Implement download functionality based on the type
-    }
+function downloadReport(type) {
+  var content = "";
+  var fileName = "";
+
+  // Get the report content based on the type
+  if (type === 'inventory') {
+    content = formatInventoryReport();
+    fileName = "inventory_report.txt";
+  } else if (type === 'sales') {
+    content = formatSalesReport();
+    fileName = "sales_report.txt";
+  } else if (type === 'profit') {
+    content = formatProfitReport();
+    fileName = "profit_report.txt";
+  } else if (type === 'staff-performance') {
+    content = formatStaffPerformanceReport();
+    fileName = "staff_performance_report.txt";
+  } else if (type === 'true-profit') {
+    content = formatTrueProfitReport();
+    fileName = "true_profit_report.txt";
+  } else if (type === 'all') {
+    content = combineAllReports();
+    fileName = "combined_report.txt";
+  }
+
+  // Trigger the download
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+  element.setAttribute('download', fileName);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+// Function to format inventory report
+function formatInventoryReport(storeName) {
+  // Retrieve inventory details
+  var inventoryContent = document.getElementById("inventory-popup-content-placeholder").innerText;
+
+  // Split the inventory content by location
+  var inventoryByLocation = inventoryContent.split('], ');
+  var formattedReport = '';
+
+  // Format the report for each location
+  inventoryByLocation.forEach(function(locationInventory) {
+    var locationData = locationInventory.split('[');
+    var locationName = locationData[0].trim();
+    var locationProducts = locationData[1];
+
+    formattedReport += "**" + locationName + "**\n";
+
+    // Remove unnecessary characters and format product details
+    locationProducts = locationProducts.replace(/[\[\]{}"]/g, '').replace(/,/g, '\n');
+
+    formattedReport += locationProducts + '\n\n';
+  });
+
+}
+
+// Function to format sales report
+function formatSalesReport(storeName) {
+  // Retrieve sales details
+  var salesContent = document.getElementById("sales-popup-content-placeholder").innerText;
+
+  // Split the sales content by location
+  var salesByLocation = salesContent.split('], ');
+  var formattedReport = '';
+
+  // Format the report for each location
+  salesByLocation.forEach(function(locationSales) {
+    var locationData = locationSales.split('[');
+    var locationName = locationData[0].trim();
+    var locationSalesData = locationData[1];
+
+    formattedReport += "**" + locationName + "**\n";
+
+    // Remove unnecessary characters and format sales data
+    locationSalesData = locationSalesData.replace(/[\[\]{}"]/g, '').replace(/,/g, '\n');
+
+    formattedReport += locationSalesData + '\n\n';
+  });
+
+}
+
+
+// Function to format profit report
+function formatProfitReport() {
+  // Retrieve profit details
+  var storeName = "Store Name: Example Store";
+  var mainStoreDetails = "Main Store: Example Main Store, Location: Example Location";
+  var profitContent = document.getElementById("profit-popup-content-placeholder").innerText;
+
+  // Remove JSON formatting
+  profitContent = profitContent.replace(/{|}/g, '');
+
+  // Format the report
+  var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "Profit:\n" + profitContent;
+
+  return formattedReport;
+}
+
+// Function to format staff performance report
+function formatStaffPerformanceReport(storeName) {
+  // Retrieve staff performance details
+  var staffPerformanceContent = document.getElementById("staff-performance-popup-content-placeholder").innerText;
+
+  // Parse the staff performance data
+  var staffPerformanceData = JSON.parse(staffPerformanceContent).data.staff_performance;
+
+  // Sort staff performance data by total sales in descending order
+  staffPerformanceData.sort(function(a, b) {
+    return parseFloat(b.total_sales) - parseFloat(a.total_sales);
+  });
+
+  // Format the report
+  var formattedReport = "**Staff Performance Report**\n\n";
+
+  // Iterate over each staff performance entry and format it
+  staffPerformanceData.forEach(function(entry) {
+    formattedReport += "**Username:** " + entry.username + "\n";
+    formattedReport += "**Total Sales:** $" + parseFloat(entry.total_sales).toFixed(2) + "\n";
+    formattedReport += "**Location:** " + entry.location_name + "\n\n";
+  });
+
+}
+
+// Function to format true profit report
+function formatTrueProfitReport() {
+  // Retrieve true profit details
+  var storeName = "Store Name: Example Store";
+  var mainStoreDetails = "Main Store: Example Main Store, Location: Example Location";
+  var trueProfitContent = document.getElementById("true-profit-popup-content-placeholder").innerText;
+
+  // Remove JSON formatting
+  trueProfitContent = trueProfitContent.replace(/{|}/g, '');
+
+  // Format the report
+  var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "True Profit:\n" + trueProfitContent;
+
+  return formattedReport;
+}
+
 
     // Function to print report
     function printReport() {
