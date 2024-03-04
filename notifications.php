@@ -128,51 +128,60 @@ body, html {
     </div>
   </div>
   <script>
-    // JavaScript functions here
-    function toggleUserInfo() {
-      var userInfo = document.getElementById('user-info');
-      userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
-    }
-    // Function to handle redirecting to other pages
-    function redirectToPage(page) {
-      window.location.href = page;
-    }
-    // Function to request permission for notifications
-    function requestNotificationPermission() {
-      if ('Notification' in window) {
-        Notification.requestPermission().then(function(permission) {
-          if (permission === 'granted') {
-            console.log('Notification permission granted');
-          }
-        });
-      }
-    }
-    // Function to handle incoming push notifications
-    function handlePushNotification(notification) {
-      alert(notification.subject + ': ' + notification.message);
-    }
-    // Function to fetch notifications from the server
-    function fetchNotifications() {
-      // Replace this with your actual AJAX call
-      console.log('Fetching notifications...');
-    }
-    // Check notification permission and show content accordingly
-    document.addEventListener('DOMContentLoaded', function() {
-      if ('Notification' in window) {
-        if (Notification.permission === 'default') {
-          document.getElementById('allowNotificationsButton').style.display = 'block';
-        } else if (Notification.permission === 'granted') {
-          fetchNotifications();
-        }
+   // JavaScript functions here
+function toggleUserInfo() {
+  var userInfo = document.getElementById('user-info');
+  userInfo.style.display = (userInfo.style.display === 'none') ? 'block' : 'none';
+}
+
+// Function to request permission for notifications
+function requestNotificationPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(function(permission) {
+      if (permission === 'granted') {
+        // Send welcome notification when permission is granted
+        sendWelcomeNotification();
+        console.log('Notification permission granted');
       }
     });
-    // Event listener for the allow notifications button
-    document.getElementById('allowNotificationsButton').addEventListener('click', function() {
-      requestNotificationPermission();
-      this.style.display = 'none';
+  }
+}
+
+// Function to send welcome notification
+function sendWelcomeNotification() {
+  new Notification("Welcome to the AutoSmS notification platform! 🚀");
+}
+
+// Function to handle incoming push notifications
+function handlePushNotification(notification) {
+  alert(notification.subject + ': ' + notification.message);
+}
+
+// Function to fetch notifications from the server
+function fetchNotifications() {
+  // Replace this with your actual AJAX call
+  console.log('Fetching notifications...');
+}
+
+// Check notification permission and show content accordingly
+document.addEventListener('DOMContentLoaded', function() {
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      document.getElementById('allowNotificationsButton').style.display = 'block';
+    } else if (Notification.permission === 'granted') {
       fetchNotifications();
-    });
-  </script>
+    }
+  }
+});
+
+// Event listener for the allow notifications button
+document.getElementById('allowNotificationsButton').addEventListener('click', function() {
+  requestNotificationPermission();
+  this.style.display = 'none';
+  fetchNotifications();
+});
+
+</script> <!-- Include script.js file -->
 </body>
 </html>
 
