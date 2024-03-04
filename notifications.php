@@ -93,8 +93,6 @@ body, html {
   margin-bottom: 5px;
   color: #666;
 }
-
-
   </style>
 </head>
 <body>
@@ -149,8 +147,47 @@ function requestNotificationPermission() {
 
 // Function to send welcome notification
 function sendWelcomeNotification() {
-  new Notification("Welcome to the AutoSmS notification platform! 🚀");
+  var notificationOptions = {
+    body: "Welcome notif",
+    data: {
+      message: "Welcome to the AutoSmS notification platform! 🚀",
+      emoji: "🚀",
+      tag: "welcome"
+    }
+  };
+  new Notification("Welcome to the AutoSmS notification platform! 🚀", notificationOptions);
 }
+
+// Function to send check stats notification
+function sendCheckStatsNotification() {
+  var notificationOptions = {
+    body: "Stats Check",
+    data: {
+      message: "Time to check your store stats! Check your store's performance on the stats page and get well-detailed reports.",
+      tag: "check_stats"
+    }
+  };
+  new Notification("Stats Check", notificationOptions);
+}
+
+// Function to schedule the check stats notification at 6:00 PM
+function scheduleCheckStatsNotification() {
+  // Calculate the delay until 6:00 PM
+  var now = new Date();
+  var notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0); // 6:00 PM
+  var delay = notificationTime.getTime() - now.getTime();
+
+  // If the delay is negative, add 24 hours to schedule for the next day
+  if (delay < 0) {
+    delay += 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  }
+
+  // Schedule the notification
+  setTimeout(sendCheckStatsNotification, delay);
+}
+
+// Call the function to schedule the check stats notification
+scheduleCheckStatsNotification();
 
 // Function to handle incoming push notifications
 function handlePushNotification(notification) {
