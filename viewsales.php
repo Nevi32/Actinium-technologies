@@ -22,7 +22,7 @@ session_start();
 }
 
 #sidebar {
-    width: 20%; /* Adjusted to percentage for responsiveness */
+    width: 12%; /* Adjusted to percentage for responsiveness */
     background-color: #333;
     color: #fff;
     padding: 20px;
@@ -48,12 +48,12 @@ session_start();
 }
 
 #sidebar a:not(:last-child) {
-    margin-bottom: 20px; /* Adjusted for better spacing */
+    margin-bottom: 100px; /* Adjusted for better spacing */
 }
 
 #content {
     padding: 20px;
-    margin-left: 20%; /* Adjusted to match sidebar width */
+    margin-left: 15%; /* Adjusted to match sidebar width */
 }
 
 #main-entry-table-container {
@@ -61,7 +61,7 @@ session_start();
 }
 
 #main-entry-table {
-    width: 100%;
+    width: 90%;
     border-collapse: collapse;
     margin-top: 10px;
 }

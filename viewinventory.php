@@ -43,7 +43,7 @@ html {
 #content {
     flex: 1;
     padding: 20px;
-    margin-left: 150px; /* Adjusted margin for smaller screens */
+    margin-left: 200px; /* Adjusted margin for smaller screens */
 }
 
 #sidebar a {
@@ -60,7 +60,7 @@ html {
 }
 
 #sidebar a:not(:last-child) {
-    margin-bottom: 20px; /* Increased margin for better separation */
+    margin-bottom: 100px; /* Increased margin for better separation */
 }
 
 #welcome-message {

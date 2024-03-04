@@ -56,7 +56,7 @@ body, html {
 }
 
 #sidebar a:not(:last-child) {
-    margin-bottom: 20px;
+    margin-bottom: 100px;
 }
 
 #welcome-message {
@@ -76,10 +76,12 @@ body, html {
 #content {
     flex: 1;
     padding: 20px;
+    margin-left: 200px; /* Adjusted margin for moving it more to the right */
+
 }
 
 #main-entry-table-container {
-    margin-top: 20px;
+    margin-top: 2px;
 }
 
 #main-entry-table {
