@@ -41,10 +41,11 @@
         die("Could not connect to the database: " . $e->getMessage());
     }
 
-    // Fetch notifications
+    // Fetch notifications where is_sent status is false
     $notifications = [];
     try {
-        $stmt = $pdo->query("SELECT * FROM notifications ORDER BY timestamp DESC");
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE is_sent = 0 ORDER BY timestamp DESC");
+        $stmt->execute();
         $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         die("Error fetching notifications: " . $e->getMessage());
@@ -76,10 +77,36 @@
                 if (permission === 'granted') {
                     notifications.forEach(notification => {
                         showNotification(notification.subject + " 📢", notification.message);
+                        // Mark notification as sent in the database
+                        markNotificationAsSent(notification.notification_id);
                     });
                 }
+            });
+        }
+
+        function markNotificationAsSent(notificationId) {
+            // Send an AJAX request to mark notification as sent
+            fetch('mark_notification_sent.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ notificationId: notificationId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to mark notification as sent');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Notification marked as sent:', data);
+            })
+            .catch(error => {
+                console.error('Error marking notification as sent:', error);
             });
         }
     </script>
 </body>
 </html>
+
