@@ -104,6 +104,7 @@ body, html {
 /* Content Styles */
 #content {
   padding-top: 60px; /* Adjusted to provide space from navbar */
+  margin-left: 240px;
 }
 
 /* Additional Styles */
