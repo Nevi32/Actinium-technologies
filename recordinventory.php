@@ -55,29 +55,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Check if the product already exists in the main_entry table for the specified store
-            $existingRecord = $pdo->prepare("SELECT * FROM main_entry WHERE product_name = ? AND store_id = ?");
-            $existingRecord->execute([$productName, $storeId]);
+            $existingRecord = $pdo->prepare("SELECT * FROM main_entry WHERE product_name = ? AND category = ? AND store_id = ?");
+            $existingRecord->execute([$productName, $category, $storeId]);
             $existingData = $existingRecord->fetch(PDO::FETCH_ASSOC);
 
             if ($existingData !== false) {
                 // Product already exists for this store
 
-                // Check if the category is different
-                if ($existingData['category'] !== $category) {
-                    // Product has a different category, insert a new main entry
-                    $insertMainStmt = $pdo->prepare("INSERT INTO main_entry (product_name, category, total_quantity, quantity_description, store_id) VALUES (?, ?, ?, ?, ?)");
-                    $insertMainStmt->execute([$productName, $category, $quantity, $quantityDescription, $storeId]);
+                // Product has the same category, update the existing main entry
+                $mainEntryId = $existingData['main_entry_id'];
 
-                    // Retrieve the main entry_id for the newly inserted main entry
-                    $mainEntryId = $pdo->lastInsertId();
-                } else {
-                    // Product has the same category, update the existing main entry
-                    $mainEntryId = $existingData['main_entry_id'];
-
-                    // Update the total quantity in the existing main entry
-                    $updateTotalStmt = $pdo->prepare("UPDATE main_entry SET total_quantity = total_quantity + ? WHERE main_entry_id = ?");
-                    $updateTotalStmt->execute([$quantity, $mainEntryId]);
-                }
+                // Update the total quantity in the existing main entry
+                $updateTotalStmt = $pdo->prepare("UPDATE main_entry SET total_quantity = total_quantity + ? WHERE main_entry_id = ?");
+                $updateTotalStmt->execute([$quantity, $mainEntryId]);
             } else {
                 // Product does not exist for this store, insert a new main entry
                 $insertMainStmt = $pdo->prepare("INSERT INTO main_entry (product_name, category, total_quantity, quantity_description, store_id) VALUES (?, ?, ?, ?, ?)");
