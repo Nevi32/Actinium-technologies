@@ -43,13 +43,15 @@ CREATE TABLE sales (
 );
 
 CREATE TABLE notifications (
-    notification_id INT AUTO_INCREMENT PRIMARY KEY,
-    subject VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    store_id INT,
-    FOREIGN KEY (store_id) REFERENCES stores(store_id)
+  notification_id INT AUTO_INCREMENT PRIMARY KEY,
+  subject VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  store_id INT DEFAULT NULL,
+  is_sent TINYINT(1) NOT NULL DEFAULT 0,
+  FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
+
 
 CREATE TABLE main_entry (
     main_entry_id INT AUTO_INCREMENT PRIMARY KEY,
