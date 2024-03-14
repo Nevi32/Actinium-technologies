@@ -177,10 +177,11 @@ body, html {
         }
         ?>
       </div>
-      <a href="fetch_notifications.php"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="notifications.php"><i class="fas fa-bell"></i> Notifications</a>
       <a href="mpesa-c2b.html"><i class="fas fa-coins"></i> Mpesa C2B</a>
       <a href="mpesa-b2b.html"><i class="fas fa-exchange-alt"></i> Mpesa B2B</a>
       <a href="home.php" onclick="redirectToPage('hom.php');"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="memo.php"><i class="fas fa-bell"></i> Memos</a>
       <a href="#" id="logoutLink" onclick="logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 

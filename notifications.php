@@ -1,112 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Notification Example</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
+<?php
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+require('config.php'); // Include the database configuration
 
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <?php
-    // Database configuration
-    $databaseConfig = [
-        'host' => 'localhost',
-        'dbname' => 'StoreY11',
-        'user' => 'nevill',
-        'password' => '7683Nev!//'
-    ];
+// Function to send notification using Ntfy API
+function sendNotification($message) {
+  $url = "https://ntfy.sh/Duka1"; // Set subscription topic to "Duka1"
+  $context = stream_context_create([
+    'http' => [
+      'method' => 'POST',
+      'header' => 'Content-Type: text/plain',
+      'content' => $message,
+    ]
+  ]);
+  
+  // Send the message and handle potential errors
+  $result = file_get_contents($url, false, $context);
+  if ($result === false) {
+    error_log("Failed to send notification: " . $http_response_header[0]);
+  }
+}
 
-    // Connect to the database
-    try {
-        $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Could not connect to the database: " . $e->getMessage());
-    }
+try {
+  // Connect to the database
+  $conn = new PDO(
+    "mysql:host=" . $databaseConfig['host'] . ";dbname=" . $databaseConfig['dbname'],
+    $databaseConfig['user'],
+    $databaseConfig['password']
+  );
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Fetch notifications where is_sent status is false
-    $notifications = [];
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE is_sent = 0 ORDER BY timestamp DESC");
-        $stmt->execute();
-        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        die("Error fetching notifications: " . $e->getMessage());
-    }
-    ?>
+  // Fetch unsent notifications
+  $sql = "SELECT notification_id, subject, message FROM notifications WHERE is_sent = 0";
+  $stmt = $conn->prepare($sql);
+  $stmt->execute();
 
-    <button onclick="requestNotificationPermission();">Enable Notifications</button>
+  // Loop through each notification
+  while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $message = $row['subject'] . " - " . $row['message'] . " "; // Add emoji to the message
+    sendNotification($message);
 
-    <script>
-        // Pass PHP notifications array to JavaScript
-        const notifications = <?php echo json_encode($notifications); ?>;
+    // Update is_sent status to 1
+    $updateSql = "UPDATE notifications SET is_sent = 1 WHERE notification_id = :id";
+    $updateStmt = $conn->prepare($updateSql);
+    $updateStmt->bindParam(':id', $row['notification_id'], PDO::PARAM_INT);
+    $updateStmt->execute();
+  }
 
-        function showNotification(title, message) {
-            if (!('Notification' in window)) {
-                alert('This browser does not support desktop notifications.');
-                return;
-            }
+  echo "Notifications sent successfully!";
+} catch (PDOException $e) {
+  echo "Error: " . $e->getMessage();
+  error_log("Database error: " . $e->getMessage()); // Log database errors
+}
 
-            if (Notification.permission === 'granted') {
-                new Notification(title, {
-                    body: message,
-                    icon: '/path/to/icon.png' // Optional: you can add an icon path here
-                });
-            }
-        }
-
-        function requestNotificationPermission() {
-            Notification.requestPermission().then(function(permission) {
-                if (permission === 'granted') {
-                    notifications.forEach(notification => {
-                        showNotification(notification.subject + " 📢", notification.message);
-                        // Mark notification as sent in the database
-                        markNotificationAsSent(notification.notification_id);
-                    });
-                }
-            });
-        }
-
-        function markNotificationAsSent(notificationId) {
-            // Send an AJAX request to mark notification as sent
-            fetch('mark_notification_sent.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ notificationId: notificationId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to mark notification as sent');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Notification marked as sent:', data);
-            })
-            .catch(error => {
-                console.error('Error marking notification as sent:', error);
-            });
-        }
-    </script>
-</body>
-</html>
+$conn = null; // Close connection
+?>
 
