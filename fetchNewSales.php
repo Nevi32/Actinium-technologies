@@ -65,7 +65,7 @@ function createNotificationMessage($salesData) {
             'location_name' => $sale['location_name'] // Include store location in the notification message
         ];
     }
-    return json_encode($notification);
+    return json_encode($notification, JSON_PRETTY_PRINT); // Ensure pretty print for easier readability
 }
 
 // Fetch new sales data

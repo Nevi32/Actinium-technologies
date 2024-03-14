@@ -99,7 +99,7 @@ function createNotificationMessage($inventoryData, $clearedOrdersData) {
         ];
     }
 
-    return json_encode($notification);
+    return json_encode($notification, JSON_PRETTY_PRINT); // Ensure pretty print for easier readability
 }
 
 // Fetch new inventory data

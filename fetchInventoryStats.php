@@ -73,20 +73,20 @@ try {
 
     // Add pending orders to the report
     $inventoryReport['pending_orders'] = $pendingOrders;
+
     // Prepare the response
-$response = array(
-    'success' => true,
-    'message' => "{$storeName} {$period} inventory report",
-    'data' => array(
-        $storeName => $inventoryReport[$storeName],
-        'new_entries' => $newEntries,
-        'pending_orders' => $pendingOrders
-    )
-);
+    $message = "{$storeName} {$period} inventory report";
+    $formattedReport = array(
+        'inventory_status' => $inventoryReport,
+        'message' => $message
+    );
+    $response = array(
+        'success' => true,
+        'data' => $formattedReport
+    );
 
-// Encode the response as JSON and return it
-echo json_encode($response, JSON_PRETTY_PRINT);
-
+    // Encode the response as JSON and return it
+    echo json_encode($response, JSON_PRETTY_PRINT);
 
 } catch (PDOException $e) {
     // Handle database errors
