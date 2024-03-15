@@ -15,29 +15,24 @@ try {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-// Fetch latest prices for each product
-$stmt = $pdo->query("SELECT * FROM prices p WHERE p.set_date = (SELECT MAX(set_date) FROM prices WHERE product_name = p.product_name)");
-$mainPrices = $stmt->fetchAll();
+// Fetch latest prices for each product and category combination
+$stmt = $pdo->query("SELECT * FROM prices p WHERE (p.product_name, p.category, p.set_date) IN (SELECT product_name, category, MAX(set_date) FROM prices GROUP BY product_name, category)");
+$prices = $stmt->fetchAll();
 
-// Fetch dynamic prices for each product
+// Fetch dynamic prices for each price ID
 $dynamicPrices = [];
-foreach ($mainPrices as $mainPrice) {
+foreach ($prices as $price) {
     $stmt = $pdo->prepare("SELECT * FROM dynamicprices WHERE price_id = ?");
-    $stmt->execute([$mainPrice['price_id']]);
-    $dynamicPrices[$mainPrice['price_id']] = $stmt->fetchAll();
+    $stmt->execute([$price['price_id']]);
+    $dynamicPrices[$price['price_id']] = $stmt->fetchAll();
 }
-
-// Store the fetched data in sessions
-session_start();
-$_SESSION['mainprices'] = $mainPrices;
-$_SESSION['dynamicprices'] = $dynamicPrices;
 
 // Close the database connection
 $pdo = null;
 
 // Prepare data for JSON response
 $response = [
-    'mainprices' => $mainPrices,
+    'mainprices' => $prices,
     'dynamicprices' => $dynamicPrices
 ];
 

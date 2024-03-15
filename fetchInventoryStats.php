@@ -30,23 +30,7 @@ try {
     $mainStoreInventory = $stmtMain->fetchAll(PDO::FETCH_ASSOC);
 
     // Add main store inventory to the report
-    $inventoryReport[$storeName]['main_store'] = $mainStoreInventory;
-
-    // Fetch inventory data for satellite stores if any
-    $stmtSatellite = $pdo->prepare("SELECT store_id, location_name FROM stores WHERE store_name = ? AND location_type = 'satellite'");
-    $stmtSatellite->execute([$storeName]);
-    $satelliteStores = $stmtSatellite->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($satelliteStores as $satelliteStore) {
-        $satelliteLocation = $satelliteStore['location_name'];
-
-        $stmtSatelliteInventory = $pdo->prepare("SELECT product_name, category, total_quantity, quantity_description FROM main_entry WHERE store_id IN (SELECT store_id FROM stores WHERE location_name = ?)");
-        $stmtSatelliteInventory->execute([$satelliteLocation]);
-        $satelliteInventory = $stmtSatelliteInventory->fetchAll(PDO::FETCH_ASSOC);
-
-        // Add satellite store inventory to the report
-        $inventoryReport[$storeName][$satelliteLocation] = $satelliteInventory;
-    }
+    $inventoryReport = $mainStoreInventory;
 
     // Set the date filter based on the period
     $dateFilter = "";
@@ -59,30 +43,18 @@ try {
     }
 
     // Fetch new entries from the inventory table based on the period
-    $stmtNewEntries = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, inventory.quantity, main_entry.quantity_description, inventory.record_date, stores.location_name FROM inventory JOIN main_entry ON inventory.main_entry_id = main_entry.main_entry_id JOIN stores ON main_entry.store_id = stores.store_id WHERE main_entry.store_id IN (SELECT store_id FROM stores WHERE store_name = ?) $dateFilter");
+    $stmtNewEntries = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, inventory.quantity, main_entry.quantity_description FROM inventory JOIN main_entry ON inventory.main_entry_id = main_entry.main_entry_id JOIN stores ON main_entry.store_id = stores.store_id WHERE main_entry.store_id IN (SELECT store_id FROM stores WHERE store_name = ?) $dateFilter");
     $stmtNewEntries->execute([$storeName]);
     $newEntries = $stmtNewEntries->fetchAll(PDO::FETCH_ASSOC);
 
-    // Add new entries to the report
-    $inventoryReport['new_entries'] = $newEntries;
-
-    // Fetch pending orders
-    $stmtPendingOrders = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, inventory_orders.quantity, main_entry.quantity_description, inventory_orders.destination_store_id FROM inventory_orders JOIN main_entry ON inventory_orders.main_entry_id = main_entry.main_entry_id WHERE inventory_orders.main_store_id IN (SELECT store_id FROM stores WHERE store_name = ?) AND inventory_orders.cleared = 0");
-    $stmtPendingOrders->execute([$storeName]);
-    $pendingOrders = $stmtPendingOrders->fetchAll(PDO::FETCH_ASSOC);
-
-    // Add pending orders to the report
-    $inventoryReport['pending_orders'] = $pendingOrders;
+    // Merge new entries into the main store inventory
+    $inventoryReport = array_merge($inventoryReport, $newEntries);
 
     // Prepare the response
-    $message = "{$storeName} {$period} inventory report";
-    $formattedReport = array(
-        'inventory_status' => $inventoryReport,
-        'message' => $message
-    );
     $response = array(
         'success' => true,
-        'data' => $formattedReport
+        'message' => "{$storeName} {$period} inventory report",
+        'data' => $inventoryReport
     );
 
     // Encode the response as JSON and return it
