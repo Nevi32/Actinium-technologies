@@ -319,8 +319,8 @@ function downloadReport(type) {
   document.body.removeChild(element);
 }
 
-   // Function to format inventory report
-function formatInventoryReport(storeName) {
+// Function to format inventory report
+function formatInventoryReport() {
   // Retrieve inventory details
   var inventoryContent = document.getElementById("inventory-popup-content-placeholder").innerText;
 
@@ -334,11 +334,11 @@ function formatInventoryReport(storeName) {
     var locationName = locationData[0].trim();
     var locationProducts = locationData[1];
 
-    formattedReport += "**" + locationName + "**\n";
+    formattedReport += "Store Name\tLocation\tStore Type\tTotal Selling Price\tTotal Buying Price\tProfit\n";
+    formattedReport += locationName + "\n";
 
     // Remove unnecessary characters and format product details
     locationProducts = locationProducts.replace(/[\[\]{}"]/g, '').replace(/,/g, '\n');
-
     formattedReport += locationProducts + '\n\n';
   });
 
@@ -346,7 +346,7 @@ function formatInventoryReport(storeName) {
 }
 
 // Function to format sales report
-function formatSalesReport(storeName) {
+function formatSalesReport() {
   // Retrieve sales details
   var salesContent = document.getElementById("sales-popup-content-placeholder").innerText;
 
@@ -360,11 +360,11 @@ function formatSalesReport(storeName) {
     var locationName = locationData[0].trim();
     var locationSalesData = locationData[1];
 
-    formattedReport += "**" + locationName + "**\n";
+    formattedReport += "Store Name\tLocation\tTotal Selling Price\tTotal Buying Price\tProfit\n";
+    formattedReport += locationName + "\n";
 
     // Remove unnecessary characters and format sales data
     locationSalesData = locationSalesData.replace(/[\[\]{}"]/g, '').replace(/,/g, '\n');
-
     formattedReport += locationSalesData + '\n\n';
   });
 
@@ -374,21 +374,16 @@ function formatSalesReport(storeName) {
 // Function to format profit report
 function formatProfitReport() {
   // Retrieve profit details
-  var storeName = "Store Name: Example Store";
-  var mainStoreDetails = "Main Store: Example Main Store, Location: Example Location";
   var profitContent = document.getElementById("profit-popup-content-placeholder").innerText;
 
   // Remove JSON formatting
   profitContent = profitContent.replace(/{|}/g, '');
 
-  // Format the report
-  var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "Profit:\n" + profitContent;
-
-  return formattedReport; // Return the formatted report content
+  return profitContent; // Return the profit report content
 }
 
 // Function to format staff performance report
-function formatStaffPerformanceReport(storeName) {
+function formatStaffPerformanceReport() {
   // Retrieve staff performance details
   var staffPerformanceContent = document.getElementById("staff-performance-popup-content-placeholder").innerText;
 
@@ -401,13 +396,11 @@ function formatStaffPerformanceReport(storeName) {
   });
 
   // Format the report
-  var formattedReport = "**Staff Performance Report**\n\n";
+  var formattedReport = "Username\tTotal Sales\tLocation\n";
 
   // Iterate over each staff performance entry and format it
   staffPerformanceData.forEach(function(entry) {
-    formattedReport += "**Username:** " + entry.username + "\n";
-    formattedReport += "**Total Sales:** $" + parseFloat(entry.total_sales).toFixed(2) + "\n";
-    formattedReport += "**Location:** " + entry.location_name + "\n\n";
+    formattedReport += entry.username + "\t" + parseFloat(entry.total_sales).toFixed(2) + "\t" + entry.location_name + "\n";
   });
 
   return formattedReport; // Return the formatted report content
@@ -416,17 +409,12 @@ function formatStaffPerformanceReport(storeName) {
 // Function to format true profit report
 function formatTrueProfitReport() {
   // Retrieve true profit details
-  var storeName = "Store Name: Example Store";
-  var mainStoreDetails = "Main Store: Example Main Store, Location: Example Location";
   var trueProfitContent = document.getElementById("true-profit-popup-content-placeholder").innerText;
 
   // Remove JSON formatting
   trueProfitContent = trueProfitContent.replace(/{|}/g, '');
 
-  // Format the report
-  var formattedReport = storeName + "\n" + mainStoreDetails + "\n\n" + "True Profit:\n" + trueProfitContent;
-
-  return formattedReport; // Return the formatted report content
+  return trueProfitContent; // Return the true profit report content
 }
 
 
