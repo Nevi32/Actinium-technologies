@@ -1,19 +1,41 @@
 <?php
-// Include the database connection configuration
 require_once 'config.php';
 
-// Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Decode the JSON data sent from the client
-    $requestData = json_decode(file_get_contents('php://input'), true);
+    // Start the session
+    session_start();
 
-    // Check if data is present and is an array
-    if (!empty($requestData) && is_array($requestData)) {
-        try {
-            // Connect to the database
-            $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Check if the user is logged in and has store information in the session
+    if (!isset($_SESSION['store_name']) || !isset($_SESSION['location_name'])) {
+        echo json_encode(['status' => 'error', 'message' => 'User not logged in or store information not set in session']);
+        exit();
+    }
 
+    // Retrieve store name and location from the session
+    $storeName = $_SESSION['store_name'];
+    $locationName = $_SESSION['location_name'];
+
+    try {
+        $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Query the stores table to get the store ID based on store name and location
+        $stmtStore = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = ? AND location_name = ?");
+        $stmtStore->execute([$storeName, $locationName]);
+        $store = $stmtStore->fetch(PDO::FETCH_ASSOC);
+
+        if (!$store) {
+            echo json_encode(['status' => 'error', 'message' => 'Store not found']);
+            exit();
+        }
+
+        $storeId = $store['store_id'];
+
+        // Decode the JSON data sent from the client
+        $requestData = json_decode(file_get_contents('php://input'), true);
+
+        // Check if data is present and is an array
+        if (!empty($requestData) && is_array($requestData)) {
             // Iterate over each product data
             foreach ($requestData as $productData) {
                 // Extract product data
@@ -27,13 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Check if dynamic pricing is enabled
                 if ($dynamicPrices == 0) {
-                    // Insert data into the prices table
-                    $stmt = $pdo->prepare("INSERT INTO prices (product_name, category, selling_price, buying_price, profit, percentage_profit) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$productName, $category, $sellingPrice, $buyingPrice, $profit, $percentageProfit]);
+                    // Insert data into the prices table with store ID
+                    $stmt = $pdo->prepare("INSERT INTO prices (store_id, product_name, category, selling_price, buying_price, profit, percentage_profit) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$storeId, $productName, $category, $sellingPrice, $buyingPrice, $profit, $percentageProfit]);
                 } elseif ($dynamicPrices == 1) {
-                    // Fetch latest price ID from the prices table
-                    $stmt = $pdo->prepare("SELECT price_id FROM prices WHERE product_name = ? AND category = ? ORDER BY price_id DESC LIMIT 1");
-                    $stmt->execute([$productName, $category]);
+                    // Fetch latest price ID from the prices table for the specific store, product, and category
+                    $stmt = $pdo->prepare("SELECT price_id FROM prices WHERE product_name = ? AND category = ? AND store_id = ? ORDER BY price_id DESC LIMIT 1");
+                    $stmt->execute([$productName, $category, $storeId]);
                     $priceId = $stmt->fetchColumn();
 
                     // Insert data into the dynamicprices table
@@ -46,18 +68,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Close the database connection
-            $pdo = null;
-
             // All products processed successfully
             echo json_encode(['status' => 'success', 'message' => 'Prices recorded successfully']);
-        } catch (PDOException $e) {
-            // Handle database errors
-            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        } else {
+            // No data sent or invalid data format
+            echo json_encode(['status' => 'error', 'message' => 'No valid data received']);
         }
-    } else {
-        // No data sent or invalid data format
-        echo json_encode(['status' => 'error', 'message' => 'No valid data received']);
+    } catch (PDOException $e) {
+        // Handle database errors
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
 } else {
     // Handle invalid request method

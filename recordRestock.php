@@ -2,6 +2,9 @@
 // Include database credentials
 include 'config.php';
 
+// Start session
+session_start();
+
 // Establish database connection
 try {
     $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
@@ -18,19 +21,27 @@ $quantity = $_POST['quantity'];
 $price = $_POST['price'];
 $product_name = $_POST['product-name'];
 $category = $_POST['category'];
-$store_name = $_POST['store-name'];
-$location_name = $_POST['location-name'];
+
+// Retrieve store name from session
+if (!isset($_SESSION['store_name'])) {
+    $response = ['success' => false, 'message' => 'Store name not set in session'];
+    echo json_encode($response);
+    exit();
+}
+$store_name = $_SESSION['store_name'];
+
+// Retrieve destination location from form
 $destination_location = $_POST['destination-location'];
 
 try {
     // Retrieve main store ID
-    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = :store_name AND location_name = :location_name");
-    $stmt->execute(['store_name' => $store_name, 'location_name' => $location_name]);
+    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = :store_name AND location_type = 'main_store'");
+    $stmt->execute(['store_name' => $store_name]);
     $main_store_id = $stmt->fetchColumn();
 
-    // Retrieve destination store ID
-    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE location_name = :destination_location AND location_type = 'satellite'");
-    $stmt->execute(['destination_location' => $destination_location]);
+    // Retrieve destination store ID based on store name and location
+    $stmt = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = :store_name AND location_name = :destination_location AND location_type = 'satellite'");
+    $stmt->execute(['store_name' => $store_name, 'destination_location' => $destination_location]);
     $destination_store_id = $stmt->fetchColumn();
 
     // Check if main store and destination store IDs are valid
