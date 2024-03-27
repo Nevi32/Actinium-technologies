@@ -24,37 +24,50 @@ try {
     $pdo = new PDO("mysql:host={$databaseConfig['host']};dbname={$databaseConfig['dbname']}", $databaseConfig['user'], $databaseConfig['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Define the start and end dates based on the period
-    $startDate = '';
-    $endDate = date('Y-m-d H:i:s'); // Current date and time
+    // Fetch store IDs associated with the store name
+    $storeIdsStmt = $pdo->prepare("SELECT store_id FROM stores WHERE store_name = ?");
+    $storeIdsStmt->execute([$storeName]);
+    $storeIds = $storeIdsStmt->fetchAll(PDO::FETCH_COLUMN);
 
+    // Fetch user IDs of staff working in the stores associated with the store name
+    $userIds = array();
+    foreach ($storeIds as $storeId) {
+        $staffStmt = $pdo->prepare("SELECT user_id FROM users WHERE store_id = ?");
+        $staffStmt->execute([$storeId]);
+        $userIds = array_merge($userIds, $staffStmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    // Define the date condition based on the period
     switch ($period) {
         case 'Daily':
-            $startDate = date('Y-m-d 00:00:00'); // Start of today
+            $dateCondition = "DATE(record_date) = CURDATE()";
             break;
         case 'Weekly':
-            $startDate = date('Y-m-d 00:00:00', strtotime('-7 days')); // 7 days ago
+            $dateCondition = "DATE(record_date) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND DATE(record_date) <= CURDATE()";
             break;
         case 'Monthly':
-            $startDate = date('Y-m-d 00:00:00', strtotime('-1 month')); // 1 month ago
+            $dateCondition = "DATE(record_date) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND DATE(record_date) <= CURDATE()";
+            break;
+        case 'Halfannually':
+            $dateCondition = "DATE(record_date) >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) AND DATE(record_date) <= CURDATE()";
+            break;
+        case 'Annually':
+            $dateCondition = "DATE(record_date) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) AND DATE(record_date) <= CURDATE()";
             break;
         default:
-            // Handle invalid period
+            throw new Exception("Invalid period specified.");
             break;
     }
 
     // Fetch staff performance data
-$stmtStaffPerformance = $pdo->prepare("SELECT users.username, SUM(sales.total_price) AS total_sales, 
-                                            stores.location_name
-                                        FROM sales 
-                                        JOIN users ON sales.user_id = users.user_id 
-                                        JOIN stores ON sales.store_id = stores.store_id 
-                                        WHERE DATE(sales.record_date) >= ? AND DATE(sales.record_date) <= ? 
-                                        GROUP BY users.username, stores.location_name 
-                                        ORDER BY total_sales DESC");
-$stmtStaffPerformance->execute([$startDate, $endDate]);
-$staffPerformanceData = $stmtStaffPerformance->fetchAll(PDO::FETCH_ASSOC);
-
+    $staffPerformanceStmt = $pdo->prepare("SELECT users.username, SUM(sales.total_price) AS total_sales
+                                            FROM sales 
+                                            JOIN users ON sales.user_id = users.user_id 
+                                            WHERE sales.user_id IN (" . implode(',', $userIds) . ") AND $dateCondition
+                                            GROUP BY users.user_id 
+                                            ORDER BY total_sales DESC");
+    $staffPerformanceStmt->execute();
+    $staffPerformanceData = $staffPerformanceStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Add staff performance data to the report
     $staffPerformanceReport["staff_performance"] = $staffPerformanceData;
