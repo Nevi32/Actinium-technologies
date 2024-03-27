@@ -22,11 +22,16 @@ CREATE TABLE stores (
 );
 
 CREATE TABLE suppliers (
-    supplier_id INT AUTO_INCREMENT PRIMARY KEY,
-    supplier_name VARCHAR(100) NOT NULL UNIQUE,
+    supplier_id INT NOT NULL AUTO_INCREMENT,
+    supplier_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     email VARCHAR(100),
-    address VARCHAR(255)
+    address VARCHAR(255),
+    store_id INT,
+    CONSTRAINT pk_supplier PRIMARY KEY (supplier_id),
+    CONSTRAINT fk_store
+        FOREIGN KEY (store_id)
+        REFERENCES stores(store_id)
 );
 
 CREATE TABLE sales (
