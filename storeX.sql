@@ -108,14 +108,18 @@ CREATE TABLE commissions (
 
 CREATE TABLE prices (
     price_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    store_id INT NOT NULL,
     selling_price DECIMAL(10,2) NOT NULL,
     buying_price DECIMAL(10,2) NOT NULL,
     profit DECIMAL(10,2) NOT NULL,
     percentage_profit DECIMAL(10,2),
     set_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     product_name VARCHAR(255) NOT NULL,
-    category VARCHAR(100) NOT NULL
+    category VARCHAR(100) NOT NULL,
+    FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
+
+
 CREATE TABLE dynamicprices (
     dynamic_price_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     price_id INT NOT NULL,
