@@ -17,13 +17,13 @@ function connectDatabase() {
     }
 }
 
-// Function to fetch new sales entries within the past 5 minutes
+// Function to fetch new sales entries within the past 1 hour
 function fetchNewSales() {
     $pdo = connectDatabase();
     $currentTime = date('Y-m-d H:i:s');
-    $pastTime = date('Y-m-d H:i:s', strtotime('-5 minutes', strtotime($currentTime)));
+    $pastTime = date('Y-m-d H:i:s', strtotime('-1 hour', strtotime($currentTime)));
     
-    $query = "SELECT sales.sale_id, main_entry.product_name, main_entry.category, sales.quantity_sold, users.full_name AS staff_name, sales.record_date, stores.location_name
+    $query = "SELECT sales.sale_id, main_entry.product_name, main_entry.category, sales.quantity_sold, users.full_name AS staff_name, sales.record_date, stores.location_name, sales.store_id
               FROM sales
               INNER JOIN users ON sales.user_id = users.user_id
               INNER JOIN main_entry ON sales.main_entry_id = main_entry.main_entry_id
@@ -78,10 +78,13 @@ if (!empty($salesData)) {
 
     // Store notification in the database
     $currentTime = date('Y-m-d H:i:s');
-    $store_id = null; // Replace with the actual store ID
-    $result = storeNotification("Sales Status Update", $message, $currentTime, $store_id);
-
-    echo $result ? "Notification stored successfully." : "Failed to store notification.";
+    // Extract unique store IDs from sales data
+    $storeIds = array_unique(array_column($salesData, 'store_id'));
+    // Insert notification for each store ID
+    foreach ($storeIds as $storeId) {
+        $result = storeNotification("Sales Status Update", $message, $currentTime, $storeId);
+        echo $result ? "Notification stored successfully for store ID: $storeId<br>" : "Failed to store notification for store ID: $storeId<br>";
+    }
 } else {
     echo "No new sales to create notifications.";
 }
