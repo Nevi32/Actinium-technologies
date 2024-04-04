@@ -47,16 +47,17 @@ CREATE TABLE sales (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+-- New SQL for the notifications table
 CREATE TABLE notifications (
   notification_id INT AUTO_INCREMENT PRIMARY KEY,
   subject VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   store_id INT DEFAULT NULL,
+  store_name VARCHAR(100) DEFAULT NULL, -- New column added
   is_sent TINYINT(1) NOT NULL DEFAULT 0,
   FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
-
 
 CREATE TABLE main_entry (
     main_entry_id INT AUTO_INCREMENT PRIMARY KEY,
