@@ -1,73 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notification Subscription</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-  }
-  .card {
-    width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  label {
-    display: block;
-    margin-bottom: 10px;
-  }
-  input[type="text"], input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    box-sizing: border-box;
-  }
-  input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-</style>
-</head>
-<body>
+<?php
+require_once 'config.php';
 
-<div class="card">
-  <h2>Notification Subscription</h2>
-  <form id="subscriptionForm">
-    <label for="storename">Store Name:</label>
-    <input type="text" id="storename" name="storename" required>
-    <label for="subscription">Subscription:</label>
-    <input type="text" id="subscription" name="subscription" required>
-    <input type="submit" value="Subscribe">
-  </form>
-</div>
-
-<script>
-document.getElementById("subscriptionForm").addEventListener("submit", function(event) {
-  event.preventDefault();
-  var formData = new FormData(this);
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "notify.php", true);
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      alert(xhr.responseText);
-    } else {
-      alert("Failed to subscribe.");
+// Function to connect to the database
+function connectDatabase() {
+    global $databaseConfig;
+    $dsn = 'mysql:host=' . $databaseConfig['host'] . ';dbname=' . $databaseConfig['dbname'];
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+    try {
+        $pdo = new PDO($dsn, $databaseConfig['user'], $databaseConfig['password'], $options);
+        return $pdo;
+    } catch (PDOException $e) {
+        exit("Database connection failed: " . $e->getMessage());
     }
-  };
-  xhr.send(formData);
-});
-</script>
+}
 
-</body>
-</html>
+// Function to fetch notifications with is_sent status 0
+function fetchNotifications() {
+    global $pdo;
+    $pdo = connectDatabase();
+    $query = "SELECT * FROM notifications WHERE is_sent = 0";
+    $statement = $pdo->query($query);
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Function to send notification messages through ntfy API
+function sendNotifications($notifications) {
+    global $pdo;
+    foreach ($notifications as $notification) {
+        $storeId = $notification['store_id'];
+        $storeName = $notification['store_name'];
+        $subject = '';
+        $message = $notification['message'];
+        $productDetails = $notification['product_details'];
+        
+        // Prepare subject message from PHP script
+        if (strpos($notification['subject'], 'Sales') !== false) {
+            $subject = "New sales have been made at your store!\n";
+        } elseif (strpos($notification['subject'], 'Inventory Update') !== false) {
+            $subject = "New inventory has been restocked at your store!\n";
+        } elseif (strpos($notification['subject'], 'Inventory Status') !== false) {
+            $subject = "There is an update on your inventory status!\n";
+        }
+        
+        // Concatenate subject message with message from notifications table
+        $fullMessage = $subject . $message . "\n" . $productDetails;
+
+        // Send notification message via ntfy API
+        $url = "https://ntfy.sh/$storeName";
+        $data = array('Content-Type: text/plain', 'content' => $fullMessage);
+        $options = array(
+            'http' => array(
+                'method' => 'POST',
+                'header' => implode("\r\n", $data),
+                'content' => $fullMessage
+            )
+        );
+        $context = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+
+        // Check if notification sent successfully
+        if ($result === false) {
+            echo "Failed to send notification for store ID: $storeId ($storeName)<br>";
+        } else {
+            // Update is_sent status in the database
+            $notificationId = $notification['notification_id'];
+            updateSentStatus($pdo, $notificationId);
+            echo "Notification sent successfully for store ID: $storeId ($storeName)<br>";
+        }
+    }
+}
+
+// Function to update is_sent status in the notifications table
+function updateSentStatus($pdo, $notificationId) {
+    $query = "UPDATE notifications SET is_sent = 1 WHERE notification_id = :notificationId";
+    $statement = $pdo->prepare($query);
+    $statement->bindParam(':notificationId', $notificationId);
+    $statement->execute();
+}
+
+// Fetch notifications with is_sent status 0
+$notifications = fetchNotifications();
+
+// Send notifications through ntfy API
+if (!empty($notifications)) {
+    sendNotifications($notifications);
+    echo "Notifications have been successfully sent!";
+} else {
+    echo "No notifications with is_sent status 0 found.";
+}
+?>
 
