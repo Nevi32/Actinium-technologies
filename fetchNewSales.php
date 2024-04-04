@@ -17,13 +17,13 @@ function connectDatabase() {
     }
 }
 
-// Function to fetch new sales entries within the past 1 hour
+// Function to fetch new sales entries within the past 1 hour including store name
 function fetchNewSales() {
     $pdo = connectDatabase();
     $currentTime = date('Y-m-d H:i:s');
     $pastTime = date('Y-m-d H:i:s', strtotime('-1 hour', strtotime($currentTime)));
     
-    $query = "SELECT sales.sale_id, main_entry.product_name, main_entry.category, sales.quantity_sold, users.full_name AS staff_name, sales.record_date, stores.location_name, sales.store_id
+    $query = "SELECT sales.sale_id, main_entry.product_name, main_entry.category, sales.quantity_sold, users.full_name AS staff_name, sales.record_date, stores.location_name, sales.store_id, stores.store_name
               FROM sales
               INNER JOIN users ON sales.user_id = users.user_id
               INNER JOIN main_entry ON sales.main_entry_id = main_entry.main_entry_id
@@ -40,15 +40,16 @@ function fetchNewSales() {
 }
 
 // Function to store notification in the database
-function storeNotification($subject, $message, $timestamp, $store_id) {
+function storeNotification($subject, $message, $timestamp, $store_id, $store_name) {
     $pdo = connectDatabase();
     
-    $query = "INSERT INTO notifications (subject, message, timestamp, store_id) VALUES (:subject, :message, :timestamp, :store_id)";
+    $query = "INSERT INTO notifications (subject, message, timestamp, store_id, store_name) VALUES (:subject, :message, :timestamp, :store_id, :store_name)";
     $statement = $pdo->prepare($query);
     $statement->bindParam(':subject', $subject);
     $statement->bindParam(':message', $message);
     $statement->bindParam(':timestamp', $timestamp);
     $statement->bindParam(':store_id', $store_id);
+    $statement->bindParam(':store_name', $store_name);
     return $statement->execute();
 }
 
@@ -62,7 +63,9 @@ function createNotificationMessage($salesData) {
             'quantity_sold' => $sale['quantity_sold'],
             'staff_name' => $sale['staff_name'],
             'record_date' => $sale['record_date'],
-            'location_name' => $sale['location_name'] // Include store location in the notification message
+            'location_name' => $sale['location_name'], // Include store location in the notification message
+            'store_name' => $sale['store_name'], // Include store name in the notification message
+            'store_id' => $sale['store_id'] // Include store ID in the notification message
         ];
     }
     return json_encode($notification, JSON_PRETTY_PRINT); // Ensure pretty print for easier readability
@@ -73,17 +76,14 @@ $salesData = fetchNewSales();
 
 // Check if there are new sales
 if (!empty($salesData)) {
-    // Create notification message
-    $message = createNotificationMessage($salesData);
-
-    // Store notification in the database
-    $currentTime = date('Y-m-d H:i:s');
-    // Extract unique store IDs from sales data
-    $storeIds = array_unique(array_column($salesData, 'store_id'));
-    // Insert notification for each store ID
-    foreach ($storeIds as $storeId) {
-        $result = storeNotification("Sales Status Update", $message, $currentTime, $storeId);
-        echo $result ? "Notification stored successfully for store ID: $storeId<br>" : "Failed to store notification for store ID: $storeId<br>";
+    // Store notification for each store ID
+    foreach ($salesData as $sale) {
+        $storeName = $sale['store_name'];
+        $storeId = $sale['store_id'];
+        $message = createNotificationMessage([$sale]); // Create a separate message for each sale
+        $currentTime = date('Y-m-d H:i:s');
+        $result = storeNotification("Sales Status Update", $message, $currentTime, $storeId, $storeName);
+        echo $result ? "Notification stored successfully for store ID: $storeId ($storeName)<br>" : "Failed to store notification for store ID: $storeId ($storeName)<br>";
     }
 } else {
     echo "No new sales to create notifications.";

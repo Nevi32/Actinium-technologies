@@ -23,7 +23,7 @@ function fetchNewInventory() {
     $currentTime = date('Y-m-d H:i:s');
     $pastTime = date('Y-m-d H:i:s', strtotime('-24 hours', strtotime($currentTime)));
     
-    $query = "SELECT inventory.entry_id, main_entry.product_name, main_entry.category, inventory.quantity, inventory.quantity_description, stores.location_name, inventory.store_id
+    $query = "SELECT inventory.entry_id, main_entry.product_name, main_entry.category, inventory.quantity, inventory.quantity_description, stores.store_name, inventory.store_id
               FROM inventory
               INNER JOIN main_entry ON inventory.main_entry_id = main_entry.main_entry_id
               INNER JOIN stores ON inventory.store_id = stores.store_id
@@ -39,15 +39,16 @@ function fetchNewInventory() {
 }
 
 // Function to store notification in the database
-function storeNotification($subject, $message, $timestamp, $store_id) {
+function storeNotification($subject, $message, $timestamp, $store_id, $store_name) {
     $pdo = connectDatabase();
     
-    $query = "INSERT INTO notifications (subject, message, timestamp, store_id) VALUES (:subject, :message, :timestamp, :store_id)";
+    $query = "INSERT INTO notifications (subject, message, timestamp, store_id, store_name) VALUES (:subject, :message, :timestamp, :store_id, :store_name)";
     $statement = $pdo->prepare($query);
     $statement->bindParam(':subject', $subject);
     $statement->bindParam(':message', $message);
     $statement->bindParam(':timestamp', $timestamp);
     $statement->bindParam(':store_id', $store_id);
+    $statement->bindParam(':store_name', $store_name);
     return $statement->execute();
 }
 
@@ -61,7 +62,7 @@ function createNotificationMessage($inventoryData) {
             'category' => $item['category'],
             'quantity' => $item['quantity'],
             'quantity_description' => $item['quantity_description'],
-            'location_name' => $item['location_name']
+            'store_name' => $item['store_name'] // Use store_name instead of location_name
         ];
     }
 
@@ -71,15 +72,19 @@ function createNotificationMessage($inventoryData) {
 // Fetch new inventory data
 $inventoryData = fetchNewInventory();
 
-// Create notification message
-$message = createNotificationMessage($inventoryData);
-
-// Store notification in the database
-$currentTime = date('Y-m-d H:i:s');
-
-foreach ($inventoryData as $item) {
-    $result = storeNotification("Inventory Update", $message, $currentTime, $item['store_id']);
-    echo $result ? "Notification stored successfully for store ID: {$item['store_id']}<br>" : "Failed to store notification for store ID: {$item['store_id']}<br>";
+// Check if there are new inventory entries
+if (!empty($inventoryData)) {
+    // Store notification for each store ID
+    foreach ($inventoryData as $item) {
+        $storeName = $item['store_name']; // Use store_name instead of location_name
+        $storeId = $item['store_id'];
+        $message = createNotificationMessage([$item]); // Create a separate message for each inventory item
+        $currentTime = date('Y-m-d H:i:s');
+        $result = storeNotification("Inventory Update", $message, $currentTime, $storeId, $storeName);
+        echo $result ? "Notification stored successfully for store ID: $storeId ($storeName)<br>" : "Failed to store notification for store ID: $storeId ($storeName)<br>";
+    }
+} else {
+    echo "No new inventory entries to create notifications.";
 }
 ?>
 
