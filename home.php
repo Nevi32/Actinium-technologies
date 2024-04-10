@@ -218,7 +218,7 @@ body, html {
           <h3>StoreResources</h3>
           <p>Manage and process your store resources like staff suppliers and bills efficiently.</p>
         </div>
-        <div class="card stats" onclick="redirectToPage('stats.html');">
+        <div class="card stats" onclick="redirectToPage('stats.php');">
           <h3>Stats</h3>
           <p>Explore detailed statistics and reports.</p>
         </div>
