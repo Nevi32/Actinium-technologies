@@ -55,13 +55,12 @@ $username = $_SESSION['username'];
       background-color: #555;
     }
 
-    .badge-card {
+    .card {
       border-radius: 15px;
       background-color: #fff;
       padding: 20px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
-      
     }
   </style>
 </head>
@@ -84,9 +83,17 @@ $username = $_SESSION['username'];
   <!-- Main content -->
   <div id="content">
     <h1 id="welcome-message">Welcome to the <span id="store-name"><?php echo $storeName; ?></span> Statistics Dashboard 😊</h1>
-    <div class="badge-card">
+    <div class="badge-card card">
       <h2>Badge Card</h2>
       <p id="badge-message">Loading...</p>
+    </div>
+    <div class="sales-card card">
+      <h2>Sales Card</h2>
+      <p id="sales-message">Loading...</p>
+    </div>
+    <div class="profit-card card">
+      <h2>Profit Card</h2>
+      <p id="profit-message">Loading...</p>
     </div>
   </div>
 
@@ -114,14 +121,20 @@ $username = $_SESSION['username'];
             var benchmark = getBenchmarkSales();
             if (benchmark !== undefined) {
               if (totalSales > benchmark) {
-                $('#badge-message').html('Congratulations, <strong>' + '<?php echo $username; ?>' + '</strong>! Today\'s sales exceeded the benchmark! 🎉');
+                $('#badge-message').html('Congratulations, <strong><?php echo $username; ?></strong>! Today\'s sales exceeded the benchmark! 🎉');
               } else {
-                $('#badge-message').html('Sorry, <strong>' + '<?php echo $username; ?>' + '</strong>. Today\'s sales did not exceed the benchmark. 😔');
+                $('#badge-message').html('Sorry, <strong><?php echo $username; ?></strong>. Today\'s sales did not exceed the benchmark. 😔');
               }
             } else {
               console.error('Benchmark sales not defined for store: ' + getStoreName());
               $('#badge-message').text('Error: Benchmark sales not defined for this store.');
             }
+
+            // Update sales message
+            $('#sales-message').html('Today\'s total sales: $' + totalSales);
+
+            // Fetch profit data
+            fetchDailyProfitData(totalSales);
           } else {
             console.error('Error fetching daily sales data:', response.error);
             $('#badge-message').text('Error fetching daily sales data. Please try again later.');
@@ -130,6 +143,32 @@ $username = $_SESSION['username'];
         error: function(xhr, status, error) {
           console.error("Error fetching daily sales data:", error);
           $('#badge-message').text('Error fetching daily sales data. Please try again later.');
+        }
+      });
+    }
+
+    function fetchDailyProfitData(sales) {
+      // Assuming profit calculation is done on the server-side
+      $.ajax({
+        url: 'fetchProfitStats.php',
+        type: 'POST',
+        data: { sales: sales },
+        data: { period: daily},
+        dataType: 'json',
+        success: function(response) {
+          // Check if the response contains the necessary data
+          if (response.success) {
+            var profit = response.data.profit;
+            // Update profit message
+            $('#profit-message').html('Today\'s total profit: $' + profit);
+          } else {
+            console.error('Error fetching daily profit data:', response.error);
+            $('#profit-message').text('Error fetching daily profit data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching daily profit data:", error);
+          $('#profit-message').text('Error fetching daily profit data. Please try again later.');
         }
       });
     }

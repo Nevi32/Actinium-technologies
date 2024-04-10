@@ -1,0 +1,41 @@
+name; ?>' + '</strong>! Today\'s sales exceeded the benchmark! 🎉');
+              } else {
+                $('#badge-message').html('Sorry, <strong>' + '<?php echo $username; ?>' + '</strong>. Today\'s sales did not exceed the benchmark. 😔');
+              }
+            } else {
+              console.error('Benchmark sales not defined for store: ' + getStoreName());
+              $('#badge-message').text('Error: Benchmark sales not defined for this store.');
+            }
+          } else {
+            console.error('Error fetching daily sales data:', response.error);
+            $('#badge-message').text('Error fetching daily sales data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching daily sales data:", error);
+          $('#badge-message').text('Error fetching daily sales data. Please try again later.');
+        }
+      });
+    }
+
+    // Function to get the store name
+    function getStoreName() {
+      return $('#store-name').text();
+    }
+
+    // Function to get the benchmark sales for the current store
+    function getBenchmarkSales() {
+      // Define benchmark sales for different stores
+      var benchmarkSales = {
+        'Nevistore': 5000, // Example benchmark for Nevistore
+        'ABC Store': 7000,
+        'XYZ Supermarket': 10000
+        // Add more stores and their benchmarks here
+      };
+
+      var storeName = getStoreName();
+      return benchmarkSales[storeName];
+    }
+  </script>
+</body>
+</html>
