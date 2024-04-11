@@ -1,4 +1,3 @@
-
 <?php
 session_start(); // Start the session
 
@@ -104,6 +103,16 @@ $benchmarkSales = [
       <h2>Profit Card</h2>
       <p id="profit-message">Loading...</p>
     </div>
+    <div class="expenses-profit-card card">
+      <h2>Expenses and True Profit</h2>
+      <select id="period-select">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+      </select>
+      <p id="expenses-message">Loading...</p>
+      <p id="true-profit-message"></p>
+    </div>
   </div>
 
   <!-- jQuery library -->
@@ -112,6 +121,10 @@ $benchmarkSales = [
     $(document).ready(function() {
       // Fetch daily sales data when the page loads
       fetchDailySalesData();
+      // Fetch daily expenses and true profit data when the page loads
+      fetchExpensesAndTrueProfitData('Daily');
+      // Set the default period select value to 'Daily'
+      $('#period-select').val('Daily');
     });
 
     function fetchDailySalesData() {
@@ -157,27 +170,58 @@ $benchmarkSales = [
     }
 
     function fetchDailyProfitData(sales) {
-  $.ajax({
-    url: 'fetchProfitStats.php',
-    type: 'POST',
-    data: { period: 'Daily' }, // Pass period as Daily
-    dataType: 'json',
-    success: function(response) {
-      if (response.success) {
-        var profit = response.data.profit;
-        // Update profit message with Ksh currency
-        $('#profit-message').html('Today\'s total profit: Ksh ' + profit.toLocaleString());
-      } else {
-        console.error('Error fetching daily profit data:', response.error);
-        $('#profit-message').text('Error fetching daily profit data. Please try again later.');
-      }
-    },
-    error: function(xhr, status, error) {
-      console.error("Error fetching daily profit data:", error);
-      $('#profit-message').text('Error fetching daily profit data. Please try again later.');
+      $.ajax({
+        url: 'fetchProfitStats.php',
+        type: 'POST',
+        data: { period: 'Daily' }, // Pass period as Daily
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            var profit = response.data.profit;
+            // Update profit message with Ksh currency
+            $('#profit-message').html('Today\'s total profit: Ksh ' + profit.toLocaleString());
+          } else {
+            console.error('Error fetching daily profit data:', response.error);
+            $('#profit-message').text('Error fetching daily profit data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching daily profit data:", error);
+          $('#profit-message').text('Error fetching daily profit data. Please try again later.');
+        }
+      });
     }
-  });
-}
+
+    function fetchExpensesAndTrueProfitData(period) {
+      $.ajax({
+        url: 'fetchTrueProfitStats.php',
+        type: 'POST',
+        data: { period: period },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            var expenses = response.data.total_expenses;
+            var trueProfit = response.data.true_profit;
+
+            // Update expenses message
+            $('#expenses-message').html('Total Expenses: ');
+            for (var expenseType in expenses) {
+              $('#expenses-message').append(expenseType + ': Ksh ' + expenses[expenseType].toLocaleString() + ', ');
+            }
+
+            // Update true profit message
+            $('#true-profit-message').html('True Profit: Ksh ' + trueProfit.toLocaleString());
+          } else {
+            console.error('Error fetching expenses and true profit data:', response.error);
+            $('#expenses-message').text('Error fetching data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching expenses and true profit data:", error);
+          $('#expenses-message').text('Error fetching data. Please try again later.');
+        }
+      });
+    }
 
     // Function to get the store name
     function getStoreName() {

@@ -84,18 +84,29 @@ try {
     // Calculate profit
     $salesReport['profit'] = $salesReport['total_sales'] - $salesReport['total_buying_price'];
 
-    // Fetch total expenses for the store within the period
-    $totalExpenses = 0;
+    // Initialize expenses variable
+    $expenses = array();
+
+    // Fetch total expenses made by the store within the period
     foreach ($storeIds as $storeId) {
-        $stmtTotalExpenses = $pdo->prepare("SELECT SUM(amount) AS total_expenses FROM expenses WHERE store_id = ? AND DATE(timestamp) >= ? AND DATE(timestamp) <= ?");
+        $stmtTotalExpenses = $pdo->prepare("SELECT expense_type, amount FROM expenses WHERE store_id = ? AND timestamp >= ? AND timestamp <= ?");
         $stmtTotalExpenses->execute([$storeId, $startDate, $endDate]);
-        $expensesData = $stmtTotalExpenses->fetch(PDO::FETCH_ASSOC);
-        $totalExpenses += (float)$expensesData['total_expenses'];
+        $expensesData = $stmtTotalExpenses->fetchAll(PDO::FETCH_ASSOC);
+
+        // Aggregate expenses for each expense type
+        foreach ($expensesData as $expense) {
+            $expenseType = $expense['expense_type'];
+            $totalAmount = (float)$expense['amount'];
+            if (isset($expenses[$expenseType])) {
+                $expenses[$expenseType] += $totalAmount;
+            } else {
+                $expenses[$expenseType] = $totalAmount;
+            }
+        }
     }
 
-    // Calculate true profit
-         // Calculate true profit (profit after subtracting total expenses)
-    $trueProfit = $salesReport['profit'] - $totalExpenses;
+    // Calculate true profit (profit after subtracting total expenses)
+    $trueProfit = $salesReport['profit'] - array_sum($expenses);
 
     // Prepare the response
     $response = array(
@@ -105,7 +116,7 @@ try {
             'total_sales' => $salesReport['total_sales'],
             'total_buying_price' => $salesReport['total_buying_price'],
             'profit' => $salesReport['profit'],
-            'total_expenses' => $totalExpenses,
+            'total_expenses' => $expenses,
             'true_profit' => $trueProfit
         )
     );
@@ -123,4 +134,3 @@ try {
     echo json_encode($response);
 }
 ?>
-
