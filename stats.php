@@ -1,3 +1,4 @@
+
 <?php
 session_start(); // Start the session
 
@@ -11,6 +12,14 @@ if (!isset($_SESSION['store_name']) || !isset($_SESSION['username'])) {
 // Get the store name and username from the session
 $storeName = $_SESSION['store_name'];
 $username = $_SESSION['username'];
+
+// Define benchmark sales for different stores
+$benchmarkSales = [
+    'Nevistore' => 5000, // Example benchmark for Nevistore
+    'ABC Store' => 7000,
+    'XYZ Supermarket' => 10000
+    // Add more stores and their benchmarks here
+];
 
 ?>
 <!DOCTYPE html>
@@ -130,8 +139,8 @@ $username = $_SESSION['username'];
               $('#badge-message').text('Error: Benchmark sales not defined for this store.');
             }
 
-            // Update sales message
-            $('#sales-message').html('Today\'s total sales: $' + totalSales);
+            // Update sales message with Ksh currency
+            $('#sales-message').html('Today\'s total sales: Ksh ' + totalSales.toLocaleString());
 
             // Fetch profit data
             fetchDailyProfitData(totalSales);
@@ -148,30 +157,27 @@ $username = $_SESSION['username'];
     }
 
     function fetchDailyProfitData(sales) {
-      // Assuming profit calculation is done on the server-side
-      $.ajax({
-        url: 'fetchProfitStats.php',
-        type: 'POST',
-        data: { sales: sales },
-        data: { period: daily},
-        dataType: 'json',
-        success: function(response) {
-          // Check if the response contains the necessary data
-          if (response.success) {
-            var profit = response.data.profit;
-            // Update profit message
-            $('#profit-message').html('Today\'s total profit: $' + profit);
-          } else {
-            console.error('Error fetching daily profit data:', response.error);
-            $('#profit-message').text('Error fetching daily profit data. Please try again later.');
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error("Error fetching daily profit data:", error);
-          $('#profit-message').text('Error fetching daily profit data. Please try again later.');
-        }
-      });
+  $.ajax({
+    url: 'fetchProfitStats.php',
+    type: 'POST',
+    data: { period: 'Daily' }, // Pass period as Daily
+    dataType: 'json',
+    success: function(response) {
+      if (response.success) {
+        var profit = response.data.profit;
+        // Update profit message with Ksh currency
+        $('#profit-message').html('Today\'s total profit: Ksh ' + profit.toLocaleString());
+      } else {
+        console.error('Error fetching daily profit data:', response.error);
+        $('#profit-message').text('Error fetching daily profit data. Please try again later.');
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("Error fetching daily profit data:", error);
+      $('#profit-message').text('Error fetching daily profit data. Please try again later.');
     }
+  });
+}
 
     // Function to get the store name
     function getStoreName() {
@@ -180,16 +186,8 @@ $username = $_SESSION['username'];
 
     // Function to get the benchmark sales for the current store
     function getBenchmarkSales() {
-      // Define benchmark sales for different stores
-      var benchmarkSales = {
-        'Nevistore': 5000, // Example benchmark for Nevistore
-        'ABC Store': 7000,
-        'XYZ Supermarket': 10000
-        // Add more stores and their benchmarks here
-      };
-
       var storeName = getStoreName();
-      return benchmarkSales[storeName];
+      return <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
     }
   </script>
 </body>
