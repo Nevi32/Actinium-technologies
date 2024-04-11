@@ -89,17 +89,25 @@ try {
 
     // Fetch total expenses made by the store within the period
     foreach ($storeIds as $storeId) {
-        $stmtTotalExpenses = $pdo->prepare("SELECT expense_type, amount FROM expenses WHERE store_id = ? AND timestamp >= ? AND timestamp <= ?");
+        $stmtTotalExpenses = $pdo->prepare("SELECT LOWER(expense_type) AS expense_type_lower, SUM(amount) AS total_expenses FROM expenses WHERE store_id = ? AND timestamp >= ? AND timestamp <= ? GROUP BY LOWER(expense_type)");
         $stmtTotalExpenses->execute([$storeId, $startDate, $endDate]);
         $expensesData = $stmtTotalExpenses->fetchAll(PDO::FETCH_ASSOC);
 
         // Aggregate expenses for each expense type
         foreach ($expensesData as $expense) {
-            $expenseType = $expense['expense_type'];
-            $totalAmount = (float)$expense['amount'];
-            if (isset($expenses[$expenseType])) {
-                $expenses[$expenseType] += $totalAmount;
+            $expenseTypeLower = $expense['expense_type_lower'];
+            $totalAmount = (float)$expense['total_expenses'];
+            
+            // Standardize the expense type to uppercase
+            $expenseType = ucfirst($expenseTypeLower);
+            
+            // Check if the expense type already exists, regardless of case
+            $foundKey = array_search($expenseType, array_map('ucfirst', array_keys($expenses)));
+            if ($foundKey !== false) {
+                // If found, add the amount to the existing expense type
+                $expenses[array_keys($expenses)[$foundKey]] += $totalAmount;
             } else {
+                // If not found, add a new entry for the expense type
                 $expenses[$expenseType] = $totalAmount;
             }
         }

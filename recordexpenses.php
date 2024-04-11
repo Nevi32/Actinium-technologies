@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Retrieve expenses information from the form
-$expenseTypes = $_POST['expenseType'];
+// Retrieve expenses information from the form and standardize expense types to uppercase
+$expenseTypes = array_map('strtoupper', $_POST['expenseType']);
 $amounts = $_POST['amount'];
 
 // Get the store name and location from the session
@@ -56,4 +56,3 @@ try {
     exit();
 }
 ?>
-
