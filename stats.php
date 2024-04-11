@@ -1,6 +1,9 @@
 <?php
 session_start(); // Start the session
 
+// Include the database configuration
+require_once 'config.php';
+
 // Check if the user is logged in and has a store name in the session
 if (!isset($_SESSION['store_name']) || !isset($_SESSION['username'])) {
     // If the store name or username is not set, return an error response
@@ -49,7 +52,7 @@ $benchmarkSales = [
       flex-direction: column;
       background-color: lightgrey;
       padding: 20px;
-      margin-left: 250px
+      margin-left: 250px;
     }
 
     .sidebar-navigation a {
@@ -105,13 +108,22 @@ $benchmarkSales = [
     </div>
     <div class="expenses-profit-card card">
       <h2>Expenses and True Profit</h2>
-      <select id="period-select">
+      <select id="period-select" onchange="fetchExpensesAndTrueProfitData(this.value);">
         <option value="Daily">Daily</option>
         <option value="Weekly">Weekly</option>
         <option value="Monthly">Monthly</option>
       </select>
       <p id="expenses-message">Loading...</p>
       <p id="true-profit-message"></p>
+    </div>
+    <div class="product-performance-card card">
+      <h2>Product Performance</h2>
+      <select id="product-period-select" onchange="fetchProductPerformanceData(this.value);">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+      </select>
+      <p id="product-performance-message">Loading...</p>
     </div>
   </div>
 
@@ -123,8 +135,11 @@ $benchmarkSales = [
       fetchDailySalesData();
       // Fetch daily expenses and true profit data when the page loads
       fetchExpensesAndTrueProfitData('Daily');
+      // Fetch product performance data when the page loads
+      fetchProductPerformanceData('Daily');
       // Set the default period select value to 'Daily'
       $('#period-select').val('Daily');
+      $('#product-period-select').val('Daily');
     });
 
     function fetchDailySalesData() {
@@ -232,6 +247,59 @@ $benchmarkSales = [
     function getBenchmarkSales() {
       var storeName = getStoreName();
       return <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
+    }
+
+    // Function to sort product sales data by total price (descending order) and location
+    function sortProductSalesData(productSales) {
+      // Sort product sales data by total price (descending order)
+      productSales.sort(function(a, b) {
+        // Sort by total price
+        var totalPriceComparison = parseFloat(b.total_price) - parseFloat(a.total_price);
+        if (totalPriceComparison !== 0) {
+          return totalPriceComparison;
+        } else {
+          // If total price is the same, sort by location name
+          return a.location_name.localeCompare(b.location_name);
+        }
+      });
+
+      return productSales;
+    }
+
+    // Function to fetch and display product performance data
+    function fetchProductPerformanceData(period) {
+      $.ajax({
+        url: 'fetchSalesStats.php',
+        type: 'POST',
+        data: { period: period },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            // Extract product sales data from the response
+            var productSales = response.data.product_sales;
+
+            // Sort product sales data
+            productSales = sortProductSalesData(productSales);
+
+            // Construct HTML for displaying product performance
+            var html = '<ul>';
+            productSales.forEach(function(product) {
+              html += '<li>' + product.product_name + ' (' + product.category + ') - ' + product.total_price.toLocaleString() + ' (' + product.location_name + ')</li>';
+            });
+            html += '</ul>';
+
+            // Display product performance data
+            $('#product-performance-message').html(html);
+          } else {
+            console.error('Error fetching product performance data:', response.error);
+            $('#product-performance-message').text('Error fetching product performance data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching product performance data:", error);
+          $('#product-performance-message').text('Error fetching product performance data. Please try again later.');
+        }
+      });
     }
   </script>
 </body>
