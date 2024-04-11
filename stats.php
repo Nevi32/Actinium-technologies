@@ -118,7 +118,11 @@ $benchmarkSales = [
     </div>
     <div class="product-performance-card card">
       <h2>Product Performance</h2>
-      <select id="product-period-select" onchange="fetchProductPerformanceData(this.value);">
+      <select id="product-performance-select" onchange="fetchProductPerformanceData(this.value, $('#product-period-select').val());">
+        <option value="price">Performance by Prices</option>
+        <option value="quantity">Performance by Quantity</option>
+      </select>
+      <select id="product-period-select" onchange="fetchProductPerformanceData($('#product-performance-select').val(), this.value);">
         <option value="Daily">Daily</option>
         <option value="Weekly">Weekly</option>
         <option value="Monthly">Monthly</option>
@@ -136,7 +140,7 @@ $benchmarkSales = [
       // Fetch daily expenses and true profit data when the page loads
       fetchExpensesAndTrueProfitData('Daily');
       // Fetch product performance data when the page loads
-      fetchProductPerformanceData('Daily');
+      fetchProductPerformanceData('price', 'Daily');
       // Set the default period select value to 'Daily'
       $('#period-select').val('Daily');
       $('#product-period-select').val('Daily');
@@ -249,25 +253,8 @@ $benchmarkSales = [
       return <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
     }
 
-    // Function to sort product sales data by total price (descending order) and location
-    function sortProductSalesData(productSales) {
-      // Sort product sales data by total price (descending order)
-      productSales.sort(function(a, b) {
-        // Sort by total price
-        var totalPriceComparison = parseFloat(b.total_price) - parseFloat(a.total_price);
-        if (totalPriceComparison !== 0) {
-          return totalPriceComparison;
-        } else {
-          // If total price is the same, sort by location name
-          return a.location_name.localeCompare(b.location_name);
-        }
-      });
-
-      return productSales;
-    }
-
     // Function to fetch and display product performance data
-    function fetchProductPerformanceData(period) {
+    function fetchProductPerformanceData(sortType, period) {
       $.ajax({
         url: 'fetchSalesStats.php',
         type: 'POST',
@@ -278,13 +265,21 @@ $benchmarkSales = [
             // Extract product sales data from the response
             var productSales = response.data.product_sales;
 
-            // Sort product sales data
-            productSales = sortProductSalesData(productSales);
+            // Sort product sales data based on the selected sort type
+            if (sortType === 'price') {
+              productSales.sort(function(a, b) {
+                return b.total_price - a.total_price; // Sort by total price (descending)
+              });
+            } else if (sortType === 'quantity') {
+              productSales.sort(function(a, b) {
+                return b.total_quantity - a.total_quantity; // Sort by total quantity (descending)
+              });
+            }
 
             // Construct HTML for displaying product performance
             var html = '<ul>';
             productSales.forEach(function(product) {
-              html += '<li>' + product.product_name + ' (' + product.category + ') - ' + product.total_price.toLocaleString() + ' (' + product.location_name + ')</li>';
+              html += '<li>' + product.product_name + ' (' + product.category + ') - ' + (sortType === 'price' ? product.total_price : product.total_quantity).toLocaleString() + ' (' + product.location_name + ')</li>';
             });
             html += '</ul>';
 

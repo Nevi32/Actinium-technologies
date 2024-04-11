@@ -45,21 +45,23 @@ try {
     // Initialize sales report
     $salesReport = array(
         'total_sales' => 0,
+        'total_quantity' => 0,
         'store_sales' => array(),
         'product_sales' => array()
     );
 
     // Fetch total sales made by Lucys Duka store within the period
     foreach ($storeIds as $storeId) {
-        $stmtTotalSales = $pdo->prepare("SELECT SUM(total_price) AS total_sales FROM sales WHERE store_id = ? AND DATE(record_date) >= ? AND DATE(record_date) <= ?");
+        $stmtTotalSales = $pdo->prepare("SELECT SUM(total_price) AS total_sales, SUM(quantity_sold) AS total_quantity FROM sales WHERE store_id = ? AND DATE(record_date) >= ? AND DATE(record_date) <= ?");
         $stmtTotalSales->execute([$storeId, $startDate, $endDate]);
         $totalSales = $stmtTotalSales->fetch(PDO::FETCH_ASSOC);
         
-        // Add total sales to the report
+        // Add total sales and total quantity to the report
         $salesReport["total_sales"] += (float)$totalSales['total_sales'];
+        $salesReport["total_quantity"] += (float)$totalSales['total_quantity'];
 
         // Fetch total sales for each store related to Lucys Duka
-        $stmtStoreSales = $pdo->prepare("SELECT location_name, SUM(total_price) AS total_sales FROM sales JOIN stores ON sales.store_id = stores.store_id WHERE stores.store_id = ? AND DATE(sales.record_date) >= ? AND DATE(sales.record_date) <= ? GROUP BY stores.location_name");
+        $stmtStoreSales = $pdo->prepare("SELECT location_name, SUM(total_price) AS total_sales, SUM(quantity_sold) AS total_quantity FROM sales JOIN stores ON sales.store_id = stores.store_id WHERE stores.store_id = ? AND DATE(sales.record_date) >= ? AND DATE(sales.record_date) <= ? GROUP BY stores.location_name");
         $stmtStoreSales->execute([$storeId, $startDate, $endDate]);
         $storeSales = $stmtStoreSales->fetchAll(PDO::FETCH_ASSOC);
 
@@ -67,7 +69,7 @@ try {
         $salesReport["store_sales"] = array_merge($salesReport["store_sales"], $storeSales);
 
         // Fetch total sales for each product related to Lucys Duka
-        $stmtProductSales = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, SUM(sales.total_price) AS total_price, stores.location_name FROM sales JOIN main_entry ON sales.main_entry_id = main_entry.main_entry_id JOIN stores ON sales.store_id = stores.store_id WHERE main_entry.store_id = ? AND DATE(sales.record_date) >= ? AND DATE(sales.record_date) <= ? GROUP BY main_entry.product_name, main_entry.category, stores.location_name");
+        $stmtProductSales = $pdo->prepare("SELECT main_entry.product_name, main_entry.category, SUM(sales.total_price) AS total_price, SUM(sales.quantity_sold) AS total_quantity, stores.location_name FROM sales JOIN main_entry ON sales.main_entry_id = main_entry.main_entry_id JOIN stores ON sales.store_id = stores.store_id WHERE main_entry.store_id = ? AND DATE(sales.record_date) >= ? AND DATE(sales.record_date) <= ? GROUP BY main_entry.product_name, main_entry.category, stores.location_name");
         $stmtProductSales->execute([$storeId, $startDate, $endDate]);
         $productSales = $stmtProductSales->fetchAll(PDO::FETCH_ASSOC);
 
@@ -95,4 +97,3 @@ try {
     echo json_encode($response);
 }
 ?>
-
