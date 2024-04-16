@@ -18,7 +18,7 @@ $username = $_SESSION['username'];
 // Define benchmark sales for different stores
 $benchmarkSales = [
     'Nevistore' => 5000, // Example benchmark for Nevistore
-    'TrevorStore' => 7000,
+    'Tevstore' => 7000,
     'XYZ Supermarket' => 10000
     // Add more stores and their benchmarks here
 ];
@@ -137,10 +137,6 @@ $benchmarkSales = [
     $(document).ready(function() {
       // Fetch daily sales data when the page loads
       fetchDailySalesData();
-      // Fetch daily expenses and true profit data when the page loads
-      fetchExpensesAndTrueProfitData('Daily');
-      // Fetch product performance data when the page loads
-      fetchProductPerformanceData('price', 'Daily');
       // Set the default period select value to 'Daily'
       $('#period-select').val('Daily');
       $('#product-period-select').val('Daily');
@@ -153,12 +149,10 @@ $benchmarkSales = [
         data: { period: 'Daily' },
         dataType: 'json',
         success: function(response) {
-          // Check if the response contains the necessary data
           if (response.success) {
-            // Extract total sales from the response
             var totalSales = response.data.total_sales;
 
-            // Update badge message based on comparison with benchmark sales
+            // Always update badge message
             var benchmark = getBenchmarkSales();
             if (benchmark !== undefined) {
               if (totalSales > benchmark) {
@@ -171,11 +165,17 @@ $benchmarkSales = [
               $('#badge-message').text('Error: Benchmark sales not defined for this store.');
             }
 
-            // Update sales message with Ksh currency
+            // Update sales message
             $('#sales-message').html('Today\'s total sales: Ksh ' + totalSales.toLocaleString());
 
-            // Fetch profit data
+            // Fetch and update profit data regardless of benchmark comparison
             fetchDailyProfitData(totalSales);
+
+            // Fetch and update expenses and true profit data regardless of benchmark comparison
+            fetchExpensesAndTrueProfitData('Daily');
+
+            // Fetch and update product performance data regardless of benchmark comparison
+            fetchProductPerformanceData('price', 'Daily');
           } else {
             console.error('Error fetching daily sales data:', response.error);
             $('#badge-message').text('Error fetching daily sales data. Please try again later.');
@@ -188,7 +188,7 @@ $benchmarkSales = [
       });
     }
 
-    function fetchDailyProfitData(sales) {
+   function fetchDailyProfitData(sales) {
       $.ajax({
         url: 'fetchProfitStats.php',
         type: 'POST',
@@ -211,7 +211,7 @@ $benchmarkSales = [
       });
     }
 
-    function fetchExpensesAndTrueProfitData(period) {
+   function fetchExpensesAndTrueProfitData(period) {
       $.ajax({
         url: 'fetchTrueProfitStats.php',
         type: 'POST',
@@ -252,8 +252,7 @@ $benchmarkSales = [
       var storeName = getStoreName();
       return <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
     }
-
-    // Function to fetch and display product performance data
+     // Function to fetch and display product performance data
     function fetchProductPerformanceData(sortType, period) {
       $.ajax({
         url: 'fetchSalesStats.php',
@@ -275,7 +274,6 @@ $benchmarkSales = [
                 return b.total_quantity - a.total_quantity; // Sort by total quantity (descending)
               });
             }
-
             // Construct HTML for displaying product performance
             var html = '<ul>';
             productSales.forEach(function(product) {
@@ -296,6 +294,10 @@ $benchmarkSales = [
         }
       });
     }
+
+      
+
   </script>
 </body>
 </html>
+
