@@ -30,6 +30,8 @@ body, html {
   align-items: flex-start;
   position: fixed;
   height: 100%;
+  overflow-y: auto; /* Enable vertical scrolling */
+  border-right: 1px solid #fff; /* Add border to indicate scrollable area */
 }
 
 #sidebar a {
@@ -152,6 +154,28 @@ body, html {
 }
 
 /* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+  .row {
+    flex-direction: column; /* Stack cards vertically on smaller screens */
+  }
+
+  .card, .stock-satellite-stores {
+    width: 100%; /* Make cards take full width on smaller screens */
+    height: auto; /* Let height adjust automatically */
+    margin: 10px 0; /* Adjust margin for spacing */
+  }
+}
+/* Media queries for responsiveness */
+/* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+  #sidebar {
+    width: 120px; /* Reduce sidebar width on smaller screens */
+  }
+
+  #content {
+    margin-left: 140px; /* Adjust main content margin to accommodate the narrower sidebar */
+  }
+}
 
 </style>
 
