@@ -100,10 +100,20 @@ $benchmarkSales = [
     </div>
     <div class="sales-card card">
       <h2>Sales Card</h2>
+      <select id="sales-period-select" onchange="fetchSalesData(this.value);">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+      </select>
       <p id="sales-message">Loading...</p>
     </div>
     <div class="profit-card card">
       <h2>Profit Card</h2>
+      <select id="profit-period-select" onchange="fetchProfitData(this.value);">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+      </select>
       <p id="profit-message">Loading...</p>
     </div>
     <div class="expenses-profit-card card">
@@ -135,124 +145,106 @@ $benchmarkSales = [
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function() {
-      // Fetch daily sales data when the page loads
-      fetchDailySalesData();
-      // Set the default period select value to 'Daily'
-      $('#period-select').val('Daily');
-      $('#product-period-select').val('Daily');
+      // Fetch initial data when the page loads
+      fetchInitialData();
     });
 
-    function fetchDailySalesData() {
+    // Function to fetch all data when the page loads
+    function fetchInitialData() {
+      fetchBadgeData();
+      fetchSalesData('Daily');
+      fetchProfitData('Daily');
+      fetchExpensesAndTrueProfitData('Daily');
+      fetchProductPerformanceData('price', 'Daily');
+    }
+
+    // Function to fetch badge data
+    function fetchBadgeData() {
+      var benchmark = <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
+      var totalSales = <?php echo isset($totalSalesToday) ? $totalSalesToday : 0; ?>; // Assume you have this data available
+      if (totalSales > benchmark) {
+        $('#badge-message').html('Congratulations, <strong><?php echo $username; ?></strong>! Today\'s sales exceeded the benchmark! 🎉');
+      } else {
+        $('#badge-message').html('Sorry, <strong><?php echo $username; ?></strong>. Today\'s sales did not exceed the benchmark. 😔');
+      }
+    }
+
+    // Function to fetch sales data
+    function fetchSalesData(period) {
       $.ajax({
         url: 'fetchSalesStats.php',
-        type: 'POST',
-        data: { period: 'Daily' },
-        dataType: 'json',
-        success: function(response) {
-          if (response.success) {
-            var totalSales = response.data.total_sales;
-
-            // Always update badge message
-            var benchmark = getBenchmarkSales();
-            if (benchmark !== undefined) {
-              if (totalSales > benchmark) {
-                $('#badge-message').html('Congratulations, <strong><?php echo $username; ?></strong>! Today\'s sales exceeded the benchmark! 🎉');
-              } else {
-                $('#badge-message').html('Sorry, <strong><?php echo $username; ?></strong>. Today\'s sales did not exceed the benchmark. 😔');
-              }
-            } else {
-              console.error('Benchmark sales not defined for store: ' + getStoreName());
-              $('#badge-message').text('Error: Benchmark sales not defined for this store.');
-            }
-
-            // Update sales message
-            $('#sales-message').html('Today\'s total sales: Ksh ' + totalSales.toLocaleString());
-
-            // Fetch and update profit data regardless of benchmark comparison
-            fetchDailyProfitData(totalSales);
-
-            // Fetch and update expenses and true profit data regardless of benchmark comparison
-            fetchExpensesAndTrueProfitData('Daily');
-
-            // Fetch and update product performance data regardless of benchmark comparison
-            fetchProductPerformanceData('price', 'Daily');
-          } else {
-            console.error('Error fetching daily sales data:', response.error);
-            $('#badge-message').text('Error fetching daily sales data. Please try again later.');
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error("Error fetching daily sales data:", error);
-          $('#badge-message').text('Error fetching daily sales data. Please try again later.');
-        }
-      });
-    }
-
-   function fetchDailyProfitData(sales) {
-      $.ajax({
-        url: 'fetchProfitStats.php',
-        type: 'POST',
-        data: { period: 'Daily' }, // Pass period as Daily
-        dataType: 'json',
-        success: function(response) {
-          if (response.success) {
-            var profit = response.data.profit;
-            // Update profit message with Ksh currency
-            $('#profit-message').html('Today\'s total profit: Ksh ' + profit.toLocaleString());
-          } else {
-            console.error('Error fetching daily profit data:', response.error);
-            $('#profit-message').text('Error fetching daily profit data. Please try again later.');
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error("Error fetching daily profit data:", error);
-          $('#profit-message').text('Error fetching daily profit data. Please try again later.');
-        }
-      });
-    }
-
-   function fetchExpensesAndTrueProfitData(period) {
-      $.ajax({
-        url: 'fetchTrueProfitStats.php',
         type: 'POST',
         data: { period: period },
         dataType: 'json',
         success: function(response) {
           if (response.success) {
-            var expenses = response.data.total_expenses;
-            var trueProfit = response.data.true_profit;
-
-            // Update expenses message
-            $('#expenses-message').html('Total Expenses: ');
-            for (var expenseType in expenses) {
-              $('#expenses-message').append(expenseType + ': Ksh ' + expenses[expenseType].toLocaleString() + ', ');
-            }
-
-            // Update true profit message
-            $('#true-profit-message').html('True Profit: Ksh ' + trueProfit.toLocaleString());
+            $('#sales-message').html('Today\'s total sales: Ksh ' + response.data.total_sales.toLocaleString());
           } else {
-            console.error('Error fetching expenses and true profit data:', response.error);
-            $('#expenses-message').text('Error fetching data. Please try again later.');
+            console.error('Error fetching sales data:', response.error);
+            $('#sales-message').text('Error fetching sales data. Please try again later.');
           }
         },
         error: function(xhr, status, error) {
-          console.error("Error fetching expenses and true profit data:", error);
-          $('#expenses-message').text('Error fetching data. Please try again later.');
+          console.error("Error fetching sales data:", error);
+          $('#sales-message').text('Error fetching sales data. Please try again later.');
         }
       });
     }
 
-    // Function to get the store name
-    function getStoreName() {
-      return $('#store-name').text();
+    // Function to fetch profit data
+    function fetchProfitData(period) {
+      $.ajax({
+        url: 'fetchProfitStats.php',
+        type: 'POST',
+        data: { period: period },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            $('#profit-message').html('Today\'s total profit: Ksh ' + response.data.profit.toLocaleString());
+          } else {
+            console.error('Error fetching profit data:', response.error);
+            $('#profit-message').text('Error fetching profit data. Please try again later.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Error fetching profit data:", error);
+          $('#profit-message').text('Error fetching profit data. Please try again later.');
+        }
+      });
     }
+     // Function to fetch expenses and true profit data
+function fetchExpensesAndTrueProfitData(period) {
+  $.ajax({
+    url: 'fetchTrueProfitStats.php',
+    type: 'POST',
+    data: { period: period },
+    dataType: 'json',
+    success: function(response) {
+      if (response.success) {
+        var expenses = response.data.total_expenses;
+        var trueProfit = response.data.true_profit;
 
-    // Function to get the benchmark sales for the current store
-    function getBenchmarkSales() {
-      var storeName = getStoreName();
-      return <?php echo isset($benchmarkSales[$storeName]) ? $benchmarkSales[$storeName] : 'undefined'; ?>;
+        // Update expenses message
+        var expensesMessage = 'Total Expenses: ';
+        for (var expenseType in expenses) {
+          expensesMessage += expenseType + ': Ksh ' + expenses[expenseType].toLocaleString() + ', ';
+        }
+        $('#expenses-message').html(expensesMessage);
+
+        // Update true profit message
+        $('#true-profit-message').html('True Profit: Ksh ' + trueProfit.toLocaleString());
+      } else {
+        console.error('Error fetching expenses and true profit data:', response.error);
+        $('#expenses-message').text('Error fetching data. Please try again later.');
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("Error fetching expenses and true profit data:", error);
+      $('#expenses-message').text('Error fetching data. Please try again later.');
     }
-     // Function to fetch and display product performance data
+  });
+}
+   // Function to fetch and display product performance data
     function fetchProductPerformanceData(sortType, period) {
       $.ajax({
         url: 'fetchSalesStats.php',
@@ -279,7 +271,7 @@ $benchmarkSales = [
             productSales.forEach(function(product) {
               html += '<li>' + product.product_name + ' (' + product.category + ') - ' + (sortType === 'price' ? product.total_price : product.total_quantity).toLocaleString() + ' (' + product.location_name + ')</li>';
             });
-            html += '</ul>';
+              html += '</ul>';
 
             // Display product performance data
             $('#product-performance-message').html(html);
@@ -294,9 +286,6 @@ $benchmarkSales = [
         }
       });
     }
-
-      
-
   </script>
 </body>
 </html>
