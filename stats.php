@@ -17,9 +17,9 @@ $username = $_SESSION['username'];
 
 // Define benchmark sales for different stores
 $benchmarkSales = [
-    'Nevistore' => 5000, // Example benchmark for Nevistore
+    'Nevishoes' => 12000, // Example benchmark for Nevistore
     'Tevstore' => 7000,
-    'XYZ Supermarket' => 10000
+    'Lucyhair' => 10000
     // Add more stores and their benchmarks here
 ];
 
