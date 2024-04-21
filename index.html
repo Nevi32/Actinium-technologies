@@ -8,8 +8,9 @@
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
-            background-color: #ffffff;
-            overflow: hidden;
+            overflow: hidden; /* Remove overflow: hidden */
+            background: url('pics/smart-inventory-management-system.jpg.webp') no-repeat center center fixed; /* Set background image */
+            background-size: cover; /* Cover the entire background */
         }
 
         .container {
@@ -19,7 +20,7 @@
 
         .left-side {
             flex: 1;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.8); /* Add background color with transparency */
             padding: 30px;
             display: flex;
             flex-direction: column;
@@ -70,9 +71,13 @@
         }
 
         .right-side img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            display: none; /* Hide the image */
+        }
+
+        @media screen and (max-width: 768px) { /* Add media query for smaller screens */
+            body {
+                overflow-y: scroll; /* Enable vertical scrolling */
+            }
         }
     </style>
 </head>
@@ -89,10 +94,6 @@
             <a href="login.html" class="button button-login">Login</a>
             <a href="registerX.php" class="button button-signup">Sign Up</a>
         </div>
-    </div>
-
-    <div class="right-side">
-        <img src="pics/smart-inventory-management-system.jpg.webp" alt="Background Image">
     </div>
 </div>
 
@@ -113,4 +114,3 @@
 
 </body>
 </html>
-
