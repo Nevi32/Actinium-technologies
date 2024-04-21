@@ -377,7 +377,15 @@ function calculateTotalPrice(price, entryCount) {
   }
 }
 
+// Function to close receipt popup and refresh the page
+function closeReceipt() {
+  const receiptPopup = document.getElementById('receiptPopup');
+  receiptPopup.style.display = 'none';
+  
+  // Reload the page
+  location.reload();
+}
+
   </script>
 </body>
 </html>
-

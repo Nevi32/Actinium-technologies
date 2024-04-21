@@ -39,6 +39,17 @@ body, html {
   margin-right: 10px;
 }
 
+    #content {
+      margin-left: 220px; /* Adjusted to accommodate the sidebar */
+    }
+#sidebar a:not(:last-child) {
+    margin-bottom: 100px; /* Increased margin for better separation */
+}
+
+#welcome-message {
+    margin-bottom: 20px; /* Added margin for better separation */
+}
+
 </style>
 </head>
 <body>

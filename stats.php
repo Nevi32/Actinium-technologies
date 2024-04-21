@@ -39,12 +39,43 @@ $benchmarkSales = [
       display: flex;
     }
 
-    #sidebar {
+       #sidebar {
       width: 200px;
       background-color: #333;
       color: #fff;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: fixed;
+      height: 100%;
+      overflow-y: auto; /* Enable vertical scrolling */
+      border-right: 1px solid #fff; /* Add border to indicate scrollable area */
     }
+
+    #sidebar a {
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 15px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    #sidebar i {
+      margin-right: 10px;
+    }
+
+    #content {
+      margin-left: 220px; /* Adjusted to accommodate the sidebar */
+    }
+#sidebar a:not(:last-child) {
+    margin-bottom: 100px; /* Increased margin for better separation */
+}
+
+#welcome-message {
+    margin-bottom: 20px; /* Added margin for better separation */
+}
 
     #content {
       flex-grow: 1;
