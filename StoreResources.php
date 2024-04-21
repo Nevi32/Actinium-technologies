@@ -7,7 +7,39 @@
     <link rel="stylesheet" href="SRstyles.css">
     <!-- In the head section of your HTML files -->
    <link rel="stylesheet" type="text/css" href="main.css">
+<style>
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
+#sidebar {
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;
+  height: 100%;
+  overflow-y: auto; /* Enable vertical scrolling */
+  border-right: 1px solid #fff; /* Add border to indicate scrollable area */
+}
+#sidebar a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
 
+#sidebar i {
+  margin-right: 10px;
+}
+
+</style>
 </head>
 <body>
 <?php

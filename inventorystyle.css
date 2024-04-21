@@ -70,7 +70,7 @@ body, html {
 #content {
     flex: 1;
     padding: 20px;
-    margin-left: 240px; /* Adjusted for sidebar width */
+    margin-left: 300px; /* Adjusted for sidebar width */
     overflow-y: auto;
 }
 

@@ -28,33 +28,48 @@ body, html {
     min-height: 100vh;
 }
 
-/* Sidebar styles */
-#sidebar {
-    width: 150px;
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    position: fixed;
-    height: 100%;
-}
 
-#sidebar a {
-    color: #fff;
-    text-decoration: none;
-    margin-bottom: 15px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
+    #sidebar {
+      width: 180px;
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: fixed;
+      height: 100%;
+      overflow-y: auto; /* Enable vertical scrolling */
+      border-right: 1px solid #fff; /* Add border to indicate scrollable area */
+    }
 
-#sidebar i {
-    margin-right: 10px;
-}
+    #sidebar a {
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 15px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
 
+    #sidebar i {
+      margin-right: 10px;
+    }
+
+    #content {
+      margin-left: 220px; /* Adjusted to accommodate the sidebar */
+    }
+
+    /* Media queries for responsiveness */
+    @media screen and (max-width: 768px) {
+      #sidebar {
+        width: 120px; /* Reduce sidebar width on smaller screens */
+      }
+
+      #content {
+        margin-left: 140px; /* Adjust main content margin to accommodate the narrower sidebar */
+      }
+    }
 #sidebar a:not(:last-child) {
     margin-bottom: 100px;
 }
