@@ -119,6 +119,7 @@ $benchmarkSales = [
         <p>Welcome, <?php echo $username; ?></p> <!-- Display the username -->
       </div>
       <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      <a href="stats.html">Stat reports</a>
     </nav>
   </div>
 
