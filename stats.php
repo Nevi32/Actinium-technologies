@@ -174,7 +174,7 @@ $benchmarkSales = [
   </div>
 
   <!-- jQuery library -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="jquery-3.6.0.min.js"></script> <!-- Load local copy of jQuery -->
   <script>
     $(document).ready(function() {
       // Fetch initial data when the page loads
@@ -321,4 +321,3 @@ function fetchExpensesAndTrueProfitData(period) {
   </script>
 </body>
 </html>
-
