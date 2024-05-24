@@ -380,12 +380,44 @@ function fetchMainSalesData() {
             // Additional info buttons for each sale (if needed)
         }
 
-         // Function to show detailed entries in the modal
-function showDetailedEntries(saleId) {
-    const detailedSale = salesData.find(function(sale) {
-        return sale.sale_id === saleId;
-    });
+        function showDetailedEntries(saleId) {
+    // Function to find sale in mainstore sales data
+    function findSaleInMainStore(saleId) {
+        return <?php echo json_encode($_SESSION['mainstore_sales_data'] ?? []); ?>.find(function(sale) {
+            return sale.sale_id === saleId;
+        });
+    }
 
+    // Function to find sale in satellite sales data
+    function findSaleInSatelliteStores(saleId) {
+        const satelliteSalesData = <?php echo json_encode($_SESSION['satellite_sales_data'] ?? []); ?>;
+        let sale = null;
+        Object.values(satelliteSalesData).forEach(function(storeSales) {
+            const foundSale = storeSales.find(function(sale) {
+                return sale.sale_id === saleId;
+            });
+            if (foundSale) {
+                sale = foundSale;
+            }
+        });
+        return sale;
+    }
+
+    // Find sale in mainstore sales data
+    let detailedSale = findSaleInMainStore(saleId);
+
+    // If sale not found in mainstore, try satellite sales data
+    if (!detailedSale) {
+        detailedSale = findSaleInSatelliteStores(saleId);
+    }
+
+    // If sale still not found, log an error and return
+    if (!detailedSale) {
+        console.error("Sale with ID " + saleId + " not found.");
+        return;
+    }
+
+    // Display detailed sale information
     var modalBody = document.querySelector('#modal-body-content');
     modalBody.innerHTML = `
         <p>Product Name: ${detailedSale.product_name}</p>
