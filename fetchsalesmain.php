@@ -28,7 +28,7 @@ try {
         $mainStoreId = $mainStoreData['store_id'];
 
         // Fetch main store sales data
-        $mainSalesStmt = $pdo->prepare("SELECT e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date
+        $mainSalesStmt = $pdo->prepare("SELECT s.sale_id, e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date
                                         FROM sales s
                                         INNER JOIN main_entry e ON s.main_entry_id = e.main_entry_id
                                         WHERE s.store_id = ?");
@@ -46,7 +46,7 @@ try {
             $satelliteLocationName = $satelliteStore['location_name'];
 
             // Fetch sales data for satellite stores associated with the main store
-            $satelliteSalesStmt = $pdo->prepare("SELECT e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date
+            $satelliteSalesStmt = $pdo->prepare("SELECT s.sale_id,e.product_name, e.category, e.quantity_description, s.quantity_sold, s.total_price, s.record_date
                                                 FROM sales s
                                                 INNER JOIN main_entry e ON s.main_entry_id = e.main_entry_id
                                                 WHERE s.store_id = ?");
