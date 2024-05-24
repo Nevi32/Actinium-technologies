@@ -63,7 +63,7 @@ try {
         exit();
     } elseif ($storeType === 'satellite') {
         // Fetch sales data for the satellite store
-        $salesQuery = "SELECT s.sale_id, s.main_entry_id, s.quantity_sold, s.total_price, s.record_date,
+        $salesQuery = "SELECT s.sale_id, s.main_entry_id, s.quantity_sold, s.total_price, s.record_date, m.category, 
                               m.product_name, m.total_quantity, m.quantity_description
                        FROM sales s
                        LEFT JOIN main_entry m ON s.main_entry_id = m.main_entry_id

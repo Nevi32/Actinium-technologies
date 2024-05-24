@@ -310,7 +310,9 @@ session_start();
         var modalBody = document.querySelector('#modal-body-content');
         modalBody.innerHTML = `
             <p>Product Name: ${detailedSale.product_name}</p>
+            <p>Category: ${detailedSale.category}</p>
             <p>Quantity Sold: ${detailedSale.quantity_sold}</p>
+            <p>Quantity Description: ${detailedSale.quantity_description}</p>
             <p>Total Price: ${detailedSale.total_price}</p>
             <p>Sale Date: ${detailedSale.record_date}</p>
         `;
